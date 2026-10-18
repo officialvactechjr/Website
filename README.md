@@ -46,8 +46,10 @@ Read these in order before changing anything:
 
 ## Deploy
 
-Push to `main`; Vercel builds and deploys automatically (`vercel.json` sends every route to
-`index.html` so client-side routing works). Set the two environment variables in the Vercel
-project settings as well.
+Push to `main`; Cloudflare Pages builds and deploys automatically (React/Vite preset, build command
+`npm run build`, output directory `dist`; unknown routes fall back to `index.html` so client-side
+routing works). Set the environment variables in the Cloudflare Pages project settings as well:
+`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and `NODE_VERSION=22`. `vercel.json` is left over from
+the original plan and is unused.
 
 A full handover guide is written in Phase 8.

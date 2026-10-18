@@ -3,7 +3,7 @@
 **Product Requirements Document**
 Project: Official website and member platform for VAC Tech Jr, the IT Club of Vishwa Adarsha Academy (+2)
 Status: Pre-development
-Stack: React (Vite) + Tailwind CSS + Supabase + Vercel
+Stack: React (Vite) + Tailwind CSS + Supabase + Cloudflare Pages
 
 > Read order for any developer or AI: `PRD.md` → `ARCHITECTURE.md` → `DESIGN.md` → `PHASES.md` → `MEMORY.md` (always last, it shows the current state).
 
@@ -139,7 +139,7 @@ IDs are used in `PHASES.md` and `MEMORY.md` for tracking.
 | Security | RLS on every table; no secrets in frontend; service role key only in Edge Functions |
 | Accessibility | Keyboard navigable, visible focus, alt text, sufficient contrast |
 | Maintainability | Simple tools, all SQL in migration files, handover guide |
-| Cost | Free tiers only (Supabase, Vercel, Resend or Brevo) |
+| Cost | Free tiers only (Supabase, Cloudflare Pages, Resend or Brevo) |
 
 ## 8. Data privacy and consent
 
@@ -155,7 +155,7 @@ IDs are used in `PHASES.md` and `MEMORY.md` for tracking.
 | Application → account | Manual: team approves, then creates the account with a prefilled form |
 | Suggestion box | Anonymous to readers |
 | Ranking | Manual points only in v1 |
-| Website address | Free Vercel address first; custom domain later |
+| Website address | Free Cloudflare Pages address first (`officialvactechjr/Website`); custom domain later |
 | Super Admin | A teacher or IT staff member, to be agreed in writing (OPEN) |
 | Public display permission | Consent line on form + school permission for photos (OPEN: get written approval) |
 
@@ -165,7 +165,7 @@ IDs are used in `PHASES.md` and `MEMORY.md` for tracking.
 - [ ] Get written permission for showing names, photos and work
 - [ ] Choose email provider (Resend or Brevo) and sender address
 - [ ] Final club logo and brand colors (see `DESIGN.md`)
-- [ ] Create the official club GitHub, Supabase and Vercel accounts (not personal)
+- [x] Create the official club GitHub, Supabase and Cloudflare Pages accounts (not personal)
 
 ## 11. Success criteria
 

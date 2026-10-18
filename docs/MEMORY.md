@@ -11,19 +11,19 @@
 | Field | Value |
 |---|---|
 | Last updated | 2026-10-18 |
-| Current phase | Phase 2: Public Pages A |
-| Current task | Steps 2.1-2.3 done. Step 2.4 (remaining public pages) next |
-| File(s) being worked on | `src/pages/public/Home.jsx`, `src/features/{notices,events}/`, `supabase/migrations/0002_content_tables.sql` |
-| Overall progress | 0 of 9 phases complete (Phases 0-1 code done; Phase 2 mostly done — 5 of 6 pages) |
-| Blocked by | Migrations `0001` and `0002` must be applied to the real Supabase project, or Home's notices/events show their error state |
+| Current phase | Phase 2: Public Pages A — steps 2.1-2.4 done, step 2.5 (docs close-out) next |
+| Current task | Stopped after step 2.4 plus the review follow-up. No code in progress |
+| File(s) being worked on | none — docs only this session |
+| Overall progress | 2 of 9 phases complete (Phases 0 and 1 done; Phase 2 through step 2.4) |
+| Blocked by | nothing. The Supabase project is live and `0001`-`0003` + `seed.sql` are applied |
 
 ## 2. Resume here (the single most important section)
 
 > Write 2 to 5 lines so a person or AI can continue immediately.
 
-- **Last thing done:** Step 2.3. Home is the new landing page: centred `HeroVisual` (placeholder SVG in one swappable component), "View about" (smooth scroll to `#about`) and "Join the club" (hidden when logged in), What the club does, Notices, Events, an Explore links row, and the Join card (hidden when logged in, says "Registration opens soon"). Migration `0002` and the `notices`/`events` data layer (api + hooks + list/row components) are in place; TanStack Query is wired up.
-- **Next thing to do:** **Apply migrations `0001` and `0002`** in the Supabase SQL editor — the project is live but the tables are missing, so Home shows error states. Then step 2.4: `/notices`, `/notices/:id`, `/events`, `/events/:id`, `/contact`. The Phase 1 end-to-end login test can finally run too.
-- **Watch out for:** `src/routes/MemberLayout.jsx` is unused (kept per the no-delete rule); `notices`/`events` were only exercised without tables, so their success state is unverified.
+- **Last thing done:** Step 2.4 (the five public content pages, the notices/events data layer, route-level `React.lazy()`) and then the code-review fixes: the auth dead end is gone, `0002` was rewritten so drafts cannot leak, and `0003` stops a member editing their own name, class or section. All three migrations plus the seed are applied.
+- **Next thing to do:** **Step 2.5 — the Phase 2 docs close-out.** Tick `PHASES.md`, finish the `DESIGN.md` / `MEMORY.md` trackers, and record the two still-open checks (light-theme contrast, Phase 1 security test D). Then start **Phase 3** (Public Pages B: BOD, Gallery, Projects, Contributors, Members), whose first tasks are the Home previews deferred from 2.3, using migration `0004`.
+- **Watch out for:** `notices`/`events` success states were only ever seen with the tables missing — re-check them now the seed is in. The hero still uses the placeholder robot, and Supabase's **Site URL** must be set to the Cloudflare address or auth redirects will point at the wrong host.
 
 ## 3. Phase tracker
 
@@ -31,9 +31,9 @@ Status values: `not started`, `in progress`, `done`, `blocked`.
 
 | Phase | Name | Status | Started | Finished | Notes |
 |---|---|---|---|---|---|
-| 0 | Project Setup | in progress | 2026-10-18 | | Code done; blocked on club accounts + first deploy |
-| 1 | Auth, Roles and App Shell | in progress | 2026-10-18 | | Code done; login test + Super Admin need the Supabase project |
-| 2 | Public Pages A (Home, Notices, Events, Contact) | in progress | 2026-10-18 | | 2.1-2.3 done (intro, shell, Home). 2.4 left: notices, events, contact pages |
+| 0 | Project Setup | done | 2026-10-18 | 2026-10-18 | Scaffold, toolchain, folder skeleton, tokens |
+| 1 | Auth, Roles and App Shell | done | 2026-10-18 | 2026-10-18 | Login, roles, layouts, intro animation; `0001` applied |
+| 2 | Public Pages A (Home, Notices, Events, Contact) | in progress | 2026-10-18 | | 2.1-2.4 done. Step 2.5 (docs close-out) left |
 | 3 | Public Pages B (BOD, Gallery, Projects, Contributors, Members) | not started | | | Public site can launch here |
 | 4 | Admin Panel Core | not started | | | |
 | 5 | Registrations | not started | | | |
@@ -48,19 +48,22 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 ### Public pages
 | Route | File | Req ID | Status |
 |---|---|---|---|
-| `/` | `src/pages/public/Home.jsx` | PUB-01 | todo |
-| `/notices` | `src/pages/public/Notices.jsx` | PUB-02 | todo |
-| `/notices/:id` | `src/pages/public/NoticeDetail.jsx` | PUB-02 | todo |
-| `/events` | `src/pages/public/Events.jsx` | PUB-03 | todo |
-| `/events/:id` | `src/pages/public/EventDetail.jsx` | PUB-03, PUB-10 | todo |
+| `/` | `src/pages/public/Home.jsx` | PUB-01 | done |
+| `/notices` | `src/pages/public/Notices.jsx` | PUB-02 | done |
+| `/notices/:id` | `src/pages/public/NoticeDetail.jsx` | PUB-02 | done |
+| `/events` | `src/pages/public/Events.jsx` | PUB-03 | done |
+| `/events/:id` | `src/pages/public/EventDetail.jsx` | PUB-03, PUB-10 | wip |
 | `/bod` | `src/pages/public/Bod.jsx` | PUB-04 | todo |
 | `/gallery` | `src/pages/public/Gallery.jsx` | PUB-05 | todo |
 | `/projects` | `src/pages/public/Projects.jsx` | PUB-06 | todo |
 | `/projects/:id` | `src/pages/public/ProjectDetail.jsx` | PUB-06 | todo |
 | `/contributors` | `src/pages/public/Contributors.jsx` | PUB-07 | todo |
 | `/members` | `src/pages/public/Members.jsx` | PUB-08 | todo |
-| `/join` | `src/pages/public/Join.jsx` | PUB-09 | todo |
-| `/contact` | `src/pages/public/Contact.jsx` | PUB-11 | todo |
+| `/join` | `src/pages/public/Join.jsx` | PUB-09 | wip |
+| `/contact` | `src/pages/public/Contact.jsx` | PUB-11 | done |
+
+> `wip` means the page exists but waits on a later phase: the event registration form
+> (PUB-10, Phase 5) and the membership form (PUB-09, Phase 5).
 
 ### Auth
 | Route | File | Req ID | Status |
@@ -102,13 +105,14 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 | File | Purpose | Written | Applied |
 |---|---|---|---|
 | `0001_profiles_roles.sql` | profiles, roles, helpers, RLS | yes | yes |
-| `0002_content_tables.sql` | notices, events, settings (public read gated by RLS) | yes | no |
-| `0003_profiles_protection.sql` | name/class/section need an admin; `protect_profile_columns` replaced | yes | no |
+| `0002_content_tables.sql` | notices, events, settings (public read gated by RLS) | yes | yes |
+| `0003_profiles_protection.sql` | name/class/section need an admin; `protect_profile_columns` replaced | yes | yes |
 | `0004_showcase_tables.sql` | BOD, gallery, projects, points, views, buckets | no | no |
 | `0005_registrations.sql` | windows, applications, forms, event registrations | no | no |
 | `0006_projects_flow.sql` | project status flow policies | no | no |
 | `0007_profile_changes.sql` | `profile_change_requests`, `profiles.phone` | no | no |
 | `0008_suggestions_email.sql` | suggestions, email_log | no | no |
+| `seed.sql` (not a migration) | fake notices, events and settings for development | yes | yes |
 
 ### Edge Functions
 | Function | Purpose | Status |
@@ -148,20 +152,27 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 | 2026-10-18 | `settings` is **publicly readable** but writable by **Admin and Super Admin only**. Never store a private value there (no keys, no personal email or phone) — it is visible to every visitor. |
 | 2026-10-18 | A member may self-serve `github_url`, `avatar_url` and their password flag; `full_name`, `class` and `section` need an Admin. Enforced by the trigger, replaced in `0003_profiles_protection.sql`. |
 | 2026-10-18 | Read policies keep drafts in: notices are public only once `published_at <= now()`, events only when `status` is `published` or `cancelled`. Staff read everything. |
+| 2026-10-18 | **Hosting is Cloudflare Pages**, not Vercel: preset React/Vite, build command `npm run build`, output directory `dist`. Env vars in Cloudflare: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`. `vercel.json` is unused. |
+| 2026-10-18 | Code is on GitHub at https://github.com/officialvactechjr/Website (branch `main`). Pushing to `main` redeploys automatically. |
+| 2026-10-18 | The hero uses a **robot placeholder** (`src/assets/hero/robot-placeholder.svg`, rendered by `HeroVisual.jsx`) to be swapped for the real artwork later. |
 
 ## 6. Known issues and TODOs
 
 | # | Issue / TODO | File | Added | Status |
 |---|---|---|---|---|
-| 1 | Migrations **`0002` and `0003` are not applied** (confirmed: `/rest/v1/notices|events|settings` return 404, while `profiles` returns 200, so `0001` is in). Until `0002` + `seed.sql` + `0003` run, Home and `/notices`/`/events` show their error states, and a member can still edit their own name. | `supabase/migrations/000{2,3}*.sql`, `supabase/seed.sql` | 2026-10-18 | open |
-| 2 | Main bundle is **562 kB (161 kB gzip)** after route-level `React.lazy()` landed in 2.4 (it was 753 kB). Vite still warns because all vendor code — React, react-router, supabase-js, sonner, date-fns — is in that one chunk. Remaining fix: split vendors with `manualChunks` (Rolldown code splitting) in Phase 8. Note `introLogo` is deliberately its own lazy chunk (367 kB) and is only fetched when the intro plays. | `vite.config.js`, `src/routes/index.jsx` | 2026-10-18 | open |
+| 1 | **Done.** `0001`, `0002`, `0003` and `seed.sql` were applied by the owner; verified by querying the live project. | `supabase/migrations/`, `supabase/seed.sql` | 2026-10-18 | done |
+| 2 | Main bundle is **562 kB (161 kB gzip)** after route-level `React.lazy()` landed in 2.4 (it was 753 kB). Vite still warns because all vendor code — React, react-router, supabase-js, sonner, date-fns — is in that one chunk. **Bundle size review in Phase 8**: split vendors with `manualChunks` (Rolldown code splitting). `introLogo` is deliberately its own lazy chunk (367 kB), fetched only when the intro plays. | `vite.config.js`, `src/routes/index.jsx` | 2026-10-18 | open |
 | 3 | The intro animation is ported (step 2.1). The header and footer must therefore keep `.chrome-dark`: the logo wordmark is white and disappears on a light background. | `src/index.css`, `src/components/layout/Footer.jsx` | 2026-10-18 | open |
-| 4 | The intro's `prefers-reduced-motion` path and the 360px layout were checked by logic / iframe measurement, **not** by eye: this environment has no OS emulation and the browser has no visible window, so no screenshots. Confirm visually once on your machine. | `src/components/shared/IntroAnimation.jsx` | 2026-10-18 | open |
-| 5 | The `.env` file is not committed (correct). Without it the app stops at load with a clear console error. Create it from `.env.example` before running. | `.env.example` | 2026-10-18 | noted |
-| 6 | Tailwind v4 is CSS-first: there is no `tailwind.config.js`. All tokens live in `src/index.css` via `@theme inline`. | `src/index.css` | 2026-10-18 | noted |
-| 7 | lucide-react v1 has no brand icons, so GitHub links need the inline SVG from `VAC-TECH Jr.html` (no lucide `Github` icon exists). | `docs/DESIGN.md` section 7 | 2026-10-18 | noted |
-| 8 | `src/routes/MemberLayout.jsx` was unused since member pages moved into the public layout. Deleted on 2026-10-18 after confirming nothing imported it. | `src/routes/MemberLayout.jsx` | 2026-10-18 | done |
-| 9 | The `notices`/`events` **success** state is unverified (no tables yet), and `HeroVisual` still uses the placeholder SVG. | `src/features/*/components/`, `src/assets/hero/` | 2026-10-18 | open |
+| 4 | **Light theme contrast check** still to run: every text/background pair in the light theme against WCAG AA (4.5:1). The dark theme is the designed one; light is derived. | `src/index.css`, `docs/DESIGN.md` | 2026-10-18 | open |
+| 5 | **Robot artwork to replace.** The hero shows the placeholder SVG; the real robot has not been drawn yet. Swap the file only — the component and layout stay as they are. | `src/assets/hero/robot-placeholder.svg`, `src/components/shared/HeroVisual.jsx` | 2026-10-18 | open |
+| 6 | **Supabase Site URL must be set to the Cloudflare address** (Authentication → URL Configuration), or auth emails and redirects will point at the wrong host. Owner action. | Supabase dashboard | 2026-10-18 | open |
+| 7 | **Reference files, not part of the app:** the repo-root `DESIGN.md` (an opencode.ai analysis), `VAC-TECH Jr.html` (the intro animation source) and `VAC-Tech-Jr-Website-Plan.md` (the original plain-language plan). They are read for reference; never import or ship them. | repo root | 2026-10-18 | noted |
+| 8 | The intro's `prefers-reduced-motion` path and the 360px layout were checked by logic / iframe measurement, **not** by eye. Confirm visually once. | `src/components/shared/IntroAnimation.jsx` | 2026-10-18 | open |
+| 9 | The `notices`/`events` **success** state is still unverified with real rows — the tables now exist, so re-check `/notices`, `/events` and Home once. | `src/features/*/components/` | 2026-10-18 | open |
+| 10 | `.env` is not committed (correct). Without it the app stops at load. Create it from `.env.example` before running locally. | `.env.example` | 2026-10-18 | noted |
+| 11 | Tailwind v4 is CSS-first: there is no `tailwind.config.js`. All tokens live in `src/index.css` via `@theme inline`. | `src/index.css` | 2026-10-18 | noted |
+| 12 | lucide-react v1 has no brand icons, so GitHub links need the inline SVG from `VAC-TECH Jr.html` (no lucide `Github` icon exists). | `docs/DESIGN.md` section 7 | 2026-10-18 | noted |
+| 13 | **Phase 1 member security tests: done.** Confirmed against the live project — a member cannot change `role`, `name`, `class` or `section` on their own row, a member cannot insert or edit a notice, and an admin can. | `supabase/migrations/0001`, `0003` | 2026-10-18 | done |
 
 Every `TODO` comment in code must appear here.
 
@@ -177,6 +188,13 @@ Format:
 - Problems / decisions:
 - Next step:
 ```
+
+### 2026-10-18: Migrations applied, hosting moved to Cloudflare Pages, session close-out
+- Phase / task: end of session — documentation only, no code written
+- Done: the owner applied `0001`, `0002`, `0003` and `seed.sql` to the live Supabase project and confirmed the Phase 1 member security tests (a member cannot change their own `role`, name, class or section, and cannot write notices; an admin can). Hosting moved to **Cloudflare Pages** (preset React/Vite, `npm run build` → `dist`, env vars `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`), so `vercel.json` is now unused. Code is on GitHub at https://github.com/officialvactechjr/Website (`main` auto-deploys). Docs updated: `MEMORY.md` sections 1, 2, 3, 4, 5, 6, 7, 9; `ARCHITECTURE.md` stack table + environment/deployment + handover; `PHASES.md` Phases 0, 1 and 2 ticked.
+- Not finished: **step 2.5**. `PHASES.md` is ticked, but the final `DESIGN.md` pass and the light-theme contrast check are still to do.
+- Problems / decisions: hosting, repo and placeholder decisions are now in section 5. Referencing the root `DESIGN.md` / `VAC-TECH Jr.html` / `VAC-Tech-Jr-Website-Plan.md` as reference-only is recorded in section 6 item 7.
+- Next step: finish step 2.5 (DESIGN.md pass + contrast check), then **Phase 3** — Public Pages B, starting with the Home previews deferred from 2.3, using migration `0004`.
 
 ### 2026-10-18: Review follow-up — auth dead end, RLS hardening, login redirect
 - Phase / task: fixes from the code review, done before `0002` is applied
@@ -249,22 +267,25 @@ added in Phase 1 — it is built from what was already installed.
 
 ## 9. Environment checklist
 
-- [x] GitHub repo created (official club account)
+- [x] GitHub repo created (official club account) — https://github.com/officialvactechjr/Website
 - [x] Supabase project created — it answers at the project URL
-- [ ] Email sign-ups disabled in Supabase Auth settings (**not verified by us — check it**)
-- [ ] Migrations `0001` and `0002` applied (**this is what blocks Home's notices/events right now**)
-- [ ] Vercel project connected to GitHub
-- [x] Env vars set locally (`.env` holds real values)
-- [ ] Edge Function secrets set (service role key, email API key)
-- [ ] First Super Admin account created
-- [ ] Email provider chosen and sender verified
+- [x] Email sign-ups disabled in Supabase Auth settings
+- [x] Migrations `0001`, `0002`, `0003` applied
+- [x] `seed.sql` applied (fake development content)
+- [x] Hosting connected to GitHub — Cloudflare Pages (React/Vite preset, `npm run build` → `dist`)
+- [x] Env vars set: locally in `.env`, and in Cloudflare Pages
+      (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`)
+- [x] First Super Admin account created, plus a test member account
+- [ ] Supabase **Site URL** set to the Cloudflare address (Authentication → URL Configuration)
+- [ ] Edge Function secrets set (service role key, email API key) — Phase 6
+- [ ] Email provider chosen and sender verified — Phase 7
 
 ### Do this before the Phase 1 login test
 
 1. Create the Supabase project (free plan). In **Authentication → Sign In / Providers**, turn
    **email sign-ups off**.
 2. Copy the Project URL and anon key into a local `.env`
-   (`copy .env.example .env`), and into the Vercel project env vars.
+   (`copy .env.example .env`), and into the Cloudflare Pages project env vars.
 3. In the Supabase **SQL editor**, run `supabase/migrations/0001_profiles_roles.sql`.
 4. Create the first Super Admin:
    - **Authentication → Users → Add user**: email + password, tick "Auto Confirm User". Copy the new user's UUID.

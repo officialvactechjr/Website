@@ -22,7 +22,7 @@ Diagrams use **Mermaid**. They render on GitHub, GitLab, VS Code (Markdown Previ
 | Icons | **lucide-react** | One icon set only |
 | Dates | **date-fns** | Small and tree-shakable |
 | Toasts | **sonner** or **react-hot-toast** | Pick one |
-| Hosting | **Vercel** | Auto-deploy from GitHub `main` |
+| Hosting | **Cloudflare Pages** | Preset React/Vite, build `npm run build`, output `dist`; auto-deploy from GitHub `main`. `vercel.json` is unused |
 
 ## 2. System overview
 
@@ -418,15 +418,17 @@ Rules:
 
 | Item | Where |
 |---|---|
-| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Vercel project env vars + local `.env` |
+| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Cloudflare Pages env vars + local `.env` |
+| `NODE_VERSION` | Cloudflare Pages env var (`22`) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase Edge Function secrets only |
 | `RESEND_API_KEY` (or Brevo key) | Supabase Edge Function secrets only |
-| Vercel SPA fallback | `vercel.json` rewrite of all routes to `/index.html` |
+| SPA fallback | Cloudflare Pages serves `index.html` for unknown routes (Vite SPA preset). `vercel.json` is left over from the first plan and is unused |
+| Repo | https://github.com/officialvactechjr/Website, branch `main` |
 
-Deployment: push to `main` → Vercel builds and deploys. Database changes: apply migrations with the Supabase CLI or paste into the SQL editor, in numbered order.
+Deployment: push to `main` → Cloudflare Pages builds and deploys. Database changes: apply migrations with the Supabase CLI or paste into the SQL editor, in numbered order. Supabase's **Site URL** must match the Cloudflare address (see `MEMORY.md` section 6).
 
 ## 17. Handover essentials
 
-- All accounts (GitHub, Supabase, Vercel, email provider) under an **official club email**, with the Super Admin as co-owner.
+- All accounts (GitHub, Supabase, Cloudflare, email provider) under an **official club email**, with the Super Admin as co-owner.
 - `README.md` explains: run locally, deploy, add a notice, create a member, change roles.
 - Keep `MEMORY.md` current: it is the project's living history.

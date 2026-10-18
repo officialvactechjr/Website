@@ -24,13 +24,13 @@ flowchart LR
 
 **Goal:** an empty app that runs, deploys and connects to Supabase.
 
-- [ ] Create official club GitHub, Supabase and Vercel accounts
+- [x] Create official club GitHub, Supabase and Cloudflare Pages accounts
 - [x] `npm create vite@latest` (React), install approved libraries
 - [x] Configure Tailwind with tokens from `DESIGN.md`
 - [x] Create folder structure from `ARCHITECTURE.md` section 9
 - [x] `lib/supabaseClient.js`, `.env.example`, `.gitignore`
 - [x] ESLint + Prettier
-- [ ] `vercel.json` SPA rewrite; first deploy of a blank page
+- [x] SPA fallback; first deploy of a blank page (Cloudflare Pages; `vercel.json` is unused)
 - [x] Copy `docs/` files into the repo
 
 **Done when:** the deployed URL shows a placeholder page and the Supabase client connects.
@@ -45,24 +45,25 @@ flowchart LR
 - [x] `profiles` table, role enum, `is_active`, `must_change_password`
 - [x] Helper function `current_role()`
 - [x] RLS on `profiles`; protect role/active columns
-- [ ] Disable email sign-ups in Supabase Auth settings
-- [ ] Create the first Super Admin manually in the dashboard
+- [x] Disable email sign-ups in Supabase Auth settings
+- [x] Create the first Super Admin manually in the dashboard
+- [x] Migration `0001` applied to the live Supabase project
 
 **Pages and components**
 - [x] `/login`: Login page (email + password only)
 - [x] `/change-password`: forced password change page
 - [x] `AuthContext` (session, profile, role)
 - [x] `ProtectedRoute` with role checks
-- [x] `PublicLayout` (Navbar + Footer), `MemberLayout`, `AdminLayout` (sidebar)
+- [x] `PublicLayout` (Navbar + Footer), `AdminLayout` (sidebar)
 - [x] `NotFound`, Error Boundary
 - [x] Base `components/ui`: Button, Input, Card, Modal, Badge, Spinner, EmptyState, ErrorState
 - [x] Dark/light theme toggle
 
 **Done when:** a manually created user can log in, is forced to change the password, lands on the right placeholder area by role, and a deactivated user is blocked.
 
-> Code for this phase is complete and the routes were checked in a browser (gates redirect to `/login`;
-> theme tokens are correct in both themes). The two unticked items and the end-to-end login test need
-> the real Supabase project — see `MEMORY.md` section 9.
+> Done. Verified against the live project: a member cannot change their own `role`, name, class or
+> section and cannot write notices, while an admin can (see `MEMORY.md` section 6 item 13).
+> `MemberLayout` was dropped in step 2.2 — member pages live inside the public layout.
 
 ---
 
@@ -78,17 +79,24 @@ flowchart LR
 - [x] Members land on `/` after login; staff still land on `/admin`
 
 **Database (migration 0002)**
-- [x] `notices`, `events`, `settings` tables with RLS (public read, staff write) — written, **not applied yet**
+- [x] `notices`, `events`, `settings` tables with RLS (public read gated by RLS, staff write) — applied, plus `seed.sql`
+- [x] `0002`'s read policies keep drafts in: notices only once `published_at <= now()`, events only when `status` is `published` or `cancelled`
+- [x] `0003_profiles_protection.sql`: only an admin may change `full_name`, `class` or `section`
 
 **Pages**
 - [x] `/`: **Home** (PUB-01): hero with `HeroVisual` and "View about" / "Join the club", What the club does (`#about`), Notices, Events, Explore links, Join card
-- [ ] `/notices`: **Notices list** (PUB-02), pinned first
-- [ ] `/notices/:id`: **Notice detail**
-- [ ] `/events`: **Events list** (PUB-03): upcoming and archive tabs
-- [ ] `/events/:id`: **Event detail** (registration area added in Phase 5)
-- [ ] `/contact`: **Contact** (PUB-11)
+- [x] `/notices`: **Notices list** (PUB-02), pinned first
+- [x] `/notices/:id`: **Notice detail**
+- [x] `/events`: **Events list** (PUB-03): upcoming and archive tabs
+- [x] `/events/:id`: **Event detail** (registration area added in Phase 5)
+- [x] `/contact`: **Contact** (PUB-11)
+- [x] `/join`: **closed state** for now (PUB-09 form is Phase 5)
+- [x] Route-level `React.lazy()` + `Suspense` so the first bundle stays small
 
 > Home's Projects / Top contributors / BOD previews are the **first Phase 3 tasks** — their tables arrive with migration 0004.
+
+> **Step 2.5 is still open:** the final `DESIGN.md` pass and the light-theme contrast check
+> (`MEMORY.md` section 6 item 4). Phase 2 is not closed until those are done.
 
 **Done when:** all six pages work on mobile with loading, error and empty states.
 

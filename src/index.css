@@ -1,0 +1,194 @@
+@import 'tailwindcss';
+
+/* Dark mode is driven by the `.dark` class on <html> (set in index.html before first paint). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens. Values live here only; components use the semantic names.
+   Theme: light is the base, dark is the club's own logo palette
+   (VAC-TECH Jr.html: #06122A navy, #FFC349 gold, #1FD6F7 cyan).
+   --------------------------------------------------------------------------- */
+:root {
+  --bg: #f7f9ff;
+  --surface: #ffffff;
+  --surface-alt: #eef2fb;
+  --border: #d8e0f0;
+  --border-strong: #b9c6e4;
+  --text: #06122a;
+  --muted: #4a5a7a;
+  --primary: #ffc349;
+  --primary-ink: #08142e;
+  --primary-hover: #ffd37a;
+  --primary-text: #8a5a00; /* gold fails AA as text on light, so links use this */
+  --accent: #0e7490;
+  --accent-ink: #ffffff;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #0284c7;
+
+  /* Header logo width. The intro animation lands its pieces on these slots, so
+     the size and aspect ratios in the .hart / .htxt rules below are fixed. */
+  --logo-w: 128px;
+}
+
+@media (max-width: 960px) {
+  :root {
+    --logo-w: 92px;
+  }
+}
+
+.dark {
+  --bg: #06122a;
+  --surface: #0a1a3b;
+  --surface-alt: #0e2350;
+  --border: #17305e;
+  --border-strong: #27487f;
+  --text: #eef3ff;
+  --muted: #9baccb;
+  --primary: #ffc349;
+  --primary-ink: #08142e;
+  --primary-hover: #ffd37a;
+  --primary-text: #ffc349;
+  --accent: #1fd6f7;
+  --accent-ink: #06122a;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #38bdf8;
+}
+
+/* `inline` keeps the utilities pointing at the variables, so `.dark` wins. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-ink: var(--primary-ink);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-text: var(--primary-text);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --font-sans: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    /* "View about" on Home scrolls to #about instead of jumping. */
+    scroll-behavior: smooth;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Chrome that stays navy in both themes.
+   The club logo is drawn for the navy background, so the header, footer and the
+   intro overlay keep the dark token values even when the page is light.
+   --------------------------------------------------------------------------- */
+.chrome-dark {
+  --bg: #06122a;
+  --surface: #0a1a3b;
+  --surface-alt: #0e2350;
+  --border: #17305e;
+  --border-strong: #27487f;
+  --text: #eef3ff;
+  --muted: #9baccb;
+  --primary: #ffc349;
+  --primary-ink: #08142e;
+  --primary-hover: #ffd37a;
+  --primary-text: #ffc349;
+  --accent: #1fd6f7;
+  --accent-ink: #06122a;
+  color: var(--text);
+  color-scheme: dark;
+}
+
+/* ---------------------------------------------------------------------------
+   Intro animation contract (see docs/DESIGN.md section 8).
+   --------------------------------------------------------------------------- */
+html.intro-on {
+  overflow: hidden;
+}
+
+/* While the pieces fly, the header logo is hidden: they land exactly on top of
+   it, so the swap is invisible. */
+html.intro-on [data-intro-brand] {
+  visibility: hidden;
+}
+
+/* Header logo slots — the landing targets of the intro, so the geometry is fixed. */
+.hslot {
+  position: relative;
+  display: block;
+  flex: none;
+}
+
+.hart {
+  width: var(--logo-w);
+  aspect-ratio: 864 / 300;
+}
+
+.htxt {
+  width: calc(var(--logo-w) * 1.22);
+  aspect-ratio: 864 / 105;
+}
+
+/* One orchestrated reveal after the intro lands — nothing scattered. */
+html.rv-hide .rv {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+html.rv-show .rv {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.6s ease var(--d, 0s),
+    transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) var(--d, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Belt and braces: if the reveal classes are ever left on, show the content. */
+  html.rv-hide .rv {
+    opacity: 1;
+    transform: none;
+  }
+}

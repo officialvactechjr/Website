@@ -1,0 +1,64 @@
+/* Intro overlay. Everything here is scoped under .intro-root so it cannot leak. */
+.intro-root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  /* The overlay is always navy (see the .chrome-dark class on the element). */
+  background: transparent;
+}
+
+.intro-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+}
+
+.intro-grp {
+  position: absolute;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.intro-pc {
+  position: absolute;
+  display: block;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.intro-ring {
+  position: absolute;
+  border: 1.5px solid var(--primary);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-skip {
+  position: absolute;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.intro-skip:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}

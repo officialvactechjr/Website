@@ -34,7 +34,9 @@ export default function Modal({ open, onClose, title, children, className }) {
           <X className="size-5" aria-hidden="true" />
         </button>
       </div>
-      <div className="p-5">{children}</div>
+      {/* Children mount only while open, so a form inside gets fresh defaults
+          every time it is opened instead of keeping the last edit's values. */}
+      <div className="p-5">{open && children}</div>
     </dialog>
   )
 }

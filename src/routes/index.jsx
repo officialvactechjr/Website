@@ -21,12 +21,22 @@ const Events = lazy(() => import('../pages/public/Events'))
 const EventDetail = lazy(() => import('../pages/public/EventDetail'))
 const Contact = lazy(() => import('../pages/public/Contact'))
 const Join = lazy(() => import('../pages/public/Join'))
+const Bod = lazy(() => import('../pages/public/Bod'))
+const Gallery = lazy(() => import('../pages/public/Gallery'))
+const Projects = lazy(() => import('../pages/public/Projects'))
+const ProjectDetail = lazy(() => import('../pages/public/ProjectDetail'))
+const Contributors = lazy(() => import('../pages/public/Contributors'))
+const Members = lazy(() => import('../pages/public/Members'))
 const LoginPage = lazy(() => import('../features/auth/LoginPage'))
 const ChangePasswordPage = lazy(() => import('../features/auth/ChangePasswordPage'))
 const Profile = lazy(() => import('../pages/member/Profile'))
 const MemberDashboard = lazy(() => import('../pages/member/Dashboard'))
 const AdminLayout = lazy(() => import('./AdminLayout'))
 const AdminDashboard = lazy(() => import('../pages/admin/Dashboard'))
+const NoticesAdmin = lazy(() => import('../pages/admin/NoticesAdmin'))
+const EventsAdmin = lazy(() => import('../pages/admin/EventsAdmin'))
+const BodAdmin = lazy(() => import('../pages/admin/BodAdmin'))
+const GalleryAdmin = lazy(() => import('../pages/admin/GalleryAdmin'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 
 function PageFallback() {
@@ -68,6 +78,12 @@ const router = createBrowserRouter(
             { path: 'events/:id', element: ready(<EventDetail />) },
             { path: 'contact', element: ready(<Contact />) },
             { path: 'join', element: ready(<Join />) },
+            { path: 'bod', element: ready(<Bod />) },
+            { path: 'gallery', element: ready(<Gallery />) },
+            { path: 'projects', element: ready(<Projects />) },
+            { path: 'projects/:id', element: ready(<ProjectDetail />) },
+            { path: 'contributors', element: ready(<Contributors />) },
+            { path: 'members', element: ready(<Members />) },
 
             // Member pages are part of the same public site, only gated by login.
             {
@@ -91,7 +107,13 @@ const router = createBrowserRouter(
           children: [
             {
               element: ready(<AdminLayout />),
-              children: [{ path: 'admin', element: ready(<AdminDashboard />) }],
+              children: [
+                { path: 'admin', element: ready(<AdminDashboard />) },
+                { path: 'admin/notices', element: ready(<NoticesAdmin />) },
+                { path: 'admin/events', element: ready(<EventsAdmin />) },
+                { path: 'admin/bod', element: ready(<BodAdmin />) },
+                { path: 'admin/gallery', element: ready(<GalleryAdmin />) },
+              ],
             },
           ],
         },

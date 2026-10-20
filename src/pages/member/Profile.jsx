@@ -19,7 +19,7 @@ export default function Profile() {
     <>
       <PageHeader
         title="My profile"
-        description="Your password changes straight away. Name, class, section, email and phone need a club admin to approve them — those requests arrive in Phase 6."
+        description="Your password changes straight away. Name, class, section, email and phone: the club team approves those changes."
       />
 
       <div className="grid gap-6 lg:grid-cols-2">

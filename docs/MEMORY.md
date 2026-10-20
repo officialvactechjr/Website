@@ -10,20 +10,20 @@
 
 | Field | Value |
 |---|---|
-| Last updated | 2026-10-18 |
-| Current phase | Phase 2: Public Pages A — steps 2.1-2.4 done, step 2.5 (docs close-out) next |
-| Current task | Stopped after step 2.4 plus the review follow-up. No code in progress |
-| File(s) being worked on | none — docs only this session |
-| Overall progress | 2 of 9 phases complete (Phases 0 and 1 done; Phase 2 through step 2.4) |
-| Blocked by | nothing. The Supabase project is live and `0001`-`0003` + `seed.sql` are applied |
+| Last updated | 2026-10-19 |
+| Current phase | Phase 4: Admin Panel Core — code written, owner tests not run |
+| Current task | Phase 4 review fixes applied (all seven findings). Waiting on the console tests |
+| File(s) being worked on | `src/components/ui/{Modal,DataTable}.jsx`, `src/features/storage/api.js`, `src/features/*/hooks.js` |
+| Overall progress | 4 of 9 phases complete (0-3). Phase 4 code done, unverified |
+| Blocked by | nothing technical — Phase 4 needs the owner's console tests before its docs are closed |
 
 ## 2. Resume here (the single most important section)
 
 > Write 2 to 5 lines so a person or AI can continue immediately.
 
-- **Last thing done:** Step 2.4 (the five public content pages, the notices/events data layer, route-level `React.lazy()`) and then the code-review fixes: the auth dead end is gone, `0002` was rewritten so drafts cannot leak, and `0003` stops a member editing their own name, class or section. All three migrations plus the seed are applied.
-- **Next thing to do:** **Step 2.5 — the Phase 2 docs close-out.** Tick `PHASES.md`, finish the `DESIGN.md` / `MEMORY.md` trackers, and record the two still-open checks (light-theme contrast, Phase 1 security test D). Then start **Phase 3** (Public Pages B: BOD, Gallery, Projects, Contributors, Members), whose first tasks are the Home previews deferred from 2.3, using migration `0004`.
-- **Watch out for:** `notices`/`events` success states were only ever seen with the tables missing — re-check them now the seed is in. The hero still uses the placeholder robot, and Supabase's **Site URL** must be set to the Cloudflare address or auth redirects will point at the wrong host.
+- **Last thing done:** the Phase 4 admin console (dashboard + notices/events/BOD/gallery CRUD, `DataTable`, `ImageUpload`, `ConfirmDialog`, storage helpers), then the seven review fixes: `Modal` now unmounts its children so an edit form opens with the row's real values, the image resize runs before the 2 MB check, every content mutation refreshes the dashboard, `DataTable`'s dead memos are gone, the dead gallery schema is deleted, the "arrives in Phase 6" copy is out of the UI, and the admin gallery list reaches 500 rows.
+- **Next thing to do:** the owner runs the **Phase 4 console tests** (storage permissions a-d, the `/admin` gates e, notice CRUD from the UI f). Once those pass, close Phase 4's docs, then start **Phase 5** (registrations, migration `0005`).
+- **Watch out for:** the original `VAC-TECH Jr.html` and `VAC-Tech-Jr-Website-Plan.md` are **gone from the repo** (deleted, not by us), so `src/components/shared/introLogo.json` and the two logo PNGs are the only copy of the logo in the project. Supabase's **Site URL** still needs pointing at the Cloudflare address.
 
 ## 3. Phase tracker
 
@@ -33,9 +33,9 @@ Status values: `not started`, `in progress`, `done`, `blocked`.
 |---|---|---|---|---|---|
 | 0 | Project Setup | done | 2026-10-18 | 2026-10-18 | Scaffold, toolchain, folder skeleton, tokens |
 | 1 | Auth, Roles and App Shell | done | 2026-10-18 | 2026-10-18 | Login, roles, layouts, intro animation; `0001` applied |
-| 2 | Public Pages A (Home, Notices, Events, Contact) | in progress | 2026-10-18 | | 2.1-2.4 done. Step 2.5 (docs close-out) left |
-| 3 | Public Pages B (BOD, Gallery, Projects, Contributors, Members) | not started | | | Public site can launch here |
-| 4 | Admin Panel Core | not started | | | |
+| 2 | Public Pages A (Home, Notices, Events, Contact) | done | 2026-10-18 | 2026-10-19 | Steps 2.1-2.5. Safe point to launch the public site |
+| 3 | Public Pages B (BOD, Gallery, Projects, Contributors, Members) | done | 2026-10-19 | 2026-10-19 | Migration `0004` + seed applied; views and public storage buckets live |
+| 4 | Admin Panel Core | in progress | 2026-10-19 | | Code written and review-fixed; owner console tests pending |
 | 5 | Registrations | not started | | | |
 | 6 | Members and Projects | not started | | | |
 | 7 | Points, Suggestions, Emails, Super Admin | not started | | | |
@@ -53,12 +53,12 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 | `/notices/:id` | `src/pages/public/NoticeDetail.jsx` | PUB-02 | done |
 | `/events` | `src/pages/public/Events.jsx` | PUB-03 | done |
 | `/events/:id` | `src/pages/public/EventDetail.jsx` | PUB-03, PUB-10 | wip |
-| `/bod` | `src/pages/public/Bod.jsx` | PUB-04 | todo |
-| `/gallery` | `src/pages/public/Gallery.jsx` | PUB-05 | todo |
-| `/projects` | `src/pages/public/Projects.jsx` | PUB-06 | todo |
-| `/projects/:id` | `src/pages/public/ProjectDetail.jsx` | PUB-06 | todo |
-| `/contributors` | `src/pages/public/Contributors.jsx` | PUB-07 | todo |
-| `/members` | `src/pages/public/Members.jsx` | PUB-08 | todo |
+| `/bod` | `src/pages/public/Bod.jsx` | PUB-04 | done |
+| `/gallery` | `src/pages/public/Gallery.jsx` | PUB-05 | done |
+| `/projects` | `src/pages/public/Projects.jsx` | PUB-06 | done |
+| `/projects/:id` | `src/pages/public/ProjectDetail.jsx` | PUB-06 | done |
+| `/contributors` | `src/pages/public/Contributors.jsx` | PUB-07 | done |
+| `/members` | `src/pages/public/Members.jsx` | PUB-08 | done |
 | `/join` | `src/pages/public/Join.jsx` | PUB-09 | wip |
 | `/contact` | `src/pages/public/Contact.jsx` | PUB-11 | done |
 
@@ -83,11 +83,11 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 ### Admin pages
 | Route | File | Req ID | Status |
 |---|---|---|---|
-| `/admin` | `src/pages/admin/Dashboard.jsx` | ADM-15 | todo |
-| `/admin/notices` | `src/pages/admin/NoticesAdmin.jsx` | ADM-01 | todo |
-| `/admin/events` | `src/pages/admin/EventsAdmin.jsx` | ADM-02 | todo |
-| `/admin/bod` | `src/pages/admin/BodAdmin.jsx` | ADM-03 | todo |
-| `/admin/gallery` | `src/pages/admin/GalleryAdmin.jsx` | ADM-04 | todo |
+| `/admin` | `src/pages/admin/Dashboard.jsx` | ADM-15 | wip |
+| `/admin/notices` | `src/pages/admin/NoticesAdmin.jsx` | ADM-01 | wip |
+| `/admin/events` | `src/pages/admin/EventsAdmin.jsx` | ADM-02 | wip |
+| `/admin/bod` | `src/pages/admin/BodAdmin.jsx` | ADM-03 | wip |
+| `/admin/gallery` | `src/pages/admin/GalleryAdmin.jsx` | ADM-04 | wip |
 | `/admin/registration-forms` | `src/pages/admin/FormBuilder.jsx` | ADM-05 | todo |
 | `/admin/registrations` | `src/pages/admin/Registrations.jsx` | ADM-06 | todo |
 | `/admin/applications` | `src/pages/admin/Applications.jsx` | ADM-06 | todo |
@@ -155,6 +155,7 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 | 2026-10-18 | **Hosting is Cloudflare Pages**, not Vercel: preset React/Vite, build command `npm run build`, output directory `dist`. Env vars in Cloudflare: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`. `vercel.json` is unused. |
 | 2026-10-18 | Code is on GitHub at https://github.com/officialvactechjr/Website (branch `main`). Pushing to `main` redeploys automatically. |
 | 2026-10-18 | The hero uses a **robot placeholder** (`src/assets/hero/robot-placeholder.svg`, rendered by `HeroVisual.jsx`) to be swapped for the real artwork later. |
+| 2026-10-19 | Light theme is kept, but its **status colours are darkened** (`success #166534`, `warning #92400e`, `danger #b91c1c`, `info #0369a1`) so they pass WCAG AA as text. The dark theme values are unchanged. |
 
 ## 6. Known issues and TODOs
 
@@ -163,16 +164,19 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 | 1 | **Done.** `0001`, `0002`, `0003` and `seed.sql` were applied by the owner; verified by querying the live project. | `supabase/migrations/`, `supabase/seed.sql` | 2026-10-18 | done |
 | 2 | Main bundle is **562 kB (161 kB gzip)** after route-level `React.lazy()` landed in 2.4 (it was 753 kB). Vite still warns because all vendor code — React, react-router, supabase-js, sonner, date-fns — is in that one chunk. **Bundle size review in Phase 8**: split vendors with `manualChunks` (Rolldown code splitting). `introLogo` is deliberately its own lazy chunk (367 kB), fetched only when the intro plays. | `vite.config.js`, `src/routes/index.jsx` | 2026-10-18 | open |
 | 3 | The intro animation is ported (step 2.1). The header and footer must therefore keep `.chrome-dark`: the logo wordmark is white and disappears on a light background. | `src/index.css`, `src/components/layout/Footer.jsx` | 2026-10-18 | open |
-| 4 | **Light theme contrast check** still to run: every text/background pair in the light theme against WCAG AA (4.5:1). The dark theme is the designed one; light is derived. | `src/index.css`, `docs/DESIGN.md` | 2026-10-18 | open |
+| 4 | **Done.** Light-theme contrast check run on 2026-10-19 with the WCAG formula. Four status colours failed AA as text and were darkened in `src/index.css`: `success` `#16a34a`→`#166534`, `warning` `#d97706`→`#92400e`, `danger` `#dc2626`→`#b91c1c`, `info` `#0284c7`→`#0369a1`. All text pairs now pass 4.5:1 in both themes; see `DESIGN.md` section 10. **Checked and closed.** | `src/index.css`, `docs/DESIGN.md` | 2026-10-18 | done |
 | 5 | **Robot artwork to replace.** The hero shows the placeholder SVG; the real robot has not been drawn yet. Swap the file only — the component and layout stay as they are. | `src/assets/hero/robot-placeholder.svg`, `src/components/shared/HeroVisual.jsx` | 2026-10-18 | open |
 | 6 | **Supabase Site URL must be set to the Cloudflare address** (Authentication → URL Configuration), or auth emails and redirects will point at the wrong host. Owner action. | Supabase dashboard | 2026-10-18 | open |
-| 7 | **Reference files, not part of the app:** the repo-root `DESIGN.md` (an opencode.ai analysis), `VAC-TECH Jr.html` (the intro animation source) and `VAC-Tech-Jr-Website-Plan.md` (the original plain-language plan). They are read for reference; never import or ship them. | repo root | 2026-10-18 | noted |
+| 7 | **Reference files.** The repo-root `DESIGN.md` (an opencode.ai analysis) is reference only — never import or ship it. `VAC-TECH Jr.html` (the intro animation source) and `VAC-Tech-Jr-Website-Plan.md` were **deleted on 2026-10-19** and are no longer in the repo, so `src/components/shared/introLogo.json` plus the two logo PNGs are the only copy of the logo in the project. The deletion is still uncommitted in git. | repo root | 2026-10-18 | noted |
 | 8 | The intro's `prefers-reduced-motion` path and the 360px layout were checked by logic / iframe measurement, **not** by eye. Confirm visually once. | `src/components/shared/IntroAnimation.jsx` | 2026-10-18 | open |
 | 9 | The `notices`/`events` **success** state is still unverified with real rows — the tables now exist, so re-check `/notices`, `/events` and Home once. | `src/features/*/components/` | 2026-10-18 | open |
 | 10 | `.env` is not committed (correct). Without it the app stops at load. Create it from `.env.example` before running locally. | `.env.example` | 2026-10-18 | noted |
 | 11 | Tailwind v4 is CSS-first: there is no `tailwind.config.js`. All tokens live in `src/index.css` via `@theme inline`. | `src/index.css` | 2026-10-18 | noted |
 | 12 | lucide-react v1 has no brand icons, so GitHub links need the inline SVG from `VAC-TECH Jr.html` (no lucide `Github` icon exists). | `docs/DESIGN.md` section 7 | 2026-10-18 | noted |
 | 13 | **Phase 1 member security tests: done.** Confirmed against the live project — a member cannot change `role`, `name`, `class` or `section` on their own row, a member cannot insert or edit a notice, and an admin can. | `supabase/migrations/0001`, `0003` | 2026-10-18 | done |
+| 14 | **Phase 4 idea.** When real toasts arrive, error toasts should stay until dismissed rather than auto-dismiss after 4s — call `toast.error(msg, { duration: Infinity })`. `DESIGN.md` no longer promises this, and nothing calls `toast()` yet. | `src/App.jsx`, Phase 4 pages | 2026-10-19 | idea |
+| 15 | **Orphaned storage files.** Deleting a row deletes its file, but the storage step is best effort (a failure only logs in dev). Replacing an image orphans the old file, and if an insert fails after its uploads succeed the new files have no row. Nothing sweeps these up yet. | `src/features/storage/api.js` | 2026-10-19 | open |
+| 16 | **PNG over 2 MB.** `shortcut:` a lossless PNG that is over 2 MB after resizing is still rejected, because re-encoding a PNG barely shrinks it. Photos are unaffected. Convert large PNGs to JPEG if it ever bites. | `src/features/storage/api.js` | 2026-10-19 | noted |
 
 Every `TODO` comment in code must appear here.
 
@@ -188,6 +192,27 @@ Format:
 - Problems / decisions:
 - Next step:
 ```
+
+### 2026-10-19: Phase 4 review fixes (seven findings)
+- Phase / task: Phase 4 (admin console), fixes after the code review
+- Done: **`Modal.jsx`** renders `{open && children}`, so a form inside it now remounts on every open instead of keeping the previous row's React Hook Form state — this fixes Edit opening blank and writing one row's text into another, and makes `PhotoUploader` start empty. **`storage/api.js`** checks the file type first, then shrinks, then rejects only if the *result* is over 2 MB (with a 15 MB "too large to open" guard before decoding, which stops a huge image exhausting memory): a normal 3 MB phone photo now passes the pre-check and is resized down. `['dashboard']` is invalidated in all six content mutations (`notices`, `events`, `bod`, `gallery`). `DataTable.jsx` lost its two `useMemo` wrappers (they never cached, because `columns` is a new array each render). Deleted the dead `src/features/gallery/schema.js`; no doc referenced it. Replaced the "arrives in Phase 6" copy in `admin/Dashboard.jsx` and `member/Profile.jsx` with plain wording. `GalleryAdmin` now requests `{ limit: 500 }`.
+- Not finished: Phase 4's console tests (storage permissions, `/admin` gates, notice CRUD from the UI) have not been run, so Phase 4 is not closed.
+- Problems / decisions: verified the Modal fix in a browser harness — Edit shows "Notice AAAA", typing into it then opening a different row shows "Notice BBBB" with no carry-over, and `PhotoUploader`'s title is empty on reopen. Verified `imageFileError` returns null for a 3 MB JPEG and friendly messages for a text file and a 20 MB image.
+- Next step: owner runs the Phase 4 console tests, then Phase 4 docs are closed and Phase 5 starts.
+
+### 2026-10-19: Review fixes — input focus ring, doc corrections
+- Phase / task: follow-up from the second code review (step 2.5 close-out)
+- Done: `src/components/ui/Input.jsx` — removed `focus:outline-none` so the global `:focus-visible` ring shows again on every text field (it was being overridden by a higher CSS layer and specificity); the gold focus border stays. `docs/DESIGN.md` — the touch-target line now carries the measured numbers (nav links 33px, "Member login" 36px, small button 40px, primary 46px, intro Skip 44px) and notes that WCAG 2.2 AA asks for 24px while 44px is our own goal for primary buttons and the Skip; the toast section no longer claims errors persist; section 11's copied token block was replaced with a pointer to `src/index.css` as the single source. `docs/PHASES.md` — an explicit **Close-out (2.5)** block is ticked, with the contrast check marked DONE. `docs/MEMORY.md` — section 6 item 4 closed, a new item 14 records the Phase 4 toast idea.
+- Not finished: nothing from the review. Phase 3 has not been started.
+- Problems / decisions: the two reference files (`VAC-TECH Jr.html`, `VAC-Tech-Jr-Website-Plan.md`) are the **owner's to handle** — not restored, not committed, not touched. Buttons were deliberately **not** resized; the doc now states the real numbers instead.
+- Next step: **Phase 3** — migration `0004_showcase_tables.sql` and the public pages B.
+
+### 2026-10-19: Step 2.5 — Phase 2 close-out (DESIGN.md pass + contrast check)
+- Phase / task: step 2.5, end of Phase 2
+- Done: `docs/DESIGN.md` given its final pass — status-colour table updated, the reference-file note corrected (the two source files are gone), the toast position matched to the code (top right), the intro section no longer points at a deleted file, and section 10 turned from an unticked wishlist into a **checked** accessibility record with the real numbers. Ran the WCAG contrast check over every token pair in both themes: light `success`/`warning`/`info` failed AA as text (3.3, 3.2, 4.1) and light `danger` failed on `surface-alt` (4.31), so `src/index.css` now uses `success #166534`, `warning #92400e`, `danger #b91c1c`, `info #0369a1`; every text pair passes 4.5:1 afterwards. `MEMORY.md` sections 1-3, 5-7 updated; `PHASES.md` Phase 2 closed.
+- Not finished: nothing for Phase 2. Phase 3 has not been started.
+- Problems / decisions: `border-strong` is deliberately left at 1.71:1 on white and recorded as a `shortcut:` line in `DESIGN.md` section 10 — it is a decorative hairline around controls whose text already carries the meaning. Found that `VAC-TECH Jr.html` and `VAC-Tech-Jr-Website-Plan.md` were deleted from the working tree by someone else and that the deletion is **uncommitted**; left untouched (not ours to commit or revert), but logged as a risk since `introLogo.json` is now the only copy of the logo pieces.
+- Next step: **Phase 3** — migration `0004_showcase_tables.sql` and the public pages B.
 
 ### 2026-10-18: Migrations applied, hosting moved to Cloudflare Pages, session close-out
 - Phase / task: end of session — documentation only, no code written

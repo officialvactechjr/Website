@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabaseClient'
 
 const LIST_COLUMNS = 'id, title, is_pinned, published_at'
+const ADMIN_COLUMNS = 'id, title, body, is_pinned, published_at'
 
 // RLS decides what is readable: only notices whose published_at has passed, plus
 // everything for staff.
@@ -24,4 +25,32 @@ export async function fetchNotice(id) {
     .single()
   if (error) throw error
   return data
+}
+
+/** Staff see everything through RLS, including notices dated in the future. */
+export async function fetchNoticesForAdmin({ limit = 200 } = {}) {
+  const { data, error } = await supabase
+    .from('notices')
+    .select(ADMIN_COLUMNS)
+    .order('is_pinned', { ascending: false })
+    .order('published_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+  return data
+}
+
+export async function createNotice(values) {
+  const { error } = await supabase.from('notices').insert(values)
+  if (error) throw error
+}
+
+export async function updateNotice({ id, values }) {
+  const { error } = await supabase.from('notices').update(values).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteNotice(id) {
+  const { error } = await supabase.from('notices').delete().eq('id', id)
+  if (error) throw error
 }

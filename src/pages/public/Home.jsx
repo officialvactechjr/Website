@@ -5,6 +5,9 @@ import SectionHeading from '../../components/layout/SectionHeading'
 import HeroVisual from '../../components/shared/HeroVisual'
 import NoticeList from '../../features/notices/components/NoticeList'
 import EventList from '../../features/events/components/EventList'
+import ProjectList from '../../features/projects/components/ProjectList'
+import LeaderboardList from '../../features/leaderboard/components/LeaderboardList'
+import BodGrid from '../../features/bod/components/BodGrid'
 import { useAuth } from '../../context/useAuth'
 
 const WHAT_WE_DO = [
@@ -23,11 +26,11 @@ const WHAT_WE_DO = [
 ]
 
 // Every public page has to be reachable from Home as well as the footer.
+// Projects, Top contributors and the board now have their own sections below,
+// so this row only carries the rest.
 const EXPLORE = [
   { to: '/gallery', label: 'Photo gallery' },
-  { to: '/contributors', label: 'Top contributors' },
   { to: '/members', label: 'Member list' },
-  { to: '/bod', label: 'Board of directors' },
   { to: '/contact', label: 'Contact' },
 ]
 
@@ -118,6 +121,39 @@ export default function Home() {
           }
         />
         <EventList limit={3} />
+      </Section>
+
+      <Section className="border-b border-border">
+        <SectionHeading
+          title="Built by members"
+          description="Every project is checked by the club team before it is shown here."
+          action={
+            <Link to="/projects" className={MORE}>
+              All projects
+            </Link>
+          }
+        />
+        <div className="grid gap-[clamp(32px,6vw,80px)] lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-start">
+          <ProjectList limit={2} columns="grid-cols-1" />
+          <div>
+            <h3 className="text-[17px] font-semibold">Top contributors</h3>
+            <p className="mt-0.5 mb-4 text-[13px] text-muted">Points are added by the club team.</p>
+            <LeaderboardList limit={5} />
+          </div>
+        </div>
+      </Section>
+
+      <Section className="border-b border-border">
+        <SectionHeading
+          title="Board of directors"
+          description="The students who run the club this year."
+          action={
+            <Link to="/bod" className={MORE}>
+              Meet the board
+            </Link>
+          }
+        />
+        <BodGrid limit={4} />
       </Section>
 
       <Section className="border-b border-border">

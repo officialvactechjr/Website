@@ -17,7 +17,9 @@ export default function Input({ label, error, hint, id, className, ...props }) {
         aria-describedby={describedBy}
         className={cn(
           'h-11 rounded-sm border bg-surface px-3 text-text placeholder:text-muted',
-          'focus:border-primary focus:outline-none',
+          // No `outline-none` here: the global :focus-visible ring must stay visible
+          // for keyboard users. The gold border is an extra hint, not the indicator.
+          'focus:border-primary',
           error ? 'border-danger' : 'border-border',
           className,
         )}

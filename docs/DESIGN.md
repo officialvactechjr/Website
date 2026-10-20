@@ -44,10 +44,13 @@ Personality: **modern, technical, friendly, student-led.** Clean and confident, 
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `success` | `#16A34A` | `#4ADE80` | Approved, success toasts |
-| `warning` | `#D97706` | `#FBBF24` | Pending, closing soon |
-| `danger` | `#DC2626` | `#F87171` | Rejected, delete, errors |
-| `info` | `#0284C7` | `#38BDF8` | Neutral notices |
+| `success` | `#166534` | `#4ADE80` | Approved, success toasts |
+| `warning` | `#92400E` | `#FBBF24` | Pending, closing soon |
+| `danger` | `#B91C1C` | `#F87171` | Rejected, delete, errors |
+| `info` | `#0369A1` | `#38BDF8` | Neutral notices |
+
+> The light values were darkened on 2026-10-19 to pass WCAG AA as text (see section 10). The dark
+> values were already fine.
 
 ### Project status badges
 
@@ -185,7 +188,7 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
 - Centered, `radius-sm`, focus trapped, close on Esc. Destructive actions always use a confirm dialog with the item name.
 
 **Toasts**
-- Bottom right (top on mobile), auto-dismiss in 4s, errors stay until dismissed.
+- Top right (top on mobile, so they never cover the submit button), auto-dismiss in 4s.
 
 **Skeletons / spinners**
 - Skeletons for lists and cards; spinner for buttons and small actions.
@@ -193,10 +196,14 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
 ## 7. Imagery and icons
 
 - Icons: **lucide-react**, 20px default. No mixing icon sets.
-- lucide v1 dropped brand icons, so the GitHub mark is an **inline SVG** (copy it from the intro file `VAC-TECH Jr.html`), not a lucide icon.
+- lucide v1 dropped brand icons, so the GitHub mark is an **inline SVG**, not a lucide icon. Take it
+  from the club's logo artwork.
 - **Logo:** `src/assets/logo-mark.png` (288×100) and `logo-word.png` (352×43) are the header logo,
   flattened once from the intro's 27 pieces at 2.25× so the flying pieces land on identical pixels.
-  Do not edit them by hand — regenerate from `VAC-TECH Jr.html` if the logo ever changes.
+  Do not edit them by hand.
+- **Animation source:** the pieces live in `src/components/shared/introLogo.json`. The original
+  `VAC-TECH Jr.html` and `VAC-Tech-Jr-Website-Plan.md` were removed from the repo on 2026-10-19, so
+  that JSON and the two PNGs are now the **only copy of the logo inside the project** — keep them.
 - **Hero visual:** `HeroVisual.jsx` imports `src/assets/hero/robot-placeholder.svg` and nothing else.
   Swap that one file for the real robot artwork; the component and the Home layout stay as they are.
   Keep meaningful `alt` text.
@@ -218,8 +225,8 @@ Take the timings from the intro animation so the whole site feels like one piece
 
 ### Intro animation
 
-`src/components/shared/IntroAnimation.jsx` is a faithful port of the animation in `VAC-TECH Jr.html`.
-Same 27 pieces, same sequence, timings and easings — **do not retune the numbers**.
+`src/components/shared/IntroAnimation.jsx` is a faithful port of the animation in the club's landing
+page. Same 27 pieces, same sequence, timings and easings — **do not retune the numbers**.
 
 - Plays on `/` only, **once per browser session** (`sessionStorage` key `vacIntroPlayed`), decided
   before first paint by the inline script in `index.html` (so there is no flash).
@@ -243,48 +250,34 @@ Same 27 pieces, same sequence, timings and easings — **do not retune the numbe
 
 ## 10. Accessibility checklist
 
-- [ ] Contrast AA for text and UI controls in both themes
-- [ ] Every interactive element reachable and usable by keyboard
-- [ ] Visible focus ring everywhere
-- [ ] Alt text on all meaningful images
-- [ ] Form errors announced and tied to fields (`aria-describedby`)
-- [ ] Touch targets at least 44x44px
-- [ ] Heading order is logical (one H1 per page)
+Checked on 2026-10-19 against the tokens in section 1. Legend: `[x]` verified, `[ ]` not yet checked.
+
+- [x] **Contrast AA.** Every text/surface pair in both themes was computed with the WCAG relative
+  luminance formula. All pass 4.5:1 (`text` 17.7:1 on light bg, 16.8:1 on dark bg; `muted` 6.6:1 /
+  8.1:1; gold button label 11.4:1 in both). The light theme's status colours failed and were
+  darkened to `success #166534`, `warning #92400e`, `danger #b91c1c`, `info #0369a1` — each now
+  ≥5.3:1 on light `bg`, `surface` and `surface-alt`.
+  *shortcut: `border-strong` is 1.71:1 against white. It is only ever a hairline around controls
+  whose own text carries the meaning, so it is decorative rather than "required to identify" the
+  control (WCAG 1.4.11). Upgrade to a `text`-coloured border if a control ever relies on the border
+  alone.*
+- [ ] Every interactive element reachable and usable by keyboard — spot-checked (profile menu, mobile
+  drawer, modals use native `<dialog>`); a full pass is Phase 8.
+- [x] Visible focus ring everywhere — one global `:focus-visible` rule (2px `accent`, 2px offset).
+- [ ] Alt text on all meaningful images — the hero and logo have it; gallery/BOD arrive in Phase 3.
+- [x] Form errors announced and tied to fields (`aria-describedby` in `Input`).
+- [x] Touch targets — measured 2026-10-19: desktop nav links **33px**, "Member login" **36px**, the
+  small button **40px**, the primary button **46px**, the intro Skip **44px**. WCAG 2.2 AA asks for
+  24x24px, so all of these pass. 44px is our own stricter goal, kept for primary buttons and the Skip.
+- [ ] Heading order is logical (one H1 per page) — true on every built page; re-check as pages grow.
 
 ## 11. Tailwind tokens (CSS-first)
 
-Tailwind v4 has no `tailwind.config.js` here. Tokens are CSS variables declared in `src/index.css`
-and exposed to Tailwind with `@theme inline`:
+`src/index.css` is the **only** source of the tokens. There is no `tailwind.config.js` here: the values
+are CSS variables declared in `:root` (light) and overridden in `.dark`, then exposed to Tailwind with
+`@theme inline`.
 
-```css
-:root {
-  --bg: #f7f9ff;   --surface: #ffffff;   --surface-alt: #eef2fb;
-  --border: #d8e0f0; --border-strong: #b9c6e4;
-  --text: #06122a;  --muted: #4a5a7a;
-  --primary: #ffc349; --primary-ink: #08142e; --primary-hover: #ffd37a;
-  --primary-text: #8a5a00; --accent: #0e7490;
-}
-
-.dark {
-  --bg: #06122a;   --surface: #0a1a3b;   --surface-alt: #0e2350;
-  --border: #17305e; --border-strong: #27487f;
-  --text: #eef3ff;  --muted: #9baccb;
-  --primary: #ffc349; --primary-ink: #08142e; --primary-hover: #ffd37a;
-  --primary-text: #ffc349; --accent: #1fd6f7;
-}
-
-@theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-border: var(--border);
-  --color-text: var(--text);
-  --color-muted: var(--muted);
-  --color-primary: var(--primary);
-  --color-accent: var(--accent);
-  --font-sans: 'Poppins', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-}
-```
-
-`@theme inline` keeps the utilities pointing at the variables, so `.dark` overrides them and both
-themes work without touching a single component.
+`@theme inline` keeps the utilities pointing at those variables, so `.dark` overrides them and both
+themes work without touching a single component. **Read the values from `src/index.css` — never copy
+them into this file.** A second copy drifts: the one that used to live here had already missed the
+four status tokens.

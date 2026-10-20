@@ -93,10 +93,17 @@ flowchart LR
 - [x] `/join`: **closed state** for now (PUB-09 form is Phase 5)
 - [x] Route-level `React.lazy()` + `Suspense` so the first bundle stays small
 
+**Close-out (2.5)**
+- [x] `DESIGN.md` final pass: tokens, components, imagery, motion, and the accessibility checklist turned into a checked record
+- [x] **Light-theme contrast check DONE** (2026-10-19): four light status colours darkened to pass WCAG AA as text
+- [x] Second review pass: the input focus ring restored, touch-target numbers corrected, the duplicated token block replaced with a pointer
+
 > Home's Projects / Top contributors / BOD previews are the **first Phase 3 tasks** — their tables arrive with migration 0004.
 
-> **Step 2.5 is still open:** the final `DESIGN.md` pass and the light-theme contrast check
-> (`MEMORY.md` section 6 item 4). Phase 2 is not closed until those are done.
+> **Step 2.5 is done** (2026-10-19): the `DESIGN.md` pass and the light-theme contrast check are
+> complete, and four light-theme status colours were darkened to pass WCAG AA. **Phase 2 is closed.**
+> The public site can go live here; Home's Projects / Top contributors / BOD previews are the first
+> Phase 3 tasks.
 
 **Done when:** all six pages work on mobile with loading, error and empty states.
 

@@ -22,10 +22,10 @@
   --primary-text: #8a5a00; /* gold fails AA as text on light, so links use this */
   --accent: #0e7490;
   --accent-ink: #ffffff;
-  --success: #16a34a;
-  --warning: #d97706;
-  --danger: #dc2626;
-  --info: #0284c7;
+  --success: #166534;
+  --warning: #92400e;
+  --danger: #b91c1c;
+  --info: #0369a1;
 
   /* Header logo width. The intro animation lands its pieces on these slots, so
      the size and aspect ratios in the .hart / .htxt rules below are fixed. */

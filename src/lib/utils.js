@@ -22,3 +22,16 @@ export function formatDate(value) {
   if (!value) return ''
   return format(new Date(value), 'dd MMM yyyy')
 }
+
+/**
+ * A stored timestamp in the shape `<input type="datetime-local">` expects, in the
+ * viewer's own time zone, so an admin types the time they mean.
+ */
+export function toDateTimeInput(value) {
+  return value ? format(new Date(value), "yyyy-MM-dd'T'HH:mm") : ''
+}
+
+/** The local value from a datetime-local input back to a stored timestamp. */
+export function fromDateTimeInput(value) {
+  return value ? new Date(value).toISOString() : null
+}

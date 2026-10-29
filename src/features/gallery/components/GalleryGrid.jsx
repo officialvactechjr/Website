@@ -7,6 +7,8 @@ export default function GalleryGrid({ photos, onOpen }) {
             <img
               src={photo.image_url}
               alt={photo.title ?? 'Club photo'}
+              width={800}
+              height={600}
               loading="lazy"
               className="aspect-[4/3] w-full rounded-sm border border-border object-cover transition-colors group-hover:border-primary"
             />

@@ -1,0 +1,10 @@
+# Never format these: the root DESIGN.md is an external analysis kept as reference,
+# and VAC-TECH Jr.html is the club's original landing page. Both are read-only for
+# this project (see docs/MEMORY.md section 6 item 7).
+/DESIGN.md
+/VAC-TECH*.html
+/VAC-Tech-Jr-Website-Plan.md
+
+# Build output and dependencies
+dist/
+node_modules/

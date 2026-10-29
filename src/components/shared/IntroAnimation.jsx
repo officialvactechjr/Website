@@ -331,7 +331,7 @@ export default function IntroAnimation() {
   const ringSize = geo ? geo.lw * 0.5 : 0
 
   return (
-    <div className="intro-root chrome-dark" onClick={() => stop(true)} role="presentation">
+    <div className="intro-root" onClick={() => stop(true)} role="presentation">
       <div ref={bgRef} className="intro-bg" aria-hidden="true" />
 
       {parts && (

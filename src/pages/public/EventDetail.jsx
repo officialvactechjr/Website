@@ -1,10 +1,11 @@
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { format } from 'date-fns'
 import Badge from '../../components/ui/Badge'
-import Card from '../../components/ui/Card'
+import Breadcrumbs from '../../components/ui/Breadcrumbs'
 import ErrorState from '../../components/ui/ErrorState'
 import Section from '../../components/layout/Section'
 import Spinner from '../../components/ui/Spinner'
+import EventRegistration from '../../features/registrations/components/EventRegistration'
 import { useEvent } from '../../features/events/hooks'
 
 export default function EventDetail() {
@@ -13,9 +14,9 @@ export default function EventDetail() {
 
   return (
     <Section tight>
-      <Link to="/events" className="text-sm font-semibold text-primary-text hover:underline">
-        All events
-      </Link>
+      <Breadcrumbs
+        items={[{ label: 'Events', to: '/events' }, { label: data?.title ?? 'Event' }]}
+      />
 
       {isPending && (
         <div className="grid place-items-center py-16">
@@ -35,6 +36,9 @@ export default function EventDetail() {
             <img
               src={data.cover_image}
               alt=""
+              width={1280}
+              height={720}
+              loading="lazy"
               className="aspect-video w-full rounded-sm border border-border object-cover"
             />
           )}
@@ -65,13 +69,9 @@ export default function EventDetail() {
             <p className="mt-5 max-w-prose whitespace-pre-line text-muted">{data.description}</p>
           )}
 
-          <Card className="mt-8 max-w-prose">
-            <h2 className="font-semibold">Registration</h2>
-            <p className="mt-2 text-sm text-muted">
-              Registration for this event is not open yet. When the club team opens it, the form
-              appears right here.
-            </p>
-          </Card>
+          <div className="mt-8">
+            <EventRegistration eventId={data.id} eventStatus={data.status} />
+          </div>
         </article>
       )}
     </Section>

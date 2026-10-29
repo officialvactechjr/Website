@@ -10,14 +10,6 @@
       content="VAC-Tech Jr. is the IT club of Vishwa Adarsha Academy +2. Workshops, events and student projects."
     />
     <script>
-      // Set the theme before first paint so dark mode does not flash.
-      try {
-        var saved = localStorage.getItem('theme')
-        var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
-        document.documentElement.classList.toggle('dark', dark)
-      } catch (e) {}
-    </script>
-    <script>
       // The intro plays once per browser session, on the home page only. Set
       // before first paint so the site never flashes before the overlay appears.
       // If anything here throws, the site simply shows without the intro.
@@ -32,8 +24,12 @@
     <noscript>
       <!-- No JavaScript: make sure the intro cannot hide the page. -->
       <style>
-        html.intro-on { overflow: auto !important; }
-        html.intro-on .intro-root { display: none !important; }
+        html.intro-on {
+          overflow: auto !important;
+        }
+        html.intro-on .intro-root {
+          display: none !important;
+        }
         html.rv-hide .rv {
           opacity: 1 !important;
           transform: none !important;

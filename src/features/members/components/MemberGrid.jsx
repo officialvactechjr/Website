@@ -46,6 +46,8 @@ export default function MemberGrid({
             <img
               src={member.avatar_url}
               alt=""
+              width={44}
+              height={44}
               loading="lazy"
               className="size-11 shrink-0 rounded-full object-cover"
             />

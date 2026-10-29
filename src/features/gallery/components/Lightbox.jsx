@@ -38,7 +38,7 @@ export default function Lightbox({ photos, index, onClose, onChange }) {
       onCancel={onClose}
       onClose={onClose}
       aria-label={photo.title ?? 'Photo'}
-      className="w-[min(64rem,calc(100vw-2rem))] rounded-sm border border-border bg-surface p-0 text-text backdrop:bg-black/80"
+      className="animate-pop w-[min(64rem,calc(100vw-2rem))] rounded-sm border border-border bg-surface p-0 text-text backdrop:animate-fade backdrop:bg-black/80"
     >
       <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
         <p className="truncate font-semibold">{photo.title ?? 'Photo'}</p>

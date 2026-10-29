@@ -37,6 +37,8 @@ export default function BodGrid({
             <img
               src={member.photo_url}
               alt={`Photo of ${member.full_name}`}
+              width={400}
+              height={400}
               loading="lazy"
               className="aspect-square w-full rounded-sm border border-border-strong object-cover"
             />

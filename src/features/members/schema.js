@@ -10,3 +10,17 @@ export const memberProfileSchema = z.object({
     .union([z.literal(''), z.url('Enter a full link starting with https://')])
     .optional(),
 })
+
+/** The five fields a member may only ask for. The database allows exactly these. */
+export const CHANGE_FIELDS = [
+  { value: 'email', label: 'Email address', hint: 'You will sign in with the new one.' },
+  { value: 'phone', label: 'Phone number', hint: 'Kept private: staff only.' },
+  { value: 'full_name', label: 'Full name', hint: 'Shown publicly on your projects.' },
+  { value: 'class', label: 'Class', hint: 'For example: 12.' },
+  { value: 'section', label: 'Section', hint: 'For example: A.' },
+]
+
+export const changeRequestSchema = z.object({
+  field: z.enum(['email', 'phone', 'full_name', 'class', 'section']),
+  new_value: z.string().trim().min(1, 'Write the new value').max(160, 'That is too long'),
+})

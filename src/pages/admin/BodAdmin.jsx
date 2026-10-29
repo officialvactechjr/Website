@@ -75,6 +75,8 @@ export default function BodAdmin() {
             <img
               src={member.photo_url}
               alt=""
+              width={36}
+              height={36}
               loading="lazy"
               className="size-9 shrink-0 rounded-sm border border-border object-cover"
             />

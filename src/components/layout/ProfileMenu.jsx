@@ -68,12 +68,14 @@ export default function ProfileMenu() {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex items-center gap-2 rounded-full border border-border-strong p-0.5 pr-2 text-muted transition-colors hover:border-primary hover:text-primary"
+        className="flex items-center gap-2 rounded-full border border-border-strong p-0.5 pr-2 text-muted transition-colors ease-assemble hover:border-primary hover:text-primary"
       >
         {profile.avatar_url ? (
           <img
             src={profile.avatar_url}
             alt=""
+            width={36}
+            height={36}
             className="size-9 rounded-full object-cover"
             loading="lazy"
           />
@@ -89,7 +91,7 @@ export default function ProfileMenu() {
       {open && (
         <div
           role="menu"
-          className="absolute top-full right-0 z-50 mt-2 w-56 rounded-sm border border-border bg-surface p-1.5"
+          className="animate-pop absolute top-full right-0 z-50 mt-2 w-56 origin-top-right rounded-sm border border-border bg-surface p-1.5"
         >
           <p className="truncate px-3 py-2 text-xs text-muted">{profile.full_name}</p>
           {items.map((item) => (

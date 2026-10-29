@@ -13,7 +13,7 @@ export default function App() {
         <AuthProvider>
           <IntroAnimation />
           <AppRouter />
-          <Toaster position="top-right" theme="system" richColors />
+          <Toaster position="top-right" theme="dark" richColors />
         </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>

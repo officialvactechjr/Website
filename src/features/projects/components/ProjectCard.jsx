@@ -12,6 +12,8 @@ export default function ProjectCard({ project }) {
         <img
           src={project.image_url}
           alt=""
+          width={640}
+          height={360}
           loading="lazy"
           className="aspect-video w-full rounded-t-sm object-cover"
         />

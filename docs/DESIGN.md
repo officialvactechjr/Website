@@ -14,51 +14,51 @@ Personality: **modern, technical, friendly, student-led.** Clean and confident, 
 
 ### Brand (from the logo)
 
-| Token | Hex | Use |
-|---|---|---|
-| `primary` (gold) | `#FFC349` | Primary buttons, links, active nav, rank 1, highlights |
-| `primary-hover` | `#FFD37A` | Gold hover |
-| `primary-ink` | `#08142E` | Text on gold |
-| `primary-text` | `#8A5A00` (light) / `#FFC349` (dark) | Gold used **as text**: raw gold fails AA on light |
-| `accent` (cyan) | `#1FD6F7` | Focus ring, circuit traces, small accents |
-| `accent-ink` | `#06122A` | Text on cyan |
+| Token            | Hex                                  | Use                                                    |
+| ---------------- | ------------------------------------ | ------------------------------------------------------ |
+| `primary` (gold) | `#FFC349`                            | Primary buttons, links, active nav, rank 1, highlights |
+| `primary-hover`  | `#FFD37A`                            | Gold hover                                             |
+| `primary-ink`    | `#08142E`                            | Text on gold                                           |
+| `primary-text`   | `#8A5A00` (light) / `#FFC349` (dark) | Gold used **as text**: raw gold fails AA on light      |
+| `accent` (cyan)  | `#1FD6F7`                            | Focus ring, circuit traces, small accents              |
+| `accent-ink`     | `#06122A`                            | Text on cyan                                           |
 
 ### Surfaces
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `bg` | `#F7F9FF` | `#06122A` | Page background (dark = the logo navy) |
-| `surface` | `#FFFFFF` | `#0A1A3B` | Cards, panels, sidebar, modals |
-| `surface-alt` | `#EEF2FB` | `#0E2350` | Active nav item, subtle fills |
-| `border` | `#D8E0F0` | `#17305E` | Hairline borders and section rules |
+| Token           | Light     | Dark      | Use                                     |
+| --------------- | --------- | --------- | --------------------------------------- |
+| `bg`            | `#F7F9FF` | `#06122A` | Page background (dark = the logo navy)  |
+| `surface`       | `#FFFFFF` | `#0A1A3B` | Cards, panels, sidebar, modals          |
+| `surface-alt`   | `#EEF2FB` | `#0E2350` | Active nav item, subtle fills           |
+| `border`        | `#D8E0F0` | `#17305E` | Hairline borders and section rules      |
 | `border-strong` | `#B9C6E4` | `#27487F` | Card outlines, secondary buttons, pills |
 
 ### Text
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `text` | `#06122A` | `#EEF3FF` | Headings and body |
+| Token   | Light     | Dark      | Use                              |
+| ------- | --------- | --------- | -------------------------------- |
+| `text`  | `#06122A` | `#EEF3FF` | Headings and body                |
 | `muted` | `#4A5A7A` | `#9BACCB` | Secondary text, metadata, labels |
 
 ### Status
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
+| Token     | Light     | Dark      | Use                      |
+| --------- | --------- | --------- | ------------------------ |
 | `success` | `#166534` | `#4ADE80` | Approved, success toasts |
-| `warning` | `#92400E` | `#FBBF24` | Pending, closing soon |
-| `danger` | `#B91C1C` | `#F87171` | Rejected, delete, errors |
-| `info` | `#0369A1` | `#38BDF8` | Neutral notices |
+| `warning` | `#92400E` | `#FBBF24` | Pending, closing soon    |
+| `danger`  | `#B91C1C` | `#F87171` | Rejected, delete, errors |
+| `info`    | `#0369A1` | `#38BDF8` | Neutral notices          |
 
 > The light values were darkened on 2026-10-19 to pass WCAG AA as text (see section 10). The dark
 > values were already fine.
 
 ### Project status badges
 
-| Status | Style |
-|---|---|
-| Pending | `warning` text on soft amber background |
+| Status   | Style                                   |
+| -------- | --------------------------------------- |
+| Pending  | `warning` text on soft amber background |
 | Approved | `success` text on soft green background |
-| Rejected | `danger` text on soft red background |
+| Rejected | `danger` text on soft red background    |
 
 ## 2. Themes (light and dark)
 
@@ -67,39 +67,39 @@ Light is the daytime version. Implemented with CSS variables in `src/index.css`;
 The choice is saved per browser (`localStorage`: `theme`) and defaults to the system setting.
 `index.html` applies it before first paint, so there is no flash.
 
-| Semantic token | Light | Dark |
-|---|---|---|
-| `--bg` | `#F7F9FF` | `#06122A` |
-| `--surface` | `#FFFFFF` | `#0A1A3B` |
-| `--surface-alt` | `#EEF2FB` | `#0E2350` |
-| `--border` | `#D8E0F0` | `#17305E` |
-| `--border-strong` | `#B9C6E4` | `#27487F` |
-| `--text` | `#06122A` | `#EEF3FF` |
-| `--muted` | `#4A5A7A` | `#9BACCB` |
+| Semantic token     | Light     | Dark      |
+| ------------------ | --------- | --------- |
+| `--bg`             | `#F7F9FF` | `#06122A` |
+| `--surface`        | `#FFFFFF` | `#0A1A3B` |
+| `--surface-alt`    | `#EEF2FB` | `#0E2350` |
+| `--border`         | `#D8E0F0` | `#17305E` |
+| `--border-strong`  | `#B9C6E4` | `#27487F` |
+| `--text`           | `#06122A` | `#EEF3FF` |
+| `--muted`          | `#4A5A7A` | `#9BACCB` |
 | `--primary` (gold) | `#FFC349` | `#FFC349` |
-| `--primary-ink` | `#08142E` | `#08142E` |
-| `--accent` (cyan) | `#0E7490` | `#1FD6F7` |
+| `--primary-ink`    | `#08142E` | `#08142E` |
+| `--accent` (cyan)  | `#0E7490` | `#1FD6F7` |
 
 Components use **semantic tokens** (`bg-surface`, `text-muted`), not raw palette colors, so both themes work automatically.
 
 > Tailwind v4 is CSS-first: the tokens live in `src/index.css` under `@theme inline`. There is **no**
 > `tailwind.config.js` in this project.
 
-Contrast rule: normal text must meet WCAG AA (4.5:1). Gold fails AA as text on light, so gold text
-uses `--primary-text` (`#8A5A00`) on light and raw gold on dark.
+Contrast rule: normal text must meet WCAG AA (4.5:1). Gold fails AA as text on a light background, so
+gold text uses `--primary-text` (raw `#FFC349`).
 
-### Chrome that stays navy
+### One theme, dark
 
-The club logo is drawn for the navy background, so the **header, footer and the intro overlay keep the
-dark token values in both themes**. The `.chrome-dark` class in `src/index.css` re-declares the tokens
-for that subtree (and sets `color: var(--text)`, since `color` would otherwise inherit from `body`).
-Page content still switches with the theme.
+The site is dark-only and there is no toggle. `:root` in `src/index.css` holds the navy palette; there is
+no `.dark` class, no theme state in `index.html` and no `prefers-color-scheme` rule anywhere, so the OS
+setting cannot reach the UI. The header, footer and intro overlay therefore sit permanently on the navy
+the club logo was drawn for.
 
 ## 3. Typography
 
-| Role | Font | Fallback | Source |
-|---|---|---|---|
-| Headings and body | **Poppins** | system-ui, sans-serif | `@fontsource/poppins` |
+| Role                                   | Font               | Fallback                | Source                       |
+| -------------------------------------- | ------------------ | ----------------------- | ---------------------------- |
+| Headings and body                      | **Poppins**        | system-ui, sans-serif   | `@fontsource/poppins`        |
 | Code, dates, tags, stats, GitHub links | **JetBrains Mono** | ui-monospace, monospace | `@fontsource/jetbrains-mono` |
 
 The same two fonts as the intro animation — never add a third. Self-hosted through `@fontsource`.
@@ -107,17 +107,17 @@ Load only the weights used: Poppins 400/500/600/700, JetBrains Mono 400/500.
 
 ### Type scale (mobile → desktop)
 
-| Style | Mobile | Desktop | Weight | Line height | Font |
-|---|---|---|---|---|---|
-| Display (home hero) | 36px | 60px | 700 | 1.1 | Poppins |
-| H1 | 30px | 44px | 700 | 1.15 | Poppins |
-| H2 | 24px | 32px | 700 | 1.2 | Poppins |
-| H3 | 20px | 24px | 500 | 1.3 | Poppins |
-| Body large | 18px | 18px | 400 | 1.6 | Poppins |
-| Body | 16px | 16px | 400 | 1.6 | Poppins |
-| Small | 14px | 14px | 400 | 1.5 | Poppins |
-| Caption / label | 12px | 12px | 500 | 1.4 | Poppins |
-| Code chip | 13px | 14px | 500 | 1.4 | JetBrains Mono |
+| Style               | Mobile | Desktop | Weight | Line height | Font           |
+| ------------------- | ------ | ------- | ------ | ----------- | -------------- |
+| Display (home hero) | 36px   | 60px    | 700    | 1.1         | Poppins        |
+| H1                  | 30px   | 44px    | 700    | 1.15        | Poppins        |
+| H2                  | 24px   | 32px    | 700    | 1.2         | Poppins        |
+| H3                  | 20px   | 24px    | 500    | 1.3         | Poppins        |
+| Body large          | 18px   | 18px    | 400    | 1.6         | Poppins        |
+| Body                | 16px   | 16px    | 400    | 1.6         | Poppins        |
+| Small               | 14px   | 14px    | 400    | 1.5         | Poppins        |
+| Caption / label     | 12px   | 12px    | 500    | 1.4         | Poppins        |
+| Code chip           | 13px   | 14px    | 500    | 1.4         | JetBrains Mono |
 
 Rules: never go below 12px; body text 16px minimum; line length 60-75 characters for reading text.
 
@@ -127,71 +127,141 @@ Rules: never go below 12px; body text 16px minimum; line length 60-75 characters
 - Page container: `max-w-[1180px]`, horizontal padding `clamp(16px, 4vw, 40px)` (matches the intro).
 - Section vertical spacing: 56px mobile, 100px desktop.
 
-| Token | Value | Use |
-|---|---|---|
-| `radius-sm` | 4px | Cards, panels, inputs, modals |
-| `radius-md` | 6px | Buttons, icon buttons |
-| `radius-full` | 9999px | Avatars, pills, tags |
+| Token         | Value  | Use                           |
+| ------------- | ------ | ----------------------------- |
+| `radius-sm`   | 4px    | Cards, panels, inputs, modals |
+| `radius-md`   | 6px    | Buttons, icon buttons         |
+| `radius-full` | 9999px | Avatars, pills, tags          |
 
 **No shadows.** Depth comes from hairline borders (`border`, `border-strong`) and the dark surface,
 exactly like the intro animation. In dark mode borders do all the work.
 
+Depth is sculpted, never cast: the `.sheen` class in `src/index.css` puts a palette-anchored radial
+corner light on a surface (gold at low alpha, in both themes) instead of a drop shadow. It intensifies
+on `:focus-within`, so a card answers the form inside it. Cards use it; the values live only in
+`index.css`.
+
 ## 5. Breakpoints
 
-| Name | Width | Layout |
-|---|---|---|
-| default | 0+ | Single column, bottom or hamburger nav |
-| `sm` | 640px | Two-column grids where useful |
-| `md` | 768px | Tablet; admin sidebar collapsible |
-| `lg` | 1024px | Desktop nav, admin sidebar fixed |
-| `xl` | 1280px | Wide content |
+| Name    | Width  | Layout                                 |
+| ------- | ------ | -------------------------------------- |
+| default | 0+     | Single column, bottom or hamburger nav |
+| `sm`    | 640px  | Two-column grids where useful          |
+| `md`    | 768px  | Tablet; admin sidebar collapsible      |
+| `lg`    | 1024px | Desktop nav, admin sidebar fixed       |
+| `xl`    | 1280px | Wide content                           |
 
 Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
 
 ## 6. Components
 
 **Buttons**
-- Primary: gold (`primary`) fill, `primary-ink` text. Secondary: border + text. Ghost: text only. Danger: `danger` fill.
+
+- Primary: gold (`primary`) fill, `primary-ink` text. Secondary: border + text. Outline: `accent`
+  hairline with `accent` text and an `accent/10` wash on hover — the informational action, used for
+  "View about" beside a gold CTA. Ghost: text only. Danger: `danger` fill.
 - Height 46px (40px for `size="sm"`), label 15px/600 (14px when small). Radius `radius-md` (6px). Visible focus ring (2px `accent` cyan, 2px offset). Matches the landing page.
-- Disabled: 50% opacity, `not-allowed`. Loading: spinner inside, button disabled.
+- Every variant carries a 1px border, so primary and secondary keep the same edge weight side by side.
+- Press: `active:scale-[.98]`; hover and press run 150ms on `--ease-assemble` (section 8). This is the
+  button's whole motion budget — no lift, no glow, no shadow.
+- Disabled: 50% opacity, pointer events off. Loading: spinner inside, button disabled.
 
 **Inputs**
+
 - Height 44px, `radius-sm`, 1px `border`; focus ring `primary`; error border `danger` with message below.
 - Always a visible `<label>`; placeholders are hints, not labels.
 
 **Cards**
+
 - `surface` background, 1px `border`, `radius-sm` (4px), no shadow. A clickable card brightens its border to gold on hover.
+- Every `Card` carries the `.sheen` corner light (section 4) and its content is clipped to the radius.
+  A field focused inside the card warms that corner; the card never moves or lifts.
 
 **Badges / chips**
+
 - Pill shape, 12px text. Project status uses the status colors above. Tags and class labels use `JetBrains Mono`.
+- Variants: `neutral`, `gold`, `success`, `warning`, `danger` (`Badge.jsx`). Status wording stays the same everywhere: projects read "Waiting for review / Approved / Needs changes", change requests read "Waiting / Applied / Declined".
+
+**Selects and yes/no controls**
+
+- A plain `<select>` (not a custom popup), 44px tall, `border`, `radius-sm`, `focus:border-primary`, with a real `<label>` or `aria-label`.
+- Binary choices (award vs deduct) use a two-button group with `aria-pressed`, gold for the active side and `danger` for the destructive one.
+
+**Tables (admin)** (`DataTable`)
+
+- One shared table for every admin screen: search box, sortable headers with an arrow, 10-row paging, "Page X of Y" count, empty state that distinguishes "nothing yet" from "no matches".
+- Sticky header, horizontal scroll on mobile, row actions on the right as small buttons.
+- Client-side on purpose: it searches and sorts one fetch of up to 200 rows (500 for the gallery). Fine for a club; see `MEMORY.md` item 17.
+
+**Lightbox** (gallery)
+
+- Native `<dialog>` at `min(64rem, calc(100vw - 2rem))`, black 80% backdrop, photo contained to 70vh, caption under it, previous/next with arrow-key support and Esc to close.
+
+**Admin sidebar**
+
+- **Top-level destinations only** — Overview, Content, Intake, People, System: one icon and one label
+  per row, five rows at every role. A section's own pages are tabs in the contextual toolbar (see
+  "Admin layout"), so the column never grows with the panel and **never holds an action**.
+- Entries a role may not open are dropped rather than shown empty: the `NAV` array in
+  `AdminLayout.jsx` carries a `roles` list, and each route has the matching guard in
+  `routes/index.jsx`. A hidden link is never the only defence.
+- 240px (`w-60`) wide. Active row: `surface-alt` fill, 1px gold hairline at the left edge, gold icon.
 
 **Navbar**
-- Sticky, navy in both themes (`.chrome-dark` so the logo keeps working), 76px tall. Logo slots left, links right, theme toggle, then the session control.
+
+- Sticky navy, 76px tall. The navy sits at 85% over a `backdrop-blur` (95% where the browser cannot
+  blur), so the page reads through the bar without ever eating the white wordmark's contrast. Logo slots
+  left, links right, then the session control.
+- The current page is a 1px gold hairline under the link, the label at full `text` colour, moving on the
+  same 150ms `--ease-assemble` as everything else. In the mobile drawer the same hairline turns vertical
+  and sits at the row's left edge.
 - **Logged out:** "Member login" text link + gold "Join the club" button.
 - **Logged in:** the `ProfileMenu` button (photo, or initials when there is no photo) and no Join button.
 - Mobile: hamburger opens a drawer with the nav links; logged out it also carries "Member login" and "Join the club". The profile button stays in the header at every size.
 
 **Profile menu** (`ProfileMenu`)
+
 - A round button with the avatar photo, or initials on a gold circle. Opens a dropdown: My profile, My projects, Upload project, Suggestion box, then Admin panel for staff only, then Log out.
 - `aria-haspopup="menu"`, `aria-expanded`; closes on Esc, on an outside click, and on choosing an item.
 
 **Section heading** (`SectionHeading`)
+
 - `title` + optional `description` + optional `action`, laid out with the landing page's wrapping `sec-head` rhythm. Used by every public section.
 
 **Admin layout**
-- Left sidebar (collapsible on mobile), top bar with user menu. Active item uses `surface-alt` background.
 
-**Tables (admin)**
-- Sticky header, zebra optional, row actions on the right, horizontal scroll on mobile, empty state when no rows.
+- Three stacked bands, then the page. **Sidebar** (240px) holds the five top-level destinations and
+  nothing else; **header** carries the global tools — the Preview toggle and the profile menu — so they
+  are reachable from every screen without scrolling back up; **contextual toolbar** carries the open
+  section's pages as horizontal tabs (gold 2px underline on the active one). Both the header and the
+  toolbar are `sticky` (`top-0` / `top-16`), so a long table never takes the section nav away.
+- A section with one page draws no toolbar, so `/admin` is just a header and the page.
+- **`NAV` in `AdminLayout.jsx` is the only navigation source**: `items` are a section's pages and each
+  entry's `page` is resolved by longest matching URL prefix. A section the role cannot open is dropped
+  rather than shown empty — see "Admin sidebar" above.
+- Form actions, filters and batch operations do **not** live in the chrome: they belong to the page
+  (`PageHeader`'s `action` slot, `DataTable`'s `toolbar`) or to the row itself. Nothing in the sidebar
+  is ever clickable except a destination.
+- Depth in the panel comes from borders alone, like everywhere else — the mobile drawer only dims the
+  page behind it.
 
 **Modals and dialogs**
+
 - Centered, `radius-sm`, focus trapped, close on Esc. Destructive actions always use a confirm dialog with the item name.
+- The dialog and the lightbox both enter with `animate-pop` (fade + 0.96 scale, 250ms) and their backdrop
+  with `animate-fade`, so every dialog in the site opens the same way (section 8).
+
+**Dropdowns (profile menu)**
+
+- Opens with the same `animate-pop` from its top-right corner. Items answer on hover with `surface-alt`.
 
 **Toasts**
-- Top right (top on mobile, so they never cover the submit button), auto-dismiss in 4s.
+
+- Top right (top on mobile, so they never cover the submit button), auto-dismiss in 4s for successes. Errors are toast text as well, in plain language.
 
 **Skeletons / spinners**
-- Skeletons for lists and cards; spinner for buttons and small actions.
+
+- Skeletons for lists and cards; spinner for buttons and small actions. A table page shows a spinner block; a card grid shows shaped skeletons; a button shows the spinner inside itself and disables.
 
 ## 7. Imagery and icons
 
@@ -209,19 +279,39 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
   Keep meaningful `alt` text.
 - **No `<canvas>`:** the landing page's circuit traces were dropped. Keep the public pages light.
 - Photos: `object-cover`, fixed aspect ratios (BOD 1:1, gallery 4:3, project cover 16:9, event cover 16:9). Lazy load below the fold. Always provide alt text.
-- Avatar fallback: initials on `surface-alt` background.
+- **Every content image carries explicit `width` and `height` attributes** as well as its CSS aspect ratio, so nothing reflows when it arrives. Decorative images use `alt=""`; the avatar fallback is initials on `surface-alt`.
 - Placeholder image: a soft neutral block with a small icon, never a broken image.
 - Decorative style: subtle dotted grid or code-bracket motifs in hero backgrounds; keep them low contrast.
 
 ## 8. Motion
 
 Take the timings from the intro animation so the whole site feels like one piece.
+
 - Durations: 150ms (hover/press), 250ms (menus, modals), 400ms (section reveal), 600-800ms (the home reveal).
-- Easing: `ease-out` for hovers; `cubic-bezier(.16,.84,.24,1)` for things assembling; `cubic-bezier(.65,0,.2,1)` for the intro's fly-to-header.
+- Easing: `ease-out` for hovers; `ease-assemble` — the token in `src/index.css`, value
+  `cubic-bezier(.16,.84,.24,1)` — for things assembling; `cubic-bezier(.65,0,.2,1)` for the intro's
+  fly-to-header. Use the token, never a raw curve, in a component.
 - Reveals are a small `translateY` (about 14px) plus opacity, staggered 40-60ms apart.
 - Animate transforms and opacity only; never animate layout properties.
 - Respect `prefers-reduced-motion`: `src/index.css` already neutralises animation, and the intro skips itself entirely.
 - No auto-playing carousels.
+
+### Micro-interactions (the tactile layer)
+
+One vocabulary, used everywhere, so the site answers the hand the same way in every corner:
+
+- **Press.** Buttons take `active:scale-[.98]` at 150ms on `--ease-assemble`. Transform only, so nothing
+  reflows and the grid never moves. That single-scale press is the whole tactile budget — no lift, no
+  shadow, no bounce.
+- **Hover.** 150ms, `--ease-assemble`, and only ever a colour or a hairline: gold border on a card, `primary-hover`
+  fill on a primary button, an `accent/10` wash on an outline button. Hover never moves an element in this system.
+- **Entry.** Menus and dialogs use `animate-pop` (`vac-pop`: opacity 0 → 1 with `scale(.96)` → 1) at 250ms
+  on `--ease-assemble`, and a dialog's backdrop uses `animate-fade` at the same timing. Both live in `src/index.css`. Nothing else in the site scales in — the
+  entrance is reserved for surfaces that were not there a moment ago.
+- **Focus.** The card corner light (section 4) warms on `:focus-within`; the focus ring itself is the
+  global cyan one from section 10 and never changes.
+- Every one of these is neutralised by the reduced-motion rule above, which zeroes animation and
+  transition durations globally.
 
 ### Intro animation
 
@@ -250,26 +340,44 @@ page. Same 27 pieces, same sequence, timings and easings — **do not retune the
 
 ## 10. Accessibility checklist
 
-Checked on 2026-10-19 against the tokens in section 1. Legend: `[x]` verified, `[ ]` not yet checked.
+Checked on 2026-10-19 (tokens, contrast) and re-checked on **2026-10-20** (structure, focus, labels,
+headings, targets). Legend: `[x]` verified in code, `[ ]` still to be confirmed on a real device.
 
 - [x] **Contrast AA.** Every text/surface pair in both themes was computed with the WCAG relative
-  luminance formula. All pass 4.5:1 (`text` 17.7:1 on light bg, 16.8:1 on dark bg; `muted` 6.6:1 /
-  8.1:1; gold button label 11.4:1 in both). The light theme's status colours failed and were
-  darkened to `success #166534`, `warning #92400e`, `danger #b91c1c`, `info #0369a1` — each now
-  ≥5.3:1 on light `bg`, `surface` and `surface-alt`.
-  *shortcut: `border-strong` is 1.71:1 against white. It is only ever a hairline around controls
-  whose own text carries the meaning, so it is decorative rather than "required to identify" the
-  control (WCAG 1.4.11). Upgrade to a `text`-coloured border if a control ever relies on the border
-  alone.*
-- [ ] Every interactive element reachable and usable by keyboard — spot-checked (profile menu, mobile
-  drawer, modals use native `<dialog>`); a full pass is Phase 8.
-- [x] Visible focus ring everywhere — one global `:focus-visible` rule (2px `accent`, 2px offset).
-- [ ] Alt text on all meaningful images — the hero and logo have it; gallery/BOD arrive in Phase 3.
-- [x] Form errors announced and tied to fields (`aria-describedby` in `Input`).
+      luminance formula. All pass 4.5:1 (`text` 17.7:1 on light bg, 16.8:1 on dark bg; `muted` 6.6:1 /
+      8.1:1; gold button label 11.4:1 in both). The light theme's status colours failed and were
+      darkened to `success #166534`, `warning #92400e`, `danger #b91c1c`, `info #0369a1` — each now
+      ≥5.3:1 on light `bg`, `surface` and `surface-alt`.
+      _shortcut: `border-strong` is 1.71:1 against white. It is only ever a hairline around controls
+      whose own text carries the meaning, so it is decorative rather than "required to identify" the
+      control (WCAG 1.4.11). Upgrade to a `text`-coloured border if a control ever relies on the border
+      alone._
+- [x] **Accent as text (the `outline` button) checked 2026-10-20.** `accent` `#0e7490` reads 5.36:1 on
+      light `surface`, 5.09:1 on light `bg`, 4.78:1 on light `surface-alt`; `#1fd6f7` reads 9.82:1 on
+      dark `surface`. AA everywhere, so an outline button may carry `accent` text in both themes.
+- [x] Every interactive element reachable and usable by keyboard — modals and the lightbox are native
+      `<dialog>` (so Esc, focus trapping and the top layer come free); the profile menu and the mobile
+      drawer open with Enter, close on Esc and on an outside click; the lightbox also takes the arrow
+      keys; the points direction buttons expose `aria-pressed`.
+- [x] Visible focus ring everywhere — one global `:focus-visible` rule (2px `accent`, 2px offset), and
+      no component sets `outline: none` (`Input.jsx` says so in a comment).
+- [x] Alt text on all meaningful images — the hero and logo have it; gallery photos use their title,
+      BOD photos use "Photo of …", and decorative images use an empty `alt`.
+- [x] Form errors announced and tied to fields (`aria-describedby` in `Input` and `Textarea`), plus
+      `aria-invalid`.
 - [x] Touch targets — measured 2026-10-19: desktop nav links **33px**, "Member login" **36px**, the
-  small button **40px**, the primary button **46px**, the intro Skip **44px**. WCAG 2.2 AA asks for
-  24x24px, so all of these pass. 44px is our own stricter goal, kept for primary buttons and the Skip.
-- [ ] Heading order is logical (one H1 per page) — true on every built page; re-check as pages grow.
+      small button **40px**, the primary button **46px**, the intro Skip **44px**, the sidebar menu
+      button **44px**, modal and lightbox close buttons **44px**. WCAG 2.2 AA asks for 24x24px, so all
+      of these pass. 44px is our own stricter goal, kept for primary buttons, toolbars and the Skip.
+- [x] Heading order is logical — one `h1` per page (`PageHeader` on every interior page, the hero on
+      Home), `h2` for sections (`SectionHeading`) and card titles, `h3` inside a card or a BOD tile.
+      The footer's group titles are `h2` inside their own `nav[aria-labelledby]` landmarks.
+- [x] **Code-level mobile check at 360px (2026-10-20).** No fixed widths outside a contained scroller:
+      `DataTable` scrolls inside its own box (`min-w-[44rem]` + `overflow-x-auto`), dialogs are
+      `min(…, calc(100vw - 2rem))`, the navbar logo shrinks below 960px, and the admin sidebar becomes
+      a menu button. Section 11 of `docs/TESTING.md` keeps the real-device pass for the testing team.
+      _shortcut: verified by reading the CSS, not by eye — the browser harness in that session could
+      not reach the dev server (`MEMORY.md` item 26)._
 
 ## 11. Tailwind tokens (CSS-first)
 

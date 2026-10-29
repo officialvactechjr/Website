@@ -31,7 +31,7 @@ const GROUPS = [
 
 export default function Footer() {
   return (
-    <footer className="chrome-dark mt-auto border-t border-border bg-bg">
+    <footer className="mt-auto border-t border-border bg-bg">
       <div className="mx-auto grid max-w-[1180px] gap-8 px-[clamp(16px,4vw,40px)] py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="font-semibold">VAC-TECH Jr.</p>

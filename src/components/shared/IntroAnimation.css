@@ -4,7 +4,7 @@
   inset: 0;
   z-index: 200;
   overflow: hidden;
-  /* The overlay is always navy (see the .chrome-dark class on the element). */
+  /* The overlay is always navy, like the header and footer. */
   background: transparent;
 }
 

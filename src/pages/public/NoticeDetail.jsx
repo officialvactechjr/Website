@@ -1,5 +1,6 @@
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import Badge from '../../components/ui/Badge'
+import Breadcrumbs from '../../components/ui/Breadcrumbs'
 import ErrorState from '../../components/ui/ErrorState'
 import Section from '../../components/layout/Section'
 import Spinner from '../../components/ui/Spinner'
@@ -12,9 +13,9 @@ export default function NoticeDetail() {
 
   return (
     <Section tight>
-      <Link to="/notices" className="text-sm font-semibold text-primary-text hover:underline">
-        All notices
-      </Link>
+      <Breadcrumbs
+        items={[{ label: 'Notices', to: '/notices' }, { label: data?.title ?? 'Notice' }]}
+      />
 
       {isPending && (
         <div className="grid place-items-center py-16">

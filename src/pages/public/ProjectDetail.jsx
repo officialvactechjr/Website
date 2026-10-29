@@ -1,4 +1,5 @@
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import Breadcrumbs from '../../components/ui/Breadcrumbs'
 import ErrorState from '../../components/ui/ErrorState'
 import Section from '../../components/layout/Section'
 import Spinner from '../../components/ui/Spinner'
@@ -10,9 +11,9 @@ export default function ProjectDetail() {
 
   return (
     <Section tight>
-      <Link to="/projects" className="text-sm font-semibold text-primary-text hover:underline">
-        All projects
-      </Link>
+      <Breadcrumbs
+        items={[{ label: 'Projects', to: '/projects' }, { label: data?.title ?? 'Project' }]}
+      />
 
       {isPending && (
         <div className="grid place-items-center py-16">
@@ -32,6 +33,9 @@ export default function ProjectDetail() {
             <img
               src={data.image_url}
               alt=""
+              width={1280}
+              height={720}
+              loading="lazy"
               className="aspect-video w-full rounded-sm border border-border object-cover"
             />
           )}

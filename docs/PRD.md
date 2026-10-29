@@ -2,7 +2,7 @@
 
 **Product Requirements Document**
 Project: Official website and member platform for VAC Tech Jr, the IT Club of Vishwa Adarsha Academy (+2)
-Status: Pre-development
+Status: **Built — awaiting the test pass** (every feature below exists in the code; `docs/TESTING.md` is the test plan, `docs/OWNER-ACTIONS.md` the remaining setup)
 Stack: React (Vite) + Tailwind CSS + Supabase + Cloudflare Pages
 
 > Read order for any developer or AI: `PRD.md` → `ARCHITECTURE.md` → `DESIGN.md` → `PHASES.md` → `MEMORY.md` (always last, it shows the current state).
@@ -21,12 +21,14 @@ A single digital home for the club. It must:
 ## 2. Goals and non-goals
 
 **Goals**
+
 - Public pages load fast on mobile and on slow Nepali networks.
 - Only the club team can create accounts. Nobody can sign up on their own.
 - Every member upload is reviewed before it goes public.
 - The site can survive leadership changes with no code edits (Super Admin handles roles).
 
 **Non-goals (not in version 1)**
+
 - Public sign-up or social login
 - Chat, comments or likes
 - Payments
@@ -35,13 +37,13 @@ A single digital home for the club. It must:
 
 ## 3. Users and roles
 
-| Role | Who | Can do |
-|---|---|---|
-| Visitor | Anyone | Read public pages, submit membership application, register for events |
-| Member | Club members (about 50-60) | Log in, upload projects, see upload status, edit or delete own uploads, send suggestions |
-| Manager | Web manager | Manage notices, events, BOD, gallery; approve or reject uploads; view and export registrations |
-| Admin | Club President | Everything a Manager can, plus create member accounts, reset passwords, deactivate accounts, send emails, give points, open or close the membership window |
-| Super Admin | Staff member of the institution | Everything, plus add or remove Admins and Managers and change system settings |
+| Role        | Who                             | Can do                                                                                                                                                                                     |
+| ----------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Visitor     | Anyone                          | Read public pages, submit membership application, register for events                                                                                                                      |
+| Member      | Club members (about 50-60)      | Log in, upload projects, see upload status, edit or delete own uploads, send suggestions                                                                                                   |
+| Manager     | Web manager                     | Manage notices, events, BOD, gallery; approve or reject uploads; view and export registrations                                                                                             |
+| Admin       | Club President                  | Everything a Manager can, plus create member accounts, reset passwords, deactivate accounts, send emails, give points, review profile change requests, open or close the membership window |
+| Super Admin | Staff member of the institution | Everything, plus add or remove Admins and Managers and change system settings                                                                                                              |
 
 ## 4. Authentication requirements (decided)
 
@@ -63,59 +65,59 @@ IDs are used in `PHASES.md` and `MEMORY.md` for tracking.
 
 ### 5.1 Public pages (no login)
 
-| ID | Feature | Details |
-|---|---|---|
-| PUB-01 | Home | Club intro, goals, highlights (latest notice, next event, a few projects) |
-| PUB-02 | Notices | List with pinned notices first; detail page |
-| PUB-03 | Events | Upcoming and past (archive); detail page with registration form when open |
-| PUB-04 | BOD Showcase | Photos, positions, short bios, by term year |
-| PUB-05 | Photo Gallery | Grid with caption, optional event filter, lightbox |
-| PUB-06 | Member Projects | Approved only; shows title, image, description, student name, class, section, GitHub link |
-| PUB-07 | Top Contributors | Ranking from points |
-| PUB-08 | Member List | Name, class, GitHub only |
-| PUB-09 | Membership Registration | Visible only while the window is open; closes automatically |
-| PUB-10 | Event Registration | Rendered from the event's form definition; closes automatically |
-| PUB-11 | Contact | Email, location, social links, optional message form |
+| ID     | Feature                 | Details                                                                                   |
+| ------ | ----------------------- | ----------------------------------------------------------------------------------------- |
+| PUB-01 | Home                    | Club intro, goals, highlights (latest notice, next event, a few projects)                 |
+| PUB-02 | Notices                 | List with pinned notices first; detail page                                               |
+| PUB-03 | Events                  | Upcoming and past (archive); detail page with registration form when open                 |
+| PUB-04 | BOD Showcase            | Photos, positions, short bios, by term year                                               |
+| PUB-05 | Photo Gallery           | Grid with caption, optional event filter, lightbox                                        |
+| PUB-06 | Member Projects         | Approved only; shows title, image, description, student name, class, section, GitHub link |
+| PUB-07 | Top Contributors        | Ranking from points                                                                       |
+| PUB-08 | Member List             | Name, class, GitHub only                                                                  |
+| PUB-09 | Membership Registration | Visible only while the window is open; closes automatically                               |
+| PUB-10 | Event Registration      | Rendered from the event's form definition; closes automatically                           |
+| PUB-11 | Contact                 | Email, location, social links, optional message form                                      |
 
 ### 5.2 Member area
 
-| ID | Feature | Details |
-|---|---|---|
-| MEM-01 | Login | Email + password provided by the club |
-| MEM-02 | Forced password change | On first login |
-| MEM-03 | Upload project | Title, description, image, GitHub link; saved as `pending` |
-| MEM-04 | Upload status | Pending, approved or rejected (with reason) |
-| MEM-05 | Edit or delete own uploads | Editing an approved project sends it back to `pending` |
-| MEM-06 | Suggestion box | Send ideas or complaints |
-| MEM-07 | Profile (`/profile`) | Change password immediately. GitHub link and photo change immediately. Email, phone, name, class and section are **submitted as change requests** that an admin must approve before they take effect. |
+| ID     | Feature                    | Details                                                                                                                                                                                               |
+| ------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MEM-01 | Login                      | Email + password provided by the club                                                                                                                                                                 |
+| MEM-02 | Forced password change     | On first login                                                                                                                                                                                        |
+| MEM-03 | Upload project             | Title, description, image, GitHub link; saved as `pending`                                                                                                                                            |
+| MEM-04 | Upload status              | Pending, approved or rejected (with reason)                                                                                                                                                           |
+| MEM-05 | Edit or delete own uploads | Editing an approved project sends it back to `pending`                                                                                                                                                |
+| MEM-06 | Suggestion box             | Send ideas or complaints                                                                                                                                                                              |
+| MEM-07 | Profile (`/profile`)       | Change password immediately. GitHub link and photo change immediately. Email, phone, name, class and section are **submitted as change requests** that an admin must approve before they take effect. |
 
 ### 5.3 Admin and Manager panel
 
-| ID | Feature | Roles |
-|---|---|---|
-| ADM-01 | CRUD notices | Manager, Admin, Super Admin |
-| ADM-02 | CRUD events | Manager, Admin, Super Admin |
-| ADM-03 | CRUD BOD members | Manager, Admin, Super Admin |
-| ADM-04 | CRUD gallery photos | Manager, Admin, Super Admin |
-| ADM-05 | Event registration form builder (template, open/close time) | Manager, Admin, Super Admin |
+| ID     | Feature                                                             | Roles                       |
+| ------ | ------------------------------------------------------------------- | --------------------------- |
+| ADM-01 | CRUD notices                                                        | Manager, Admin, Super Admin |
+| ADM-02 | CRUD events                                                         | Manager, Admin, Super Admin |
+| ADM-03 | CRUD BOD members                                                    | Manager, Admin, Super Admin |
+| ADM-04 | CRUD gallery photos                                                 | Manager, Admin, Super Admin |
+| ADM-05 | Event registration form builder (template, open/close time)         | Manager, Admin, Super Admin |
 | ADM-06 | View and CSV-export event registrations and membership applications | Manager, Admin, Super Admin |
-| ADM-07 | Approve or reject projects (rejection needs a reason) | Manager, Admin, Super Admin |
-| ADM-08 | Create member accounts (single form) | Admin, Super Admin |
-| ADM-09 | Bulk create accounts from CSV | Admin, Super Admin |
-| ADM-10 | Reset password, deactivate or reactivate account | Admin, Super Admin |
-| ADM-11 | Give points to members | Admin, Super Admin (Manager optional) |
-| ADM-12 | Read suggestions | Manager, Admin, Super Admin |
-| ADM-13 | Send emails | Admin, Super Admin |
-| ADM-14 | Open or close membership window | Admin, Super Admin |
-| ADM-15 | Dashboard (pending counts, recent activity) | All staff roles |
-| ADM-16 | Review profile change requests: approve or reject with a note | Admin, Super Admin |
+| ADM-07 | Approve or reject projects (rejection needs a reason)               | Manager, Admin, Super Admin |
+| ADM-08 | Create member accounts (single form)                                | Admin, Super Admin          |
+| ADM-09 | Bulk create accounts from CSV                                       | Admin, Super Admin          |
+| ADM-10 | Reset password, deactivate or reactivate account                    | Admin, Super Admin          |
+| ADM-11 | Give points to members                                              | Admin, Super Admin          |
+| ADM-12 | Read suggestions                                                    | Manager, Admin, Super Admin |
+| ADM-13 | Send emails                                                         | Admin, Super Admin          |
+| ADM-14 | Open or close membership window                                     | Admin, Super Admin          |
+| ADM-15 | Dashboard (pending counts, recent activity)                         | All staff roles             |
+| ADM-16 | Review profile change requests: approve or reject with a note       | Admin, Super Admin          |
 
 ### 5.4 Super Admin extras
 
-| ID | Feature |
-|---|---|
-| SUP-01 | Add or remove Admins and Managers (change roles) |
-| SUP-02 | System-wide settings (site name, contact details, social links). Editable by **Admin and Super Admin** only. The settings table is publicly readable, so it must never hold private values. |
+| ID     | Feature                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SUP-01 | Add or remove Admins and Managers (change roles)                                                                                                                                                                                                                                                                                                                                             |
+| SUP-02 | System-wide settings (site name, contact details, social links). **Super Admin only** in the built app — stricter than the first draft of this line, which said "Admin and Super Admin". The stricter rule was chosen, logged in `MEMORY.md` section 5, and enforced by both the route guard and the sidebar. The settings table is publicly readable, so it must never hold private values. |
 
 ## 6. Business rules
 
@@ -132,40 +134,43 @@ IDs are used in `PHASES.md` and `MEMORY.md` for tracking.
 
 ## 7. Non-functional requirements
 
-| Area | Requirement |
-|---|---|
-| Performance | Public pages usable on 3G; images resized before upload (max about 1600px, under 1 MB target) |
-| Responsive | Mobile first; works from 360px wide |
-| Security | RLS on every table; no secrets in frontend; service role key only in Edge Functions |
-| Accessibility | Keyboard navigable, visible focus, alt text, sufficient contrast |
-| Maintainability | Simple tools, all SQL in migration files, handover guide |
-| Cost | Free tiers only (Supabase, Cloudflare Pages, Resend or Brevo) |
+| Area            | Requirement                                                                                                                                  |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Performance     | Public pages usable on 3G; images resized in the browser before upload (longest edge 1600px, 2 MB ceiling enforced by the bucket and the UI) |
+| Responsive      | Mobile first; works from 360px wide                                                                                                          |
+| Security        | RLS on every table; no secrets in frontend; service role key only in Edge Functions                                                          |
+| Accessibility   | Keyboard navigable, visible focus, alt text, sufficient contrast                                                                             |
+| Maintainability | Simple tools, all SQL in migration files, handover guide                                                                                     |
+| Cost            | Free tiers only (Supabase, Cloudflare Pages, Resend or Brevo)                                                                                |
 
 ## 8. Data privacy and consent
 
 - A consent line on the membership form: name, class and GitHub may be shown publicly.
 - Photos of students need school or guardian permission before publishing.
-- Suggestion box: **anonymous to readers**. The admin UI never shows the author. State this honestly on the form.
+- Suggestion box: **anonymous to readers**. The admin UI never shows the author, and the database refuses to hand the author column to any client role. The sender is recorded privately only so the inbox cannot be flooded (10 per person per day). State this honestly on the form.
+- A signed-in member who opens `/join` is told they are already a member instead of being shown the form again, so no duplicate applications are stored.
+- Deleting a member account deletes their suggestion rows with it (the author link cascades). Worth knowing if a student ever asks for their suggestions to be removed.
 
 ## 9. Decisions log
 
-| Question from the original doc | Decision |
-|---|---|
-| How members log in | Email + password issued by the club; single Login page; no sign-up |
-| Application → account | Manual: team approves, then creates the account with a prefilled form |
-| Suggestion box | Anonymous to readers |
-| Ranking | Manual points only in v1 |
-| Website address | Free Cloudflare Pages address first (`officialvactechjr/Website`); custom domain later |
-| Super Admin | A teacher or IT staff member, to be agreed in writing (OPEN) |
-| Public display permission | Consent line on form + school permission for photos (OPEN: get written approval) |
+| Question from the original doc | Decision                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------- |
+| How members log in             | Email + password issued by the club; single Login page; no sign-up                     |
+| Application → account          | Manual: team approves, then creates the account with a prefilled form                  |
+| Suggestion box                 | Anonymous to readers                                                                   |
+| Ranking                        | Manual points only in v1                                                               |
+| Website address                | Free Cloudflare Pages address first (`officialvactechjr/Website`); custom domain later |
+| Super Admin                    | A teacher or IT staff member, to be agreed in writing (OPEN)                           |
+| Public display permission      | Consent line on form + school permission for photos (OPEN: get written approval)       |
 
 ## 10. Open items
 
 - [ ] Name the Super Admin (institution staff)
 - [ ] Get written permission for showing names, photos and work
-- [ ] Choose email provider (Resend or Brevo) and sender address
-- [ ] Final club logo and brand colors (see `DESIGN.md`)
+- [x] Choose email provider (Resend or Brevo) and sender address — **Resend** is the built default, behind one adapter file; the sender still has to be verified (`docs/OWNER-ACTIONS.md` section 6)
+- [ ] Final club logo and brand colors (see `DESIGN.md`) — the palette and fonts are settled; the hero robot is still the placeholder SVG
 - [x] Create the official club GitHub, Supabase and Cloudflare Pages accounts (not personal)
+- [ ] Run the full test pass (`docs/TESTING.md`) and clear the PRE-LAUNCH CHECKLIST
 
 ## 11. Success criteria
 

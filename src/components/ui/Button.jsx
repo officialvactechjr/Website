@@ -2,13 +2,16 @@ import { Loader2 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 const BASE =
-  'inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors'
+  'inline-flex items-center justify-center gap-2 rounded-md border font-semibold transition duration-150 ease-assemble active:scale-[.98] disabled:pointer-events-none disabled:opacity-50'
 
 const VARIANTS = {
-  primary: 'bg-primary text-primary-ink hover:bg-primary-hover',
-  secondary: 'border border-border-strong text-text hover:border-primary hover:text-primary',
-  ghost: 'text-muted hover:text-text',
-  danger: 'bg-danger text-white hover:opacity-90',
+  primary:
+    'border-primary bg-primary text-primary-ink hover:border-primary-hover hover:bg-primary-hover',
+  secondary: 'border-border-strong text-text hover:border-primary hover:text-primary',
+  // The information-tone action: cyan hairline, no fill until hover.
+  outline: 'border-accent/30 text-accent hover:border-accent/60 hover:bg-accent/10',
+  ghost: 'border-transparent text-muted hover:text-text',
+  danger: 'border-danger bg-danger text-white hover:opacity-90',
 }
 
 const SIZES = {

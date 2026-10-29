@@ -8,175 +8,230 @@
 
 ## 1. Current status (update every session)
 
-| Field | Value |
-|---|---|
-| Last updated | 2026-10-19 |
-| Current phase | Phase 4: Admin Panel Core — code written, owner tests not run |
-| Current task | Phase 4 review fixes applied (all seven findings). Waiting on the console tests |
-| File(s) being worked on | `src/components/ui/{Modal,DataTable}.jsx`, `src/features/storage/api.js`, `src/features/*/hooks.js` |
-| Overall progress | 4 of 9 phases complete (0-3). Phase 4 code done, unverified |
-| Blocked by | nothing technical — Phase 4 needs the owner's console tests before its docs are closed |
+| Field                   | Value                                                                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Last updated            | 2026-10-29                                                                                                              |
+| Current phase           | **All 8 phases built**, plus: dark-only lock, hero art, committee marquee, admin shell rework. A new brief is open        |
+| Current task            | **Membership form, form templates, event-form builder, bulk member add, account creation** (5 steps). Step 0 (audit) done |
+| File(s) being worked on | `src/pages/public/Join.jsx`, `src/features/registrations/*`, `src/components/shared/DynamicForm.jsx`, `src/pages/admin/{Applications,FormBuilder,MembershipWindow,Registrations,MembersAdmin}.jsx`, `supabase/migrations/`, `supabase/functions/*` |
+| Overall progress        | Every PRD feature exists; **nothing is verified against the live database**                                              |
+| Blocked by              | School must approve the consent wording before real students apply; then the owner test pass (`docs/OWNER-ACTIONS.md`)    |
 
 ## 2. Resume here (the single most important section)
 
 > Write 2 to 5 lines so a person or AI can continue immediately.
 
-- **Last thing done:** the Phase 4 admin console (dashboard + notices/events/BOD/gallery CRUD, `DataTable`, `ImageUpload`, `ConfirmDialog`, storage helpers), then the seven review fixes: `Modal` now unmounts its children so an edit form opens with the row's real values, the image resize runs before the 2 MB check, every content mutation refreshes the dashboard, `DataTable`'s dead memos are gone, the dead gallery schema is deleted, the "arrives in Phase 6" copy is out of the UI, and the admin gallery list reaches 500 rows.
-- **Next thing to do:** the owner runs the **Phase 4 console tests** (storage permissions a-d, the `/admin` gates e, notice CRUD from the UI f). Once those pass, close Phase 4's docs, then start **Phase 5** (registrations, migration `0005`).
-- **Watch out for:** the original `VAC-TECH Jr.html` and `VAC-Tech-Jr-Website-Plan.md` are **gone from the repo** (deleted, not by us), so `src/components/shared/introLogo.json` and the two logo PNGs are the only copy of the logo in the project. Supabase's **Site URL** still needs pointing at the Cloudflare address.
+- **Last thing done:** a long owner session on the live app: the **dark-only lock** (theme toggle, `.dark`, `@custom-variant dark` and `.chrome-dark` all deleted — one theme), the **hero artwork** replaced, a **committee marquee** added under the hero, and the **admin shell** rebuilt (sidebar of 5 grouped sections plus a horizontal tab strip per section). A **live-preview pane was built and then removed** at the owner's request; copies of its three files are in `%TEMP%\vac-preview-backup`. **Nothing is committed: 5 commits, 101 changed/untracked entries.**
+- **Next thing to do:** the new brief, **Step 1 first** — audit and finish the membership form on both sides, then templates (`form_templates`), the event-form builder, bulk member add, and the account functions. Migrations are applied through `0007`, so the next file is **`0008_...`**. The admin shell already has the horizontal tab strip the brief asks about, so new admin screens go in as `NAV` items.
+- **Watch out for:** the sharpest edge is **accounts and passwords** (`create-member`, `bulk-create-members`, `create-staff`, `reset-password`) — server-side validation, a password never in a body or a log, `no-store`. Also: **`0001`-`0007` are all APPLIED and Supabase is reachable again** (the owner restored it on 2026-10-29), so the "not applied" notes in section 6 items 22-26 and the old `Blocked by` line are out of date. The school must approve the consent wording before real students apply.
 
 ## 3. Phase tracker
 
 Status values: `not started`, `in progress`, `done`, `blocked`.
 
-| Phase | Name | Status | Started | Finished | Notes |
-|---|---|---|---|---|---|
-| 0 | Project Setup | done | 2026-10-18 | 2026-10-18 | Scaffold, toolchain, folder skeleton, tokens |
-| 1 | Auth, Roles and App Shell | done | 2026-10-18 | 2026-10-18 | Login, roles, layouts, intro animation; `0001` applied |
-| 2 | Public Pages A (Home, Notices, Events, Contact) | done | 2026-10-18 | 2026-10-19 | Steps 2.1-2.5. Safe point to launch the public site |
-| 3 | Public Pages B (BOD, Gallery, Projects, Contributors, Members) | done | 2026-10-19 | 2026-10-19 | Migration `0004` + seed applied; views and public storage buckets live |
-| 4 | Admin Panel Core | in progress | 2026-10-19 | | Code written and review-fixed; owner console tests pending |
-| 5 | Registrations | not started | | | |
-| 6 | Members and Projects | not started | | | |
-| 7 | Points, Suggestions, Emails, Super Admin | not started | | | |
-| 8 | Testing, Launch, Handover | not started | | | |
+| Phase | Name                                                           | Status          | Started    | Finished   | Notes                                                                                                             |
+| ----- | -------------------------------------------------------------- | --------------- | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------- |
+| 0     | Project Setup                                                  | done            | 2026-10-18 | 2026-10-18 | Scaffold, toolchain, folder skeleton, tokens                                                                      |
+| 1     | Auth, Roles and App Shell                                      | done            | 2026-10-18 | 2026-10-18 | Login, roles, layouts, intro animation; `0001` applied                                                            |
+| 2     | Public Pages A (Home, Notices, Events, Contact)                | done            | 2026-10-18 | 2026-10-19 | Steps 2.1-2.5. Safe point to launch the public site                                                               |
+| 3     | Public Pages B (BOD, Gallery, Projects, Contributors, Members) | done            | 2026-10-19 | 2026-10-20 | `0004` + seed applied; six routes, lightbox and the three Home previews re-verified in this run                   |
+| 4     | Admin Panel Core                                               | done            | 2026-10-19 | 2026-10-19 | Review fixes applied, owner console tests passed                                                                  |
+| 5     | Registrations                                                  | built, untested | 2026-10-19 |            | Code written and reviewed; tests deferred to the testing team                                                     |
+| 6     | Members and Projects                                           | built, untested | 2026-10-19 | 2026-10-20 | Database + Edge Functions + admin half + member portal all in place; `0006` not applied yet                       |
+| 7     | Points, Suggestions, Emails, Super Admin                       | built, untested | 2026-10-20 | 2026-10-20 | `0007`, `send-email`, five screens and the role matrix reviewed; `0007` not applied, function not deployed        |
+| 8     | Testing, Launch, Handover                                      | built, untested | 2026-10-20 | 2026-10-20 | Polish, bundle split, a11y pass, secret scan, README, HANDOVER and the docs updated; the test pass is the owner's |
 
 ## 4. Page and file tracker
 
 Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs-fix`.
 
 ### Public pages
-| Route | File | Req ID | Status |
-|---|---|---|---|
-| `/` | `src/pages/public/Home.jsx` | PUB-01 | done |
-| `/notices` | `src/pages/public/Notices.jsx` | PUB-02 | done |
-| `/notices/:id` | `src/pages/public/NoticeDetail.jsx` | PUB-02 | done |
-| `/events` | `src/pages/public/Events.jsx` | PUB-03 | done |
-| `/events/:id` | `src/pages/public/EventDetail.jsx` | PUB-03, PUB-10 | wip |
-| `/bod` | `src/pages/public/Bod.jsx` | PUB-04 | done |
-| `/gallery` | `src/pages/public/Gallery.jsx` | PUB-05 | done |
-| `/projects` | `src/pages/public/Projects.jsx` | PUB-06 | done |
-| `/projects/:id` | `src/pages/public/ProjectDetail.jsx` | PUB-06 | done |
-| `/contributors` | `src/pages/public/Contributors.jsx` | PUB-07 | done |
-| `/members` | `src/pages/public/Members.jsx` | PUB-08 | done |
-| `/join` | `src/pages/public/Join.jsx` | PUB-09 | wip |
-| `/contact` | `src/pages/public/Contact.jsx` | PUB-11 | done |
 
-> `wip` means the page exists but waits on a later phase: the event registration form
-> (PUB-10, Phase 5) and the membership form (PUB-09, Phase 5).
+| Route           | File                                 | Req ID         | Status |
+| --------------- | ------------------------------------ | -------------- | ------ |
+| `/`             | `src/pages/public/Home.jsx`          | PUB-01         | done   |
+| `/notices`      | `src/pages/public/Notices.jsx`       | PUB-02         | done   |
+| `/notices/:id`  | `src/pages/public/NoticeDetail.jsx`  | PUB-02         | done   |
+| `/events`       | `src/pages/public/Events.jsx`        | PUB-03         | done   |
+| `/events/:id`   | `src/pages/public/EventDetail.jsx`   | PUB-03, PUB-10 | done   |
+| `/bod`          | `src/pages/public/Bod.jsx`           | PUB-04         | done   |
+| `/gallery`      | `src/pages/public/Gallery.jsx`       | PUB-05         | done   |
+| `/projects`     | `src/pages/public/Projects.jsx`      | PUB-06         | done   |
+| `/projects/:id` | `src/pages/public/ProjectDetail.jsx` | PUB-06         | done   |
+| `/contributors` | `src/pages/public/Contributors.jsx`  | PUB-07         | done   |
+| `/members`      | `src/pages/public/Members.jsx`       | PUB-08         | done   |
+| `/join`         | `src/pages/public/Join.jsx`          | PUB-09         | done   |
+| `/contact`      | `src/pages/public/Contact.jsx`       | PUB-11         | done   |
+
+> Every public page carries loading, error and empty states, and a signed-in member who
+> opens `/join` is told they are already a member instead of being shown the form again.
 
 ### Auth
-| Route | File | Req ID | Status |
-|---|---|---|---|
-| `/login` | `src/features/auth/LoginPage.jsx` | MEM-01 | done |
-| `/change-password` | `src/features/auth/ChangePasswordPage.jsx` | MEM-02 | done |
+
+| Route              | File                                       | Req ID | Status |
+| ------------------ | ------------------------------------------ | ------ | ------ |
+| `/login`           | `src/features/auth/LoginPage.jsx`          | MEM-01 | done   |
+| `/change-password` | `src/features/auth/ChangePasswordPage.jsx` | MEM-02 | done   |
 
 ### Member pages
-| Route | File | Req ID | Status |
-|---|---|---|---|
-| `/member` | `src/pages/member/Dashboard.jsx` | MEM-04 | todo |
-| `/member/projects/new` | `src/pages/member/UploadProject.jsx` | MEM-03 | todo |
-| `/member/projects/:id/edit` | `src/pages/member/EditProject.jsx` | MEM-05 | todo |
-| `/member/suggestions` | `src/pages/member/Suggestions.jsx` | MEM-06 | todo |
-| `/profile` | `src/pages/member/Profile.jsx` | MEM-07 | wip |
+
+| Route                       | File                                 | Req ID | Status |
+| --------------------------- | ------------------------------------ | ------ | ------ |
+| `/member`                   | `src/pages/member/Dashboard.jsx`     | MEM-04 | done   |
+| `/member/projects/new`      | `src/pages/member/UploadProject.jsx` | MEM-03 | done   |
+| `/member/projects/:id/edit` | `src/pages/member/EditProject.jsx`   | MEM-05 | done   |
+| `/member/suggestions`       | `src/pages/member/Suggestions.jsx`   | MEM-06 | done   |
+| `/profile`                  | `src/pages/member/Profile.jsx`       | MEM-07 | done   |
+| `/member/profile`           | redirect → `/profile`                | MEM-07 | done   |
 
 ### Admin pages
-| Route | File | Req ID | Status |
-|---|---|---|---|
-| `/admin` | `src/pages/admin/Dashboard.jsx` | ADM-15 | wip |
-| `/admin/notices` | `src/pages/admin/NoticesAdmin.jsx` | ADM-01 | wip |
-| `/admin/events` | `src/pages/admin/EventsAdmin.jsx` | ADM-02 | wip |
-| `/admin/bod` | `src/pages/admin/BodAdmin.jsx` | ADM-03 | wip |
-| `/admin/gallery` | `src/pages/admin/GalleryAdmin.jsx` | ADM-04 | wip |
-| `/admin/registration-forms` | `src/pages/admin/FormBuilder.jsx` | ADM-05 | todo |
-| `/admin/registrations` | `src/pages/admin/Registrations.jsx` | ADM-06 | todo |
-| `/admin/applications` | `src/pages/admin/Applications.jsx` | ADM-06 | todo |
-| `/admin/approvals` | `src/pages/admin/Approvals.jsx` | ADM-07 | todo |
-| `/admin/profile-requests` | `src/pages/admin/ProfileRequests.jsx` | ADM-16 | todo |
-| `/admin/members` | `src/pages/admin/MembersAdmin.jsx` | ADM-08, 09, 10 | todo |
-| `/admin/points` | `src/pages/admin/Points.jsx` | ADM-11 | todo |
-| `/admin/suggestions` | `src/pages/admin/SuggestionsAdmin.jsx` | ADM-12 | todo |
-| `/admin/emails` | `src/pages/admin/Emails.jsx` | ADM-13 | todo |
-| `/admin/settings/membership` | `src/pages/admin/MembershipWindow.jsx` | ADM-14 | todo |
-| `/admin/roles` | `src/pages/admin/Roles.jsx` | SUP-01 | todo |
-| `/admin/settings` | `src/pages/admin/Settings.jsx` | SUP-02 | todo |
+
+| Route                        | File                                   | Req ID         | Status |
+| ---------------------------- | -------------------------------------- | -------------- | ------ |
+| `/admin`                     | `src/pages/admin/Dashboard.jsx`        | ADM-15         | done   |
+| `/admin/notices`             | `src/pages/admin/NoticesAdmin.jsx`     | ADM-01         | done   |
+| `/admin/events`              | `src/pages/admin/EventsAdmin.jsx`      | ADM-02         | done   |
+| `/admin/bod`                 | `src/pages/admin/BodAdmin.jsx`         | ADM-03         | done   |
+| `/admin/gallery`             | `src/pages/admin/GalleryAdmin.jsx`     | ADM-04         | done   |
+| `/admin/registration-forms`  | `src/pages/admin/FormBuilder.jsx`      | ADM-05         | done   |
+| `/admin/registrations`       | `src/pages/admin/Registrations.jsx`    | ADM-06         | done   |
+| `/admin/applications`        | `src/pages/admin/Applications.jsx`     | ADM-06         | done   |
+| `/admin/approvals`           | `src/pages/admin/Approvals.jsx`        | ADM-07         | done   |
+| `/admin/profile-changes`     | `src/pages/admin/ProfileChanges.jsx`   | ADM-16         | done   |
+| `/admin/members`             | `src/pages/admin/MembersAdmin.jsx`     | ADM-08, 09, 10 | done   |
+| `/admin/points`              | `src/pages/admin/Points.jsx`           | ADM-11         | done   |
+| `/admin/suggestions`         | `src/pages/admin/SuggestionsAdmin.jsx` | ADM-12         | done   |
+| `/admin/emails`              | `src/pages/admin/Emails.jsx`           | ADM-13         | done   |
+| `/admin/settings/membership` | `src/pages/admin/MembershipWindow.jsx` | ADM-14         | done   |
+| `/admin/roles`               | `src/pages/admin/Roles.jsx`            | SUP-01         | done   |
+| `/admin/settings`            | `src/pages/admin/Settings.jsx`         | SUP-02         | done   |
+
+> `admin/settings/membership` sits behind `ADMIN_ROLES`, so a **manager no longer sees the
+> link** — the sidebar and the route guard agree. That supersedes the Phase 5 note in
+> section 5.
 
 ### Database migrations
-| File | Purpose | Written | Applied |
-|---|---|---|---|
-| `0001_profiles_roles.sql` | profiles, roles, helpers, RLS | yes | yes |
-| `0002_content_tables.sql` | notices, events, settings (public read gated by RLS) | yes | yes |
-| `0003_profiles_protection.sql` | name/class/section need an admin; `protect_profile_columns` replaced | yes | yes |
-| `0004_showcase_tables.sql` | BOD, gallery, projects, points, views, buckets | no | no |
-| `0005_registrations.sql` | windows, applications, forms, event registrations | no | no |
-| `0006_projects_flow.sql` | project status flow policies | no | no |
-| `0007_profile_changes.sql` | `profile_change_requests`, `profiles.phone` | no | no |
-| `0008_suggestions_email.sql` | suggestions, email_log | no | no |
-| `seed.sql` (not a migration) | fake notices, events and settings for development | yes | yes |
+
+| File                                    | Purpose                                                                   | Written | Applied |
+| --------------------------------------- | ------------------------------------------------------------------------- | ------- | ------- |
+| `0001_profiles_roles.sql`               | profiles, roles, helpers, RLS                                             | yes     | yes     |
+| `0002_content_tables.sql`               | notices, events, settings (public read gated by RLS)                      | yes     | yes     |
+| `0003_profiles_protection.sql`          | name/class/section need an admin; `protect_profile_columns` replaced      | yes     | yes     |
+| `0004_showcase_tables.sql`              | BOD, gallery, projects, points, views, buckets                            | yes     | yes     |
+| `0005_registrations.sql`                | windows, applications, forms, event registrations                         | yes     | **no**  |
+| `0006_projects_and_profile_changes.sql` | projects flow, `{userId}/` storage folders, profile requests, email/phone | yes     | **no**  |
+| `0007_points_suggestions_email.sql`     | points locking, suggestions (+ rate limit), email log                     | yes     | **no**  |
+| `seed.sql` (not a migration)            | fake notices, events and settings for development                         | yes     | yes     |
+
+> Numbering note: the earlier plan had `0006_projects_flow` + `0007_profile_changes` +
+> `0008_suggestions_email`. The real files are `0005`, `0006`, `0007` — **there is no `0008`**
+> and these three must be applied in order.
 
 ### Edge Functions
-| Function | Purpose | Status |
-|---|---|---|
-| `create-member` | Create one account | todo |
-| `bulk-create-members` | CSV import | todo |
-| `reset-password` | Generate a new temp password | todo |
-| `send-email` | Send mail through provider | todo |
+
+| Function               | Purpose                                                            | Status              |
+| ---------------------- | ------------------------------------------------------------------ | ------------------- |
+| `create-member`        | Create one account + profile, roll back on failure                 | written, undeployed |
+| `bulk-create-members`  | CSV import, 200 rows, per-row results                              | written, undeployed |
+| `reset-password`       | New temporary password, `must_change_password = true`              | written, undeployed |
+| `set-account-status`   | Activate or deactivate, never the last super admin                 | written, undeployed |
+| `apply-profile-change` | Applies an approved request (email in Auth + profile)              | written, undeployed |
+| `change-role`          | member / manager / admin only; never a super admin, never yourself | written, undeployed |
+| `send-email`           | Resend or Brevo behind one adapter, escaped, capped at 100, logged | written, undeployed |
+
+> **Status is "written, undeployed" until the owner deploys.** `docs/OWNER-ACTIONS.md` section 5
+> holds the deploy commands and section 6 the email secrets. Until then every account, email,
+> points or suggestion call fails with a plain error message.
 
 ## 5. Decisions made (do not change without asking the owner)
 
-| Date | Decision |
-|---|---|
-| _set at project start_ | Stack: React + Vite, Tailwind, React Router, TanStack Query, RHF + Zod, Supabase, Vercel |
-| _set at project start_ | Login: single Login page, email + password handed out personally by the club; no sign-up; email sign-ups disabled |
-| _set at project start_ | First login forces a password change |
-| _set at project start_ | Suggestion box is anonymous to readers |
-| _set at project start_ | Ranking uses manual points only in v1 |
-| _set at project start_ | Phases by page, not by week |
-| _set at project start_ | Public pages read from views for people data |
-| 2026-10-18 | **Design = the intro animation** (`VAC-TECH Jr.html`): navy `#06122A`, gold `#FFC349`, cyan `#1FD6F7`, Poppins + JetBrains Mono, 4px cards / 6px buttons, hairline borders instead of shadows. The repo-root `DESIGN.md` is an opencode.ai analysis and is **not** our design — ignore it. `docs/DESIGN.md` was rewritten to match. |
-| 2026-10-18 | Dark is the club's native theme; light is a derived daytime theme. Default follows the system setting. |
-| 2026-10-18 | Admin sidebar shows every section route from the start; role filtering of that nav arrives in Phase 7 with the pages. |
-| 2026-10-18 | **`VAC-TECH Jr.html` (repo root) is the new source of truth for the look**, including the intro animation. It is a single landing page; the docs still decide how the site works. The repo-root `DESIGN.md` is still opencode.ai noise. |
-| 2026-10-18 | Nav labels follow the HTML: About (`/`), Notices, Events, Projects, Team (`/bod`). Gallery, Contributors, Members, Join and Contact live in the footer and on Home so every public page stays reachable. |
-| 2026-10-18 | Home's Projects / Top contributors / BOD previews are **deferred to Phase 3** (their tables arrive then). They are the first Phase 3 tasks. |
-| 2026-10-18 | The header and footer **stay navy in both themes** (`.chrome-dark`), because the club logo is drawn for the navy background. The intro overlay is always navy too. |
-| 2026-10-18 | No fake data anywhere: no fixed countdown, no demo note. Until Phase 5 the join card says "Registration opens soon" and `/join` shows a closed state. |
-| 2026-10-18 | The header logo is flattened to two PNGs (`src/assets/logo-*.png`) instead of shipping the intro's 376 kB of pieces on every page. The pieces load only when the intro plays. |
-| 2026-10-18 | **One site for everyone.** Visitors and members see the same public pages and the same UI; member pages are extra pages on that site under the public header and footer. Members never see `/admin`; staff get an "Admin panel" link in their profile menu. |
-| 2026-10-18 | After login a member lands on `/` (public home); staff still land on `/admin`. The session lasts until logout. |
-| 2026-10-18 | Header when logged in: profile button (photo or initials) replaces "Member login", and "Join the club" is hidden. Same on the Home hero and the Join card. |
-| 2026-10-18 | Profile (`/profile`, MEM-07): password changes immediately. GitHub + photo change immediately. Email, phone, name, class and section go through `profile_change_requests` (new table, ADM-16) and are applied by an Admin/Super Admin. Members can never write those five columns directly — enforced by trigger + RLS. Email changes are applied by an Edge Function with the service role. |
-| 2026-10-18 | `email` and `phone` are private: never on a public page, view or seed file. |
-| 2026-10-18 | Home is a landing page: centred `HeroVisual` (swappable placeholder SVG), "View about" (smooth scroll to `#about`) and "Join the club" (hidden when logged in), then What the club does, Notices, Events, an Explore links row and the Join card. No circuit canvas. |
-| 2026-10-18 | Migration numbering: `0003_profiles_protection.sql` (this change), then `0004_showcase_tables` (Phase 3), `0005_registrations` (Phase 5), `0006_projects_flow` + `0007_profile_changes` (Phase 6), `0008_suggestions_email` (Phase 7). |
-| 2026-10-18 | `settings` is **publicly readable** but writable by **Admin and Super Admin only**. Never store a private value there (no keys, no personal email or phone) — it is visible to every visitor. |
-| 2026-10-18 | A member may self-serve `github_url`, `avatar_url` and their password flag; `full_name`, `class` and `section` need an Admin. Enforced by the trigger, replaced in `0003_profiles_protection.sql`. |
-| 2026-10-18 | Read policies keep drafts in: notices are public only once `published_at <= now()`, events only when `status` is `published` or `cancelled`. Staff read everything. |
-| 2026-10-18 | **Hosting is Cloudflare Pages**, not Vercel: preset React/Vite, build command `npm run build`, output directory `dist`. Env vars in Cloudflare: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`. `vercel.json` is unused. |
-| 2026-10-18 | Code is on GitHub at https://github.com/officialvactechjr/Website (branch `main`). Pushing to `main` redeploys automatically. |
-| 2026-10-18 | The hero uses a **robot placeholder** (`src/assets/hero/robot-placeholder.svg`, rendered by `HeroVisual.jsx`) to be swapped for the real artwork later. |
-| 2026-10-19 | Light theme is kept, but its **status colours are darkened** (`success #166534`, `warning #92400e`, `danger #b91c1c`, `info #0369a1`) so they pass WCAG AA as text. The dark theme values are unchanged. |
+| Date                   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _set at project start_ | Stack: React + Vite, Tailwind, React Router, TanStack Query, RHF + Zod, Supabase, Vercel                                                                                                                                                                                                                                                                                                                                                |
+| _set at project start_ | Login: single Login page, email + password handed out personally by the club; no sign-up; email sign-ups disabled                                                                                                                                                                                                                                                                                                                       |
+| _set at project start_ | First login forces a password change                                                                                                                                                                                                                                                                                                                                                                                                    |
+| _set at project start_ | Suggestion box is anonymous to readers                                                                                                                                                                                                                                                                                                                                                                                                  |
+| _set at project start_ | Ranking uses manual points only in v1                                                                                                                                                                                                                                                                                                                                                                                                   |
+| _set at project start_ | Phases by page, not by week                                                                                                                                                                                                                                                                                                                                                                                                             |
+| _set at project start_ | Public pages read from views for people data                                                                                                                                                                                                                                                                                                                                                                                            |
+| 2026-10-18             | **Design = the intro animation** (`VAC-TECH Jr.html`): navy `#06122A`, gold `#FFC349`, cyan `#1FD6F7`, Poppins + JetBrains Mono, 4px cards / 6px buttons, hairline borders instead of shadows. The repo-root `DESIGN.md` is an opencode.ai analysis and is **not** our design — ignore it. `docs/DESIGN.md` was rewritten to match.                                                                                                     |
+| 2026-10-18             | Dark is the club's native theme; light is a derived daytime theme. Default follows the system setting.                                                                                                                                                                                                                                                                                                                                  |
+| 2026-10-18             | Admin sidebar shows every section route from the start; role filtering of that nav arrives in Phase 7 with the pages.                                                                                                                                                                                                                                                                                                                   |
+| 2026-10-18             | **`VAC-TECH Jr.html` (repo root) is the new source of truth for the look**, including the intro animation. It is a single landing page; the docs still decide how the site works. The repo-root `DESIGN.md` is still opencode.ai noise.                                                                                                                                                                                                 |
+| 2026-10-18             | Nav labels follow the HTML: About (`/`), Notices, Events, Projects, Team (`/bod`). Gallery, Contributors, Members, Join and Contact live in the footer and on Home so every public page stays reachable.                                                                                                                                                                                                                                |
+| 2026-10-18             | Home's Projects / Top contributors / BOD previews are **deferred to Phase 3** (their tables arrive then). They are the first Phase 3 tasks.                                                                                                                                                                                                                                                                                             |
+| 2026-10-18             | The header and footer **stay navy in both themes** (`.chrome-dark`), because the club logo is drawn for the navy background. The intro overlay is always navy too.                                                                                                                                                                                                                                                                      |
+| 2026-10-18             | No fake data anywhere: no fixed countdown, no demo note. Until Phase 5 the join card says "Registration opens soon" and `/join` shows a closed state.                                                                                                                                                                                                                                                                                   |
+| 2026-10-18             | The header logo is flattened to two PNGs (`src/assets/logo-*.png`) instead of shipping the intro's 376 kB of pieces on every page. The pieces load only when the intro plays.                                                                                                                                                                                                                                                           |
+| 2026-10-18             | **One site for everyone.** Visitors and members see the same public pages and the same UI; member pages are extra pages on that site under the public header and footer. Members never see `/admin`; staff get an "Admin panel" link in their profile menu.                                                                                                                                                                             |
+| 2026-10-18             | After login a member lands on `/` (public home); staff still land on `/admin`. The session lasts until logout.                                                                                                                                                                                                                                                                                                                          |
+| 2026-10-18             | Header when logged in: profile button (photo or initials) replaces "Member login", and "Join the club" is hidden. Same on the Home hero and the Join card.                                                                                                                                                                                                                                                                              |
+| 2026-10-18             | Profile (`/profile`, MEM-07): password changes immediately. GitHub + photo change immediately. Email, phone, name, class and section go through `profile_change_requests` (new table, ADM-16) and are applied by an Admin/Super Admin. Members can never write those five columns directly — enforced by trigger + RLS. Email changes are applied by an Edge Function with the service role.                                            |
+| 2026-10-18             | `email` and `phone` are private: never on a public page, view or seed file.                                                                                                                                                                                                                                                                                                                                                             |
+| 2026-10-18             | Home is a landing page: centred `HeroVisual` (swappable placeholder SVG), "View about" (smooth scroll to `#about`) and "Join the club" (hidden when logged in), then What the club does, Notices, Events, an Explore links row and the Join card. No circuit canvas.                                                                                                                                                                    |
+| 2026-10-18             | Migration numbering: `0003_profiles_protection.sql` (this change), then `0004_showcase_tables` (Phase 3), `0005_registrations` (Phase 5), `0006_projects_flow` + `0007_profile_changes` (Phase 6), `0008_suggestions_email` (Phase 7).                                                                                                                                                                                                  |
+| 2026-10-18             | `settings` is **publicly readable** but writable by **Admin and Super Admin only**. Never store a private value there (no keys, no personal email or phone) — it is visible to every visitor.                                                                                                                                                                                                                                           |
+| 2026-10-18             | A member may self-serve `github_url`, `avatar_url` and their password flag; `full_name`, `class` and `section` need an Admin. Enforced by the trigger, replaced in `0003_profiles_protection.sql`.                                                                                                                                                                                                                                      |
+| 2026-10-18             | Read policies keep drafts in: notices are public only once `published_at <= now()`, events only when `status` is `published` or `cancelled`. Staff read everything.                                                                                                                                                                                                                                                                     |
+| 2026-10-18             | **Hosting is Cloudflare Pages**, not Vercel: preset React/Vite, build command `npm run build`, output directory `dist`. Env vars in Cloudflare: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`. `vercel.json` is unused.                                                                                                                                                                                              |
+| 2026-10-18             | Code is on GitHub at https://github.com/officialvactechjr/Website (branch `main`). Pushing to `main` redeploys automatically.                                                                                                                                                                                                                                                                                                           |
+| 2026-10-18             | The hero uses a **robot placeholder** (`src/assets/hero/robot-placeholder.svg`, rendered by `HeroVisual.jsx`) to be swapped for the real artwork later.                                                                                                                                                                                                                                                                                 |
+| 2026-10-19             | Light theme is kept, but its **status colours are darkened** (`success #166534`, `warning #92400e`, `danger #b91c1c`, `info #0369a1`) so they pass WCAG AA as text. The dark theme values are unchanged.                                                                                                                                                                                                                                |
+| 2026-10-19             | Public registration forms are **insert-only**: `membership_applications` and `event_registrations` have no read policy for anon or members, so the frontend must never `.select()` after an insert. The open/closed window is decided in the database by `membership_window_is_open` / `registration_is_open`.                                                                                                                          |
+| 2026-10-19             | Abuse control on the public forms is a **honeypot field** (client-side only) plus database length, size and uniqueness checks. **Cloudflare Turnstile is the future option** if real bots appear — no library was added.                                                                                                                                                                                                                |
+| 2026-10-19             | **Per-phase console testing is deferred.** A testing team runs every test, Phase 1 to the last phase, in one pass from `docs/TESTING.md`. A ticked box in `PHASES.md` means built and reviewed, never verified.                                                                                                                                                                                                                         |
+| 2026-10-19             | A **Manager sees the membership-window link** in the sidebar but cannot change it — `membership_windows` writes are Admin and Super Admin only (PRD ADM-14). The sidebar must filter by role in **Phase 7**.                                                                                                                                                                                                                            |
+| 2026-10-19             | **The seed's membership window must stay closed on the live site.** The seed opens one for local testing; on production the club opens a real window on purpose, or the seed window sits open and collects applications nobody asked for.                                                                                                                                                                                               |
+| 2026-10-19             | **Migration numbering changed** to match the 8-step plan: `0006_projects_and_profile_changes.sql` (projects, storage folders, profile requests, `profiles.email`/`phone`) and `0007_points_suggestions_email.sql` (Phase 7). The old plan had `0006_projects_flow` + `0007_profile_changes` + `0008_suggestions_email`; there is no `0008`.                                                                                             |
+| 2026-10-19             | **`/admin/profile-requests` is now `/admin/profile-changes`** (the sidebar and the tracker were updated).                                                                                                                                                                                                                                                                                                                               |
+| 2026-10-19             | **Managers cannot read `profiles`.** The read policy is admin and super admin only, because `profiles` now carries email and phone. Staff screens that need an owner's name use a role-gated view (`staff_projects`) instead.                                                                                                                                                                                                           |
+| 2026-10-19             | **Email and phone move only through an approved request**, for every role that carries a user JWT — including an admin. Only the service-role `apply-profile-change` function writes them, because the login address lives in `auth.users` and both halves must move together.                                                                                                                                                          |
+| 2026-10-19             | **An admin cannot reset a super admin's password**, and `change-role` cannot create, promote or demote a super admin. The institution's account is handed over by hand.                                                                                                                                                                                                                                                                 |
+| 2026-10-19             | Edge Functions share a `_shared/` layer (auth, cors, respond, password, rateLimit, members). The rate limiter is in-memory per instance — see the `shortcut:` note in `_shared/rateLimit.ts`.                                                                                                                                                                                                                                           |
+| 2026-10-20             | **Re-queuing a project clears its previous review.** `0007` replaces `protect_project_review_columns` so a member's edit wipes `review_note`, `reviewed_by` and `reviewed_at` as well as setting `status = 'pending'`. Under `0006` alone, a re-queued card showed staff the rejection reason written for the _old_ version.                                                                                                            |
+| 2026-10-20             | **Doc conflict resolved strictly.** `PRD.md` SUP-02 said settings are editable by "Admin and Super Admin"; this run put `/admin/settings` behind **`super_admin` only**. The stricter rule wins, the route and the sidebar enforce it, and `PRD.md` was corrected to match.                                                                                                                                                             |
+| 2026-10-20             | **The orphaned worker files are adopted by this session** and audited line by line: `0007_points_suggestions_email.sql`, `functions/send-email/`, `functions/_shared/email.ts`, `src/features/{accounts,emails,points,suggestions}/`, `src/pages/admin/{Points,SuggestionsAdmin,Emails,Roles,Settings}.jsx`, `src/pages/member/Suggestions.jsx`. Nothing was duplicated; the whole tree is prettier-formatted and lint/build clean.     |
+| 2026-10-20             | **A manager no longer sees the membership-window link.** Phase 5 left it visible-but-unusable; Phase 7's role matrix (`ADMIN_ROLES` on the route and the sidebar entry) hides it, which is the stricter reading of ADM-14.                                                                                                                                                                                                              |
+| 2026-10-20             | **Suggestions are anonymous by construction, not by hiding a column.** `author_id` is revoked at column level for every client role, the staff inbox reads the `staff_suggestions` view (which has no such column), and a trigger freezes the message so "mark read" cannot become "edit".                                                                                                                                              |
+| 2026-10-20             | **`points_log` is an append-only audit trail.** No update and no delete policy exists for anyone; a correction is a new row. A row must carry a reason, cannot be zero, and must name the caller as `given_by`.                                                                                                                                                                                                                         |
+| 2026-10-20             | **Email goes out as plain text and is escaped at the boundary** (`_shared/email.ts`). A form entry can never arrive as markup. Resend is the default adapter; Brevo is a one-secret swap (`EMAIL_PROVIDER`).                                                                                                                                                                                                                            |
+| 2026-10-20             | **Vendor code is split in `vite.config.js`** with Rolldown `advancedChunks`. `vendor-forms` (zod + react-hook-form) is deliberately _not_ preloaded: only lazy pages use it.                                                                                                                                                                                                                                                            |
+| 2026-10-20             | **A signed-in member who opens `/join` is told they are already a member** rather than shown a form that would create a duplicate application.                                                                                                                                                                                                                                                                                          |
+| 2026-10-20             | **The hero robot is still the placeholder.** `MEMORY.md` item 5 stands: the real artwork has not been drawn.                                                                                                                                                                                                                                                                                                                            |
+| 2026-10-20             | **The active-page indicator is a hairline, not a pill.** The requested "glowing gold/cyan pill" was dropped: `docs/DESIGN.md` spends `radius-full` on avatars, pills and tags, and every other current-page cue in the system is a 1px rule. Active nav = gold hairline + full-`text` label; active sidebar item = `surface-alt` fill + 1px gold left hairline + gold icon. Same information, inside the locked radius vocabulary.      |
+| 2026-10-20             | **The `outline` (cyan) button variant exists and has one home:** "View about" in the Home hero. `accent` works as button text in both themes (5.36:1 light `surface`, 4.78:1 light `surface-alt`, 9.82:1 dark `surface` — recorded in `docs/DESIGN.md` section 10). It is for informational actions next to a gold CTA; it is not a replacement for `secondary`.                                                                        |
+| 2026-10-20             | **Depth is a palette-anchored corner light, never a shadow.** `.sheen` in `src/index.css` is the only new decorative layer: a radial gradient of `--primary` at 12% in the card's top-right, 0.55 opacity, warming to full on `:focus-within`. Motion tokens (`--ease-assemble`, `--animate-pop`, `--animate-fade`) live in a non-inline `@theme` block because they are theme-independent; the document is `docs/DESIGN.md` section 8. |
 
 ## 6. Known issues and TODOs
 
-| # | Issue / TODO | File | Added | Status |
-|---|---|---|---|---|
-| 1 | **Done.** `0001`, `0002`, `0003` and `seed.sql` were applied by the owner; verified by querying the live project. | `supabase/migrations/`, `supabase/seed.sql` | 2026-10-18 | done |
-| 2 | Main bundle is **562 kB (161 kB gzip)** after route-level `React.lazy()` landed in 2.4 (it was 753 kB). Vite still warns because all vendor code — React, react-router, supabase-js, sonner, date-fns — is in that one chunk. **Bundle size review in Phase 8**: split vendors with `manualChunks` (Rolldown code splitting). `introLogo` is deliberately its own lazy chunk (367 kB), fetched only when the intro plays. | `vite.config.js`, `src/routes/index.jsx` | 2026-10-18 | open |
-| 3 | The intro animation is ported (step 2.1). The header and footer must therefore keep `.chrome-dark`: the logo wordmark is white and disappears on a light background. | `src/index.css`, `src/components/layout/Footer.jsx` | 2026-10-18 | open |
-| 4 | **Done.** Light-theme contrast check run on 2026-10-19 with the WCAG formula. Four status colours failed AA as text and were darkened in `src/index.css`: `success` `#16a34a`→`#166534`, `warning` `#d97706`→`#92400e`, `danger` `#dc2626`→`#b91c1c`, `info` `#0284c7`→`#0369a1`. All text pairs now pass 4.5:1 in both themes; see `DESIGN.md` section 10. **Checked and closed.** | `src/index.css`, `docs/DESIGN.md` | 2026-10-18 | done |
-| 5 | **Robot artwork to replace.** The hero shows the placeholder SVG; the real robot has not been drawn yet. Swap the file only — the component and layout stay as they are. | `src/assets/hero/robot-placeholder.svg`, `src/components/shared/HeroVisual.jsx` | 2026-10-18 | open |
-| 6 | **Supabase Site URL must be set to the Cloudflare address** (Authentication → URL Configuration), or auth emails and redirects will point at the wrong host. Owner action. | Supabase dashboard | 2026-10-18 | open |
-| 7 | **Reference files.** The repo-root `DESIGN.md` (an opencode.ai analysis) is reference only — never import or ship it. `VAC-TECH Jr.html` (the intro animation source) and `VAC-Tech-Jr-Website-Plan.md` were **deleted on 2026-10-19** and are no longer in the repo, so `src/components/shared/introLogo.json` plus the two logo PNGs are the only copy of the logo in the project. The deletion is still uncommitted in git. | repo root | 2026-10-18 | noted |
-| 8 | The intro's `prefers-reduced-motion` path and the 360px layout were checked by logic / iframe measurement, **not** by eye. Confirm visually once. | `src/components/shared/IntroAnimation.jsx` | 2026-10-18 | open |
-| 9 | The `notices`/`events` **success** state is still unverified with real rows — the tables now exist, so re-check `/notices`, `/events` and Home once. | `src/features/*/components/` | 2026-10-18 | open |
-| 10 | `.env` is not committed (correct). Without it the app stops at load. Create it from `.env.example` before running locally. | `.env.example` | 2026-10-18 | noted |
-| 11 | Tailwind v4 is CSS-first: there is no `tailwind.config.js`. All tokens live in `src/index.css` via `@theme inline`. | `src/index.css` | 2026-10-18 | noted |
-| 12 | lucide-react v1 has no brand icons, so GitHub links need the inline SVG from `VAC-TECH Jr.html` (no lucide `Github` icon exists). | `docs/DESIGN.md` section 7 | 2026-10-18 | noted |
-| 13 | **Phase 1 member security tests: done.** Confirmed against the live project — a member cannot change `role`, `name`, `class` or `section` on their own row, a member cannot insert or edit a notice, and an admin can. | `supabase/migrations/0001`, `0003` | 2026-10-18 | done |
-| 14 | **Phase 4 idea.** When real toasts arrive, error toasts should stay until dismissed rather than auto-dismiss after 4s — call `toast.error(msg, { duration: Infinity })`. `DESIGN.md` no longer promises this, and nothing calls `toast()` yet. | `src/App.jsx`, Phase 4 pages | 2026-10-19 | idea |
-| 15 | **Orphaned storage files.** Deleting a row deletes its file, but the storage step is best effort (a failure only logs in dev). Replacing an image orphans the old file, and if an insert fails after its uploads succeed the new files have no row. Nothing sweeps these up yet. | `src/features/storage/api.js` | 2026-10-19 | open |
-| 16 | **PNG over 2 MB.** `shortcut:` a lossless PNG that is over 2 MB after resizing is still rejected, because re-encoding a PNG barely shrinks it. Photos are unaffected. Convert large PNGs to JPEG if it ever bites. | `src/features/storage/api.js` | 2026-10-19 | noted |
+| #   | Issue / TODO                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | File                                                                                                               | Added      | Status |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------- | ------ |
+| 1   | **Done.** `0001`, `0002`, `0003` and `seed.sql` were applied by the owner; verified by querying the live project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `supabase/migrations/`, `supabase/seed.sql`                                                                        | 2026-10-18 | done   |
+| 2   | **Fixed 2026-10-20.** Vendors are split in `vite.config.js` (`vendor-react`, `vendor-supabase`, `vendor-query`, `vendor-ui`, `vendor-forms`). Entry graph went from one 580.86 kB chunk (168.18 kB gzip) to `index` 39.31 kB + react 275.80 + supabase 214.39 + ui 66.05 + query 34.90 = 630.45 kB (**184.87 kB gzip**); the +16.7 kB upfront buys a lazy `vendor-forms` (125.65 kB, 37.73 kB gzip) that no public page pays for, plus per-library caching. The Vite 500 kB warning is gone. `introLogo` (376 kB) and `CsvExportButton` (PapaParse) stay in their own lazy chunks. **Checked and closed.**                                                             | `vite.config.js`, `src/routes/index.jsx`                                                                           | 2026-10-18 | done   |
+| 3   | The intro animation is ported (step 2.1). The header and footer must therefore keep `.chrome-dark`: the logo wordmark is white and disappears on a light background. **Resolved 2026-10-28** — the light theme was removed entirely, so the wordmark is always on navy and `.chrome-dark` is gone from `src/index.css`, the header, footer, intro overlay and marquee.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `src/index.css`, `src/components/layout/Footer.jsx`                                                                | 2026-10-18 | open   |
+| 4   | **Done.** Light-theme contrast check run on 2026-10-19 with the WCAG formula. Four status colours failed AA as text and were darkened in `src/index.css`: `success` `#16a34a`→`#166534`, `warning` `#d97706`→`#92400e`, `danger` `#dc2626`→`#b91c1c`, `info` `#0284c7`→`#0369a1`. All text pairs now pass 4.5:1 in both themes; see `DESIGN.md` section 10. **Checked and closed.**                                                                                                                                                                                                                                                                                    | `src/index.css`, `docs/DESIGN.md`                                                                                  | 2026-10-18 | done   |
+| 5   | **Robot artwork to replace.** The hero shows the placeholder SVG; the real robot has not been drawn yet. Swap the file only — the component and layout stay as they are.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `src/assets/hero/robot-placeholder.svg`, `src/components/shared/HeroVisual.jsx`                                    | 2026-10-18 | open   |
+| 6   | **Supabase Site URL must be set to the Cloudflare address** (Authentication → URL Configuration), or auth emails and redirects will point at the wrong host. Owner action.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Supabase dashboard                                                                                                 | 2026-10-18 | open   |
+| 7   | **Reference files.** The repo-root `DESIGN.md` (an opencode.ai analysis) is reference only — never import or ship it, and `.prettierignore` now protects it from a format run. `VAC-TECH Jr.html` (the intro animation source) and `VAC-Tech-Jr-Website-Plan.md` were deleted and **the deletion is committed** (checked with `git log --diff-filter=D` on 2026-10-20 — an earlier note here said it was uncommitted and that was wrong), so `src/components/shared/introLogo.json` plus the two logo PNGs are the only copy of the logo artwork left in the project.                                                                                                  | repo root, `.prettierignore`                                                                                       | 2026-10-18 | noted  |
+| 8   | The intro's `prefers-reduced-motion` path and the 360px layout were checked by logic / iframe measurement, **not** by eye. Confirm visually once.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `src/components/shared/IntroAnimation.jsx`                                                                         | 2026-10-18 | open   |
+| 9   | The `notices`/`events` **success** state is still unverified with real rows — the tables now exist, so re-check `/notices`, `/events` and Home once.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `src/features/*/components/`                                                                                       | 2026-10-18 | open   |
+| 10  | `.env` is not committed (correct). Without it the app stops at load. Create it from `.env.example` before running locally.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | `.env.example`                                                                                                     | 2026-10-18 | noted  |
+| 11  | Tailwind v4 is CSS-first: there is no `tailwind.config.js`. All tokens live in `src/index.css` via `@theme inline`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `src/index.css`                                                                                                    | 2026-10-18 | noted  |
+| 12  | lucide-react v1 has no brand icons, so GitHub links need the inline SVG from `VAC-TECH Jr.html` (no lucide `Github` icon exists).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `docs/DESIGN.md` section 7                                                                                         | 2026-10-18 | noted  |
+| 13  | **Phase 1 member security tests: done.** Confirmed against the live project — a member cannot change `role`, `name`, `class` or `section` on their own row, a member cannot insert or edit a notice, and an admin can.                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `supabase/migrations/0001`, `0003`                                                                                 | 2026-10-18 | done   |
+| 14  | **Phase 4 idea.** When real toasts arrive, error toasts should stay until dismissed rather than auto-dismiss after 4s — call `toast.error(msg, { duration: Infinity })`. `DESIGN.md` no longer promises this, and nothing calls `toast()` yet.                                                                                                                                                                                                                                                                                                                                                                                                                         | `src/App.jsx`, Phase 4 pages                                                                                       | 2026-10-19 | idea   |
+| 15  | **Orphaned storage files.** Deleting a row deletes its file, but the storage step is best effort (a failure only logs in dev). Replacing an image orphans the old file, cancelling a form after picking one leaves it behind, and an insert that fails after its uploads succeed has no row. Nothing sweeps these up yet.                                                                                                                                                                                                                                                                                                                                              | `src/features/storage/api.js`                                                                                      | 2026-10-19 | open   |
+| 16  | **PNG over 2 MB.** `shortcut:` a lossless PNG that is over 2 MB after resizing is still rejected, because re-encoding a PNG barely shrinks it. Photos are unaffected. Convert large PNGs to JPEG if it ever bites.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `src/features/storage/api.js`                                                                                      | 2026-10-19 | noted  |
+| 17  | **`DataTable` is client-side.** Search, sort and paging all happen in the browser over one fetch, capped at 200 rows for notices and events and 500 for gallery photos. Past the cap the oldest rows are simply not shown, with no message. Fine for a club; server-side paging is the upgrade.                                                                                                                                                                                                                                                                                                                                                                        | `src/components/ui/DataTable.jsx`, `src/features/*/api.js`                                                         | 2026-10-19 | open   |
+| 18  | **Nothing is tested against the live database.** Phases 1-5 have been built and code-reviewed but no test has been run since Phase 4 (and Phase 4's results predate the Phase 5 migration); Phases 6-8 have never been run against a database at all. The full suite is in `docs/TESTING.md`; until it passes, nothing here is proven.                                                                                                                                                                                                                                                                                                                                 | `docs/TESTING.md`, `supabase/`                                                                                     | 2026-10-19 | open   |
+| 19  | **No real student data yet.** Names, emails, phone numbers and photos must not be entered until (a) the tests pass, (b) the school approves the consent wording on the Join form, and (c) a data owner is named who is responsible for the records. Until then the seed's fake rows are the only content.                                                                                                                                                                                                                                                                                                                                                              | `supabase/seed.sql`, `src/pages/public/Join.jsx`                                                                   | 2026-10-19 | open   |
+| 20  | **Fixed 2026-10-19.** The CSV export now escapes column headers as well as values, the registrations table no longer repeats the Name and Email columns (which also removed the duplicate React keys), and the unlimited-insert ceiling is now written into `0006`'s header comment.                                                                                                                                                                                                                                                                                                                                                                                   | `src/components/shared/CsvExportButton.jsx`, `src/pages/admin/Registrations.jsx`, `supabase/migrations/0006_*.sql` | 2026-10-19 | done   |
+| 21  | **`0004` is applied; `0005`, `0006` and `0007` are not, and no Edge Function is deployed.** Every account, project, points, suggestion and email feature returns a plain error until `docs/OWNER-ACTIONS.md` sections 2 and 5 are done.                                                                                                                                                                                                                                                                                                                                                                                                                                | `supabase/migrations/000[4-7]*.sql`, `supabase/functions/**`                                                       | 2026-10-19 | open   |
+| 22  | **The Edge Functions have never been run.** They are written and reviewed but not deployed or executed, so the JWT verification, the CORS list, the rollback when a profile insert fails, and the last-super-admin guard are all unverified. They are the highest-risk code in the repo.                                                                                                                                                                                                                                                                                                                                                                               | `supabase/functions/**`                                                                                            | 2026-10-19 | open   |
+| 23  | **The email preview is not byte-identical to the delivered mail.** `_shared/email.ts` escapes `<>&"'` before sending (plain text, so a pasted tag can never become markup), while the preview modal shows the raw body. A body containing an ampersand or angle bracket therefore arrives with `&amp;` / `&lt;` in it. Harmless for ordinary club text; drop the escaping only if the provider ever guarantees no HTML rendering _and_ the log stops being reused for HTML.                                                                                                                                                                                            | `supabase/functions/_shared/email.ts`, `src/pages/admin/Emails.jsx`                                                | 2026-10-20 | noted  |
+| 24  | **The suggestion rate limit is per author per day, in the database** (10 rows / 24 h). The author link is the abuse control and the cost of anonymity: `author_id` is unreadable from any client, but it exists, and deleting the account deletes its suggestions (cascade). Say so if a member ever asks for erasure.                                                                                                                                                                                                                                                                                                                                                 | `supabase/migrations/0007_points_suggestions_email.sql`                                                            | 2026-10-20 | noted  |
+| 25  | **The `/admin/emails` recipient count is an estimate.** It counts from the accounts list (fetched at 500 rows) before sending; the function counts again from the database and refuses over 100. A club well past 500 accounts would see the preview number disagree — the function's answer is the correct one.                                                                                                                                                                                                                                                                                                                                                       | `src/pages/admin/Emails.jsx`, `supabase/functions/send-email/index.ts`                                             | 2026-10-20 | noted  |
+| 26  | **Visual checks in this run were code-level only.** The browser harness in this environment runs on a different host from the dev server (`localhost` gave 502), so the 360px pass, the light/dark sweep and the intro animation were verified by reading the CSS and components, not by eye. `docs/TESTING.md` section 10 keeps the real-device checks for the testing team. **2026-10-20 (design pass):** the harness _did_ reach `127.0.0.1:5174` on a later run, so the design pass below was verified on screen — light and dark, both hero buttons, an open card, the nav hairline and the open mobile drawer. The 360px real-device check still stands as open. | `docs/TESTING.md`, `src/index.css`                                                                                 | 2026-10-20 | open   |
 
 Every `TODO` comment in code must appear here.
 
@@ -193,14 +248,72 @@ Format:
 - Next step:
 ```
 
+### 2026-10-29: Long owner session — dark-only lock, hero art, marquee, admin shell; preview built then removed
+
+- Phase / task: owner-directed changes outside the phase plan, then a new 5-step brief (membership form, form templates, event-form builder, bulk member add, account creation) was handed over at the very end.
+- Done: **dark-only lock** — `ThemeToggle.jsx` deleted plus its 3 usages, `index.html`'s pre-paint theme script deleted, the navy palette moved into `:root`, `.dark` + `@custom-variant dark` + `.chrome-dark` (and its 4 usages) deleted, `color-scheme: dark`; `App.jsx`'s Toaster was `theme="system"` and is now `"dark"` (a silent light-mode leak). **Hero** — `HeroVisual.jsx` switched to a baked `hero-robot.webp`; the owner then swapped that file for a 542x460 robot, and the component's `width`/`height` and alt text were corrected to match (they were still 1600x1174, causing a layout shift). **Marquee** — new `CommitteeMarquee.jsx` under the hero: 6 items, mask edge fade, 34s linear loop that pauses on hover, reduced-motion wraps instead. **Admin shell** — `AdminLayout.jsx` + `Sidebar.jsx` grouped into 5 sections with a horizontal tab strip. **Removed** at the owner's request: `PreviewDrawer.jsx`, `PreviewDraft.jsx`, `lib/previewChannel.js` (backups in `%TEMP%\vac-preview-backup`). **Docs** — `DESIGN.md` sections 2/6/8, `PHASES.md` theme line, `MEMORY.md` item 3.
+- Not finished: nothing from the new brief — Step 0 (audit) only. **Nothing is committed.**
+- Problems / decisions: the preview pane **was verified working** (slide-over and docked, against the live `/notices` with real data, zero console errors) by temporarily mounting it on Home — the owner still could not get it to open in the panel and asked for its removal, so it was deleted rather than debugged further. **Supabase was paused** (project DNS gone) and the owner restored it; `0001`-`0007` are all applied. Dev servers on ports 5173/5174/5175 were killed three times as "orphans", and once that was the owner's own tab — check whose it is before killing.
+- Next step: the new brief's Step 1.
+
+### 2026-10-20: Design elevation pass — tactile micro-interactions, hairline depth, dialog motion
+
+- Phase / task: owner-requested visual refinement of the shared UI (no phase, no feature).
+- Done: **`src/index.css`** — motion tokens in a non-inline `@theme` block (`--ease-assemble` = `cubic-bezier(.16,.84,.24,1)` from section 8, `--animate-pop`, `--animate-fade`), `vac-pop`/`vac-fade` keyframes, and the `.sheen` corner light (gold at 12%, `color-mix`, opacity 0.55 → 1 on `:focus-within`). **`Button.jsx`** — the `outline` (cyan) variant, `active:scale-[.98]` + 150ms `ease-assemble` on every variant, a 1px border on all variants so primary and secondary share an edge weight, and the documented disabled state (50% opacity, no pointer events). **`Card.jsx`** — carries `.sheen`. **`Navbar.jsx`** — navy at 85% over `backdrop-blur-md` (95% where `backdrop-filter` is unsupported), and the mobile drawer now marks the current page with a 1px gold left hairline. **`Sidebar.jsx`** — the admin current page gets `surface-alt` + 1px gold left hairline + gold icon. **`ProfileMenu.jsx`** and **`Modal.jsx`** / **`Lightbox.jsx`** — `animate-pop` entry, `animate-fade` backdrop. **`PageHeader.jsx`** — `tracking-tight` to match every other heading. **`Home.jsx`** — "View about" is the `outline` variant. **`docs/DESIGN.md`** — sections 4, 6, 8 (a new Micro-interactions block) and 10 (the accent-as-text contrast figures) now describe exactly this.
+- Not finished: nothing in the pass. The **admin sidebar's active state was verified in code and by its compiled CSS, not on screen** — it needs a staff login, which this session did not have.
+- Problems / decisions: the detector flags 8 advisories (7 font sizes, 1 radius) **against the repo-root `DESIGN.md`**, which is the opencode.ai analysis and not this project's doc — `docs/DESIGN.md` documents all of those values, so they are pre-existing false positives, not new drift. The requested "glowing pill" active state was deliberately not built (see section 5). The pass was verified on screen in this session: the browser harness **did** reach `127.0.0.1:5174` (unlike item 26's session) — light and dark, the hero buttons, an open card with `:focus-within`, the desktop nav hairline and the open mobile drawer with its active row. Lint 0, `vite build` clean, entry chunk 39.31 → 39.85 kB.
+- Next step: the owner's test pass (`docs/OWNER-ACTIONS.md`, then `docs/TESTING.md`) — unchanged by this pass.
+
+### 2026-10-20: Final continuous run — Phases 3, 6B, 7 and 8 closed; docs updated
+
+- Phase / task: the final run in one pass: Phase 3 audit and verification, the member portal (Phase 6B), Phase 7 (points, suggestions, emails, roles, settings, role matrix), Phase 8 (polish, performance, a11y, hygiene, handover docs).
+- Done: **Phase 3 verified** — all six showcase routes are wired in `routes/index.jsx`, every page has loading / error / empty states, the gallery lightbox handles Esc / arrows / single photo, and Home carries the Projects, Top contributors and BOD previews. **Phase 6B audited and completed** — `/member` (status badges, rejection note, edit, delete), upload and edit forms (image into `{userId}/`), `/profile` (immediate photo + GitHub, approval-gated requests with status history) and a new `/member/profile` → `/profile` redirect. **Phase 7 owned and reviewed** — `0007` (points append-only with a mandatory reason, `author_id` revoked at column level and absent from `staff_suggestions`, email log service-role only), `send-email` (JWT + DB role check, strict CORS, escaped subject/body, 100-recipient cap, Resend/Brevo adapter, `email_log`), and the five screens; the sidebar and route guards now match the strict role matrix. **Phase 8** — vendor chunk split in `vite.config.js` (entry 580.86 kB → 39.31 kB + four vendor chunks, warning gone), explicit width/height and `loading="lazy"` on every content image, a signed-in member opening `/join` now sees "you are already a member", `README.md` completed, `docs/HANDOVER.md` written, `PRD.md` / `ARCHITECTURE.md` / `DESIGN.md` / `TESTING.md` / `PHASES.md` / `OWNER-ACTIONS.md` brought up to date, whole-repo prettier pass, lint 0 and build clean.
+- Not finished: nothing that can be finished without the owner. The test pass itself (`docs/TESTING.md`, Phases 1-8), the migration/deploy steps, real-device checks, removing the seed data and tagging `v1.0` are all owner or testing-team actions, listed in order in `docs/OWNER-ACTIONS.md`.
+- Problems / decisions: the orphaned worker files (`0007`, `send-email`, `features/{accounts,emails,points,suggestions}`, `pages/{admin/Points,admin/SuggestionsAdmin,admin/Emails,admin/Roles,admin/Settings,member/Suggestions}`) were adopted and audited line by line — nothing was duplicated or reverted, and they are now prettier-formatted and lint-clean. `PRD.md` SUP-02 conflicted with the stricter reading of the prompt (settings editable by Admin _and_ Super Admin vs **super_admin only**): the stricter rule won in the app and the PRD was corrected. The bundle got slightly heavier upfront (+16.7 kB gzip) in exchange for a lazy forms chunk and better caching — recorded in section 6 item 2. Visual checks were code-level only because the browser harness could not reach this machine's dev server (item 26). A plain `npm run format` also reformatted the **protected** repo-root `DESIGN.md`; that was reverted with `git checkout` and a new `.prettierignore` now protects it (plus `VAC-TECH*.html` and `dist/`). While checking that, `git log --diff-filter=D` showed the two reference files' deletion **is** committed — section 6 item 7 corrected. The one real behaviour bug found in the audit was in the project re-queue: `0006` kept the old rejection note, so `0007` now clears the review columns on a member edit (section 5).
+- Next step: the owner runs `docs/OWNER-ACTIONS.md` in order, then the testing team works through `docs/TESTING.md` Phases 1-8 and finishes with the PRE-LAUNCH CHECKLIST.
+
+### 2026-10-20: Note — a second worker is in this tree
+
+- Phase / task: observation, no code
+- Done: nothing. Noticed while running the final lint/build that `supabase/migrations/0007_points_suggestions_email.sql`, `supabase/functions/send-email/index.ts`, `src/features/{accounts,emails,points,suggestions}/` and `src/pages/{admin/SuggestionsAdmin,member/Suggestions}.jsx` were written on 2026-10-20, after this session's work, and are not mine (steps 5-6 of the plan).
+- Not finished: those files are untouched by me on purpose.
+- Problems / decisions: `src/features/emails/{hooks,schema}.js` and `src/features/suggestions/hooks.js` are not prettier-formatted; left alone rather than reformatted, because they belong to the other worker. Lint (0) and build (ok) pass over the whole tree as it stands.
+- Next step: whoever resumes should confirm with the owner which worker owns steps 4-8 before editing shared files.
+
+### 2026-10-19: Phase 6 steps 1-3 — projects, profile changes, accounts (database + functions + admin)
+
+- Phase / task: the 8-step plan, steps 1-3
+- Done: **`0006_projects_and_profile_changes.sql`** — owner policies for `projects` plus `protect_project_review_columns` (a member's edit always requeues to `pending`; a rejection needs a reason), `{userId}/` storage folders for `project-images` and `avatars`, `profile_change_requests` with one open request per field, `profiles.email` + `phone` with a backfill from `auth.users`, admins-only profile reads, a guard so email and phone move only through an approved request, and the role-gated `staff_projects` view. **Six Edge Functions** with a `_shared/` layer (auth, cors, respond, password, rateLimit, members): `create-member`, `bulk-create-members` (200 rows, per-row results, in-payload duplicate detection), `reset-password`, `set-account-status`, `apply-profile-change`, `change-role`. **`docs/OWNER-ACTIONS.md`.** **Three admin screens**: `/admin/members` (search, single create, CSV import with a template download, reset with a one-time password handover, activate/deactivate), `/admin/approvals` (tabs, preview cards, a rejection reason that is mandatory), `/admin/profile-changes` (old → new diff, approve, reject with a reason).
+- Not finished: step 4 (the member portal: `/member`, project upload/edit/delete, `/profile`), then steps 5-8.
+- Problems / decisions: three Phase 5 review findings fixed first (CSV headers are now escaped, the duplicate registrations columns are gone, the insert ceiling is documented). Two of my own mistakes were caught and fixed while writing: a trigger pointed at a non-existent function, and I hand-rolled a CSV parser in `BulkImport` before switching to the approved PapaParse. The route rename and the migration renumbering are recorded in section 5.
+- Next step: step 4 — the member portal.
+
+### 2026-10-19: Phase 5 built; testing deferred to one pass
+
+- Phase / task: Phase 5 (registrations) sign-off and the testing decision
+- Done: Phase 5 is marked **built, tests deferred** in `PHASES.md` and `MEMORY.md` — the checkboxes for migration `0005`, the `/join` form, the event `DynamicForm`, the Home countdown and the four admin pages are ticked as _built and reviewed_, with a banner at the top of `PHASES.md` explaining that a tick no longer means verified. `docs/TESTING.md` created: one plan for the testing team holding every test from Phase 1 to Phase 5, each with a goal, the account to use, the steps or console snippet, the expected result and a Pass/Fail column, plus setup, cleanup and how to add the next phase. Decisions logged: the honeypot is client-side only with Turnstile as the future option; a Manager sees the membership-window link but cannot change it (sidebar filtering is Phase 7); the seed window must stay closed on production. Known issues added: everything untested against the live database, no real student data until tests pass plus school approval plus a named data owner, and the three unfixed Phase 5 review findings.
+- Not finished: the three Phase 5 review findings; Phase 6 not started.
+- Problems / decisions: the owner deferred all per-phase console tests to a single end-to-end pass, so `PHASES.md` ticks now mean built-and-reviewed. Two mistakes were caught in my own Phase 5 code and fixed before handover: the migration declared its helper functions after the policies that call them, and the API selected a `review_note` column that does not exist.
+- Next step: fix the three findings, then Phase 6.
+
+### 2026-10-19: Phase 4 closed
+
+- Phase / task: Phase 4 (Admin Panel Core) sign-off
+- Done: the owner ran the console tests and they passed — a logged-out visitor and a member cannot upload to any bucket, the admin can upload and delete, a text file and a 3 MB file are refused by the bucket, member and visitor are bounced out of `/admin`, and staff CRUD on notices works from the UI. `PHASES.md` Phase 4 is ticked and its five admin pages are marked done in section 4. Two known issues added on the owner's instruction: orphaned storage files (item 15, widened to include cancelling a form after picking an image) and `DataTable` being client-side with a 200-row fetch cap (item 17).
+- Not finished: nothing for Phase 4.
+- Problems / decisions: none new.
+- Next step: Phase 5 (registrations).
+
 ### 2026-10-19: Phase 4 review fixes (seven findings)
+
 - Phase / task: Phase 4 (admin console), fixes after the code review
-- Done: **`Modal.jsx`** renders `{open && children}`, so a form inside it now remounts on every open instead of keeping the previous row's React Hook Form state — this fixes Edit opening blank and writing one row's text into another, and makes `PhotoUploader` start empty. **`storage/api.js`** checks the file type first, then shrinks, then rejects only if the *result* is over 2 MB (with a 15 MB "too large to open" guard before decoding, which stops a huge image exhausting memory): a normal 3 MB phone photo now passes the pre-check and is resized down. `['dashboard']` is invalidated in all six content mutations (`notices`, `events`, `bod`, `gallery`). `DataTable.jsx` lost its two `useMemo` wrappers (they never cached, because `columns` is a new array each render). Deleted the dead `src/features/gallery/schema.js`; no doc referenced it. Replaced the "arrives in Phase 6" copy in `admin/Dashboard.jsx` and `member/Profile.jsx` with plain wording. `GalleryAdmin` now requests `{ limit: 500 }`.
+- Done: **`Modal.jsx`** renders `{open && children}`, so a form inside it now remounts on every open instead of keeping the previous row's React Hook Form state — this fixes Edit opening blank and writing one row's text into another, and makes `PhotoUploader` start empty. **`storage/api.js`** checks the file type first, then shrinks, then rejects only if the _result_ is over 2 MB (with a 15 MB "too large to open" guard before decoding, which stops a huge image exhausting memory): a normal 3 MB phone photo now passes the pre-check and is resized down. `['dashboard']` is invalidated in all six content mutations (`notices`, `events`, `bod`, `gallery`). `DataTable.jsx` lost its two `useMemo` wrappers (they never cached, because `columns` is a new array each render). Deleted the dead `src/features/gallery/schema.js`; no doc referenced it. Replaced the "arrives in Phase 6" copy in `admin/Dashboard.jsx` and `member/Profile.jsx` with plain wording. `GalleryAdmin` now requests `{ limit: 500 }`.
 - Not finished: Phase 4's console tests (storage permissions, `/admin` gates, notice CRUD from the UI) have not been run, so Phase 4 is not closed.
 - Problems / decisions: verified the Modal fix in a browser harness — Edit shows "Notice AAAA", typing into it then opening a different row shows "Notice BBBB" with no carry-over, and `PhotoUploader`'s title is empty on reopen. Verified `imageFileError` returns null for a 3 MB JPEG and friendly messages for a text file and a 20 MB image.
 - Next step: owner runs the Phase 4 console tests, then Phase 4 docs are closed and Phase 5 starts.
 
 ### 2026-10-19: Review fixes — input focus ring, doc corrections
+
 - Phase / task: follow-up from the second code review (step 2.5 close-out)
 - Done: `src/components/ui/Input.jsx` — removed `focus:outline-none` so the global `:focus-visible` ring shows again on every text field (it was being overridden by a higher CSS layer and specificity); the gold focus border stays. `docs/DESIGN.md` — the touch-target line now carries the measured numbers (nav links 33px, "Member login" 36px, small button 40px, primary 46px, intro Skip 44px) and notes that WCAG 2.2 AA asks for 24px while 44px is our own goal for primary buttons and the Skip; the toast section no longer claims errors persist; section 11's copied token block was replaced with a pointer to `src/index.css` as the single source. `docs/PHASES.md` — an explicit **Close-out (2.5)** block is ticked, with the contrast check marked DONE. `docs/MEMORY.md` — section 6 item 4 closed, a new item 14 records the Phase 4 toast idea.
 - Not finished: nothing from the review. Phase 3 has not been started.
@@ -208,6 +321,7 @@ Format:
 - Next step: **Phase 3** — migration `0004_showcase_tables.sql` and the public pages B.
 
 ### 2026-10-19: Step 2.5 — Phase 2 close-out (DESIGN.md pass + contrast check)
+
 - Phase / task: step 2.5, end of Phase 2
 - Done: `docs/DESIGN.md` given its final pass — status-colour table updated, the reference-file note corrected (the two source files are gone), the toast position matched to the code (top right), the intro section no longer points at a deleted file, and section 10 turned from an unticked wishlist into a **checked** accessibility record with the real numbers. Ran the WCAG contrast check over every token pair in both themes: light `success`/`warning`/`info` failed AA as text (3.3, 3.2, 4.1) and light `danger` failed on `surface-alt` (4.31), so `src/index.css` now uses `success #166534`, `warning #92400e`, `danger #b91c1c`, `info #0369a1`; every text pair passes 4.5:1 afterwards. `MEMORY.md` sections 1-3, 5-7 updated; `PHASES.md` Phase 2 closed.
 - Not finished: nothing for Phase 2. Phase 3 has not been started.
@@ -215,6 +329,7 @@ Format:
 - Next step: **Phase 3** — migration `0004_showcase_tables.sql` and the public pages B.
 
 ### 2026-10-18: Migrations applied, hosting moved to Cloudflare Pages, session close-out
+
 - Phase / task: end of session — documentation only, no code written
 - Done: the owner applied `0001`, `0002`, `0003` and `seed.sql` to the live Supabase project and confirmed the Phase 1 member security tests (a member cannot change their own `role`, name, class or section, and cannot write notices; an admin can). Hosting moved to **Cloudflare Pages** (preset React/Vite, `npm run build` → `dist`, env vars `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`), so `vercel.json` is now unused. Code is on GitHub at https://github.com/officialvactechjr/Website (`main` auto-deploys). Docs updated: `MEMORY.md` sections 1, 2, 3, 4, 5, 6, 7, 9; `ARCHITECTURE.md` stack table + environment/deployment + handover; `PHASES.md` Phases 0, 1 and 2 ticked.
 - Not finished: **step 2.5**. `PHASES.md` is ticked, but the final `DESIGN.md` pass and the light-theme contrast check are still to do.
@@ -222,6 +337,7 @@ Format:
 - Next step: finish step 2.5 (DESIGN.md pass + contrast check), then **Phase 3** — Public Pages B, starting with the Home previews deferred from 2.3, using migration `0004`.
 
 ### 2026-10-18: Review follow-up — auth dead end, RLS hardening, login redirect
+
 - Phase / task: fixes from the code review, done before `0002` is applied
 - Done: `AuthContext` — `.catch` on `getSession` so `loading` always ends, and `refreshProfile` can no longer throw (a failed refresh no longer looks like a failed password save); `ProtectedRoute` — a signed-in user with no readable profile now gets an "We could not load your account" screen with a **Sign out** button instead of a spinner, and it passes `pathname + search` as the redirect `from`; `LoginPage` — returns to that `from` after login, accepting only paths that start with `/` and not `//`; `features/notices/api.js` + `features/events/api.js` — default `.limit(50)`, and the event detail no longer filters by status (RLS is the gate); `EventDetail` shows a **Cancelled** badge; `0002_content_tables.sql` rewritten — notices public only once `published_at <= now()`, events public when `status` is `published` or `cancelled`, staff read all, settings carries the never-store-private-values warning; new `0003_profiles_protection.sql` — only admin/super_admin may change `full_name`, `class` or `section`, members keep `github_url`, `avatar_url` and their password flag, service-role/SQL-editor calls still pass; deleted `src/routes/MemberLayout.jsx` (nothing imported it); renumbered planned migrations to `0004`-`0008` in PHASES + MEMORY; PRD SUP-02, ARCHITECTURE rules 12-13 and the data-layer note updated.
 - Not finished: `0002`, `seed.sql` and `0003` are still not applied, so the notices/events success states remain unverified.
@@ -229,6 +345,7 @@ Format:
 - Next step: owner applies `0002`, `seed.sql`, `0003` and runs the read/write tests. Then step 2.5.
 
 ### 2026-10-18: Phase 2 step 2.3 — Home landing + content data layer
+
 - Phase / task: Phase 2, step 2.3 (Home)
 - Done: `supabase/migrations/0002_content_tables.sql` (notices, events, settings, `set_updated_at`, RLS); `features/notices` and `features/events` (`api.js`, `hooks.js`, `components/{NoticeRow,NoticeList,EventRow,EventList}.jsx` with skeleton, error and empty states); `lib/queryClient.js` + provider in `App.jsx`; `formatDate` in `lib/utils.js`; `src/assets/hero/robot-placeholder.svg` + `HeroVisual.jsx`; new `Home.jsx`; smooth scroll + `scroll-mt` in `index.css`.
 - Browser-verified: hero SVG loads at 520x390 with correct alt text; "View about" smooth-scrolls (0 -> 605 -> 802, i.e. `#about` minus the 96px header) and `scroll-behavior` is `smooth`; headings and Explore links render; a guest sees "View about" + "Join the club" + "Apply for membership"; a logged-in member sees only "View about" and no Join card; 360px has no horizontal overflow; the intro still lands correctly on the new hero; console clean apart from the expected 404s.
@@ -236,6 +353,7 @@ Format:
 - Next step: apply migrations `0001` + `0002`, then step 2.4.
 
 ### 2026-10-18: Phase 2 step 2.2 — session-aware header, footer, /profile
+
 - Phase / task: Phase 2, step 2.2 (shared UI + profile)
 - Done: `ProfileMenu.jsx` (photo or initials, menu with Admin panel for staff, Esc/outside-click close, log out); `Navbar.jsx` session-aware (Member login + Join when logged out, profile button when logged in); `Footer.jsx` navy in both themes with all 11 public links; `Button.jsx` sizes 46/40 and 15px labels; `SectionHeading.jsx`; `PasswordForm.jsx` extracted and reused; `src/pages/member/Profile.jsx` at `/profile`; `AppGate` in `routes/index.jsx` forces the first-login password change on every route; member pages moved inside `PublicLayout`; `homeForRole` sends members to `/`.
 - Not finished: step 2.3 (Home) and 2.4 (remaining public pages).
@@ -243,6 +361,7 @@ Format:
 - Next step: step 2.3.
 
 ### 2026-10-18: Phase 2 step 2.1 — intro animation port
+
 - Phase / task: Phase 2, step 2.1 (intro animation)
 - Done: `src/components/shared/introLogo.json` (27 pieces extracted from `VAC-TECH Jr.html`, lazy chunk); `IntroAnimation.jsx` + `IntroAnimation.css` (same sequence/timings/easings, Web Animations API, session-once, Skip + Esc + click, 2s chunk deadline, 8s backstop, inert on the covered page, full cleanup); `src/assets/logo-mark.png` + `logo-word.png` (logo flattened at 2.25×); `index.html` pre-paint gate + `<noscript>` fallback; `src/index.css` (`.chrome-dark`, `--logo-w`, `.hslot/.hart/.htxt`, the `rv` reveal contract); `Navbar.jsx` (real logo slots as the fly targets, nav labels About/Notices/Events/Projects/Team); `App.jsx`; `Home.jsx` placeholder given `rv` classes.
 - Not finished: steps 2.2 (Footer/Button/shared pieces), 2.3 (Home), 2.4 (migration 0002 + pages).
@@ -250,6 +369,7 @@ Format:
 - Next step: step 2.2.
 
 ### 2026-10-18: Phase 1 — auth, roles and app shell
+
 - Phase / task: Phase 1 Auth, Roles and App Shell
 - Done: `supabase/migrations/0001_profiles_roles.sql` (profiles table, `user_role` enum, `current_role()` security-definer helper, RLS policies, `profiles_protect_columns` trigger guarding `role` and `is_active`); `src/features/auth/` (api, schema, LoginPage, ChangePasswordPage); `src/context/AuthContext.jsx` + `useAuth.js`; `src/routes/` (Public/Member/Admin layouts, ProtectedRoute, route table); `src/components/ui/` (Button, Input, Card, Badge, Spinner, EmptyState, ErrorState, Modal); `src/components/layout/` (Navbar, Footer, Sidebar, PageHeader); `ThemeToggle`, `ErrorBoundary`, `NotFound`; `src/lib/constants.js`, `src/lib/utils.js`; placeholder Home/member/admin pages; `docs/DESIGN.md` rewritten to the intro palette.
 - Not finished: applying migration `0001`, disabling email sign-ups, creating the first Super Admin (owner steps), and the end-to-end login test.
@@ -257,6 +377,7 @@ Format:
 - Next step: owner does the Supabase setup in section 9, then Phase 2 (public pages A + the intro animation port).
 
 ### 2026-10-18: Phase 0 — setup finished
+
 - Phase / task: Phase 0 Project Setup
 - Done: created the folder skeleton (`src/components/{ui,layout,shared}`, `src/features`, `src/pages/{public,member,admin}`, `src/routes`, `src/context`, `src/hooks`, `supabase/{migrations,functions}`) each with a `.gitkeep`; installed the approved dev toolchain into `package.json` (vite, @vitejs/plugin-react, tailwindcss, @tailwindcss/vite, eslint, @eslint/js, globals, eslint-plugin-react-hooks, eslint-plugin-react-refresh, prettier); fixed `eslint.config.js` to `reactHooks.configs.flat['recommended-latest']`. Verified `npm run lint` clean, `npm run build` ok, dev server serves `/` (200) with `main.jsx`, `App.jsx`, `index.css`, `supabaseClient.js` all transforming.
 - Not finished: club accounts, `.env` values and the first Vercel deploy — owner actions.
@@ -264,6 +385,7 @@ Format:
 - Next step: owner creates accounts + `.env`, first deploy; then Phase 1.
 
 ### Project start: documentation
+
 - Phase / task: Planning
 - Done: `PRD.md`, `ARCHITECTURE.md`, `DESIGN.md`, `PHASES.md`, `MEMORY.md` created
 - Not finished: nothing is built yet
@@ -274,18 +396,18 @@ Format:
 
 Only libraries from `ARCHITECTURE.md` section 1 are pre-approved. Record any addition here.
 
-| Library | Version | Why | Approved by |
-|---|---|---|---|
-| vite | ^8.3.4 | build tool (approved stack) | Phase 0 |
-| @vitejs/plugin-react | ^6.1.2 | React support in Vite | Phase 0 |
-| tailwindcss | ^4.3.3 | styling (approved stack) | Phase 0 |
-| @tailwindcss/vite | ^4.3.3 | Tailwind v4 Vite plugin | Phase 0 |
-| eslint | ^10.13.0 | linting | Phase 0 |
-| @eslint/js | ^10.0.1 | ESLint recommended config | Phase 0 |
-| globals | ^17.13.0 | browser globals for ESLint | Phase 0 |
-| eslint-plugin-react-hooks | ^7.1.1 | hooks lint rules | Phase 0 |
-| eslint-plugin-react-refresh | ^0.5.7 | fast-refresh lint rules | Phase 0 |
-| prettier | ^3.9.10 | formatting | Phase 0 |
+| Library                     | Version  | Why                         | Approved by |
+| --------------------------- | -------- | --------------------------- | ----------- |
+| vite                        | ^8.3.4   | build tool (approved stack) | Phase 0     |
+| @vitejs/plugin-react        | ^6.1.2   | React support in Vite       | Phase 0     |
+| tailwindcss                 | ^4.3.3   | styling (approved stack)    | Phase 0     |
+| @tailwindcss/vite           | ^4.3.3   | Tailwind v4 Vite plugin     | Phase 0     |
+| eslint                      | ^10.13.0 | linting                     | Phase 0     |
+| @eslint/js                  | ^10.0.1  | ESLint recommended config   | Phase 0     |
+| globals                     | ^17.13.0 | browser globals for ESLint  | Phase 0     |
+| eslint-plugin-react-hooks   | ^7.1.1   | hooks lint rules            | Phase 0     |
+| eslint-plugin-react-refresh | ^0.5.7   | fast-refresh lint rules     | Phase 0     |
+| prettier                    | ^3.9.10  | formatting                  | Phase 0     |
 
 All are required by the approved stack (Vite, Tailwind, ESLint, Prettier). No third-party library was
 added in Phase 1 — it is built from what was already installed.
@@ -301,11 +423,17 @@ added in Phase 1 — it is built from what was already installed.
 - [x] Env vars set: locally in `.env`, and in Cloudflare Pages
       (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`)
 - [x] First Super Admin account created, plus a test member account
+- [x] `0004_showcase_tables.sql` applied (it holds the BOD / gallery / projects tables and the public storage buckets)
+- [ ] `0005`, `0006`, `0007` applied, in that order — **owner**, `docs/OWNER-ACTIONS.md` section 2
 - [ ] Supabase **Site URL** set to the Cloudflare address (Authentication → URL Configuration)
-- [ ] Edge Function secrets set (service role key, email API key) — Phase 6
-- [ ] Email provider chosen and sender verified — Phase 7
+- [ ] Edge Function secrets set (service role key, Resend key, sender address) — `docs/OWNER-ACTIONS.md` section 4
+- [ ] The seven Edge Functions deployed — `docs/OWNER-ACTIONS.md` section 5
+- [ ] Email provider chosen and sender verified — `docs/OWNER-ACTIONS.md` section 6
 
-### Do this before the Phase 1 login test
+> **Everything still outstanding is in `docs/OWNER-ACTIONS.md`, in order.** The steps below are the
+> Phase 0/1 setup record, kept for history.
+
+### Do this before the Phase 1 login test (done — kept for history)
 
 1. Create the Supabase project (free plan). In **Authentication → Sign In / Providers**, turn
    **email sign-ups off**.
@@ -321,14 +449,15 @@ added in Phase 1 — it is built from what was already installed.
      ```
 5. `npm run dev`, log in with that email + password. You should land on `/change-password`, set a new
    password, then arrive at `/admin`.
-6. To test the member side, create a second user with `role = 'member'` and check you land on `/member`.
-   Set `is_active = false` on one and confirm login is refused.
+6. To test the member side, create a second user with `role = 'member'` and check you land on `/` (the
+   public home), not `/member`. Set `is_active = false` on one and confirm login is refused.
 
 ## 10. Instructions for the AI assistant (read every session)
 
 1. Read this file fully, then the current phase in `PHASES.md`.
 2. Tell the owner in 2 to 3 lines where the project stands and what you plan to do next.
-3. Work only on tasks in the current phase. Do not skip ahead.
+3. **The build is finished.** From here, work only from `docs/TESTING.md` (fix what the testing team
+   reports) and `docs/OWNER-ACTIONS.md` (the steps only the owner can do). Do not add features.
 4. Follow `ARCHITECTURE.md` section 15 (AI boundaries) and `DESIGN.md` tokens.
 5. When you finish a task: tick it in `PHASES.md`, update the tracker tables above, update sections 1 and 2, and add a session log entry.
 6. If a session ends in the middle of something, write exactly where you stopped in **Resume here**, naming the file and what is left.

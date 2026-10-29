@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import Button from '../ui/Button'
-import ThemeToggle from '../shared/ThemeToggle'
 import ProfileMenu from './ProfileMenu'
 import { useAuth } from '../../context/useAuth'
 import { cn } from '../../lib/utils'
@@ -21,10 +20,17 @@ const LINKS = [
 
 const linkClass = ({ isActive }) =>
   cn(
-    'border-b py-1.5 text-sm font-medium transition-colors',
+    'border-b py-1.5 text-sm font-medium transition-colors ease-assemble',
     isActive
       ? 'border-primary text-text'
       : 'border-transparent text-muted hover:border-primary hover:text-text',
+  )
+
+// Drawer rows: the current page keeps a 1px gold hairline at the left edge.
+const drawerClass = ({ isActive }) =>
+  cn(
+    'border-b border-b-border border-l py-4 pl-3 font-medium transition-colors ease-assemble',
+    isActive ? 'border-l-primary text-text' : 'border-l-transparent text-muted',
   )
 
 export default function Navbar() {
@@ -32,7 +38,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="chrome-dark sticky top-0 z-40 border-b border-border bg-bg">
+    <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur-md supports-[backdrop-filter]:bg-bg/85">
       <div className="mx-auto flex h-[76px] max-w-[1180px] items-center gap-5 px-[clamp(16px,4vw,40px)]">
         <Link
           to="/"
@@ -55,8 +61,6 @@ export default function Navbar() {
             </NavLink>
           ))}
         </nav>
-
-        <ThemeToggle className="-mr-2" />
 
         {profile ? (
           <ProfileMenu />
@@ -99,7 +103,7 @@ export default function Navbar() {
                 to={link.to}
                 end={link.end}
                 onClick={() => setOpen(false)}
-                className="border-b border-border py-4 font-medium"
+                className={drawerClass}
               >
                 {link.label}
               </NavLink>
@@ -110,7 +114,7 @@ export default function Navbar() {
                 <NavLink
                   to="/login"
                   onClick={() => setOpen(false)}
-                  className="border-b border-border py-4 font-medium"
+                  className="border-b border-b-border border-l border-l-transparent py-4 pl-3 font-medium text-muted"
                 >
                   Member login
                 </NavLink>

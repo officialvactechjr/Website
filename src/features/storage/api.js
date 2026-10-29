@@ -52,8 +52,12 @@ async function shrink(file) {
   return blob ?? file
 }
 
-/** Uploads one image and returns its public URL. */
-export async function uploadImage(bucket, file) {
+/**
+ * Uploads one image and returns its public URL.
+ * `folder` is the signed-in member's id: the `project-images` and `avatars`
+ * policies only allow a write inside `{userId}/`, so member uploads must pass it.
+ */
+export async function uploadImage(bucket, file, folder) {
   const problem = imageFileError(file)
   if (problem) throw new Error(problem)
 
@@ -63,7 +67,8 @@ export async function uploadImage(bucket, file) {
   }
 
   const extension = (prepared.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg')
-  const path = `${crypto.randomUUID()}.${extension}`
+  const name = `${crypto.randomUUID()}.${extension}`
+  const path = folder ? `${folder}/${name}` : name
 
   const { error } = await supabase.storage
     .from(bucket)

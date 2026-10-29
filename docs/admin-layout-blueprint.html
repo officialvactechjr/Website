@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin layout blueprint — VAC-TECH Jr.</title>
+    <!--
+      Structural blueprint for the redesigned admin shell. Not app code: the live
+      panel is the source of truth (src/routes/AdminLayout.jsx,
+      src/components/layout/Sidebar.jsx, src/components/layout/PreviewDrawer.jsx).
+      Tokens are copied from src/index.css so the blueprint reads like the site.
+      Type falls back to system fonts because the @fontsource faces only load in
+      the app bundle.
+
+      The shell is drawn at 1536x900 (the width the preview docks at) and scaled
+      to fit the window, the same trick the preview pane itself uses.
+    -->
+    <style>
+      :root {
+        --bg: #06122a;
+        --surface: #0a1a3b;
+        --surface-alt: #0e2350;
+        --border: #17305e;
+        --border-strong: #27487f;
+        --text: #eef3ff;
+        --muted: #9baccb;
+        --primary: #ffc349;
+        --primary-ink: #08142e;
+        --success: #4ade80;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font:
+          16px/1.6 system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        padding: 16px;
+        overflow: hidden;
+      }
+      .mono {
+        font-family: ui-monospace, Consolas, monospace;
+      }
+
+      .viewport {
+        width: 1536px;
+        height: 900px;
+        transform-origin: top left;
+        overflow: hidden;
+      }
+      .shell {
+        display: flex;
+        height: 100%;
+      }
+
+      /* 1. Sidebar: five top-level destinations, no actions, no sub-pages. */
+      .side {
+        width: 240px;
+        flex: none;
+        border-right: 1px solid var(--border);
+        background: var(--surface);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        height: 64px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--border);
+        font-weight: 600;
+      }
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 12px;
+      }
+      .nav a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        border-left: 1px solid transparent;
+        border-radius: 4px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      .nav a[aria-current] {
+        border-left-color: var(--primary);
+        background: var(--surface-alt);
+        color: var(--text);
+      }
+      .nav i {
+        width: 16px;
+        height: 16px;
+        border: 1px solid currentColor;
+        border-radius: 3px;
+        flex: none;
+      }
+      .nav a[aria-current] i {
+        border-color: var(--primary);
+      }
+
+      .col {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 1;
+      }
+
+      /* 2. Header: global tools only — the Preview toggle and the account. */
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 64px;
+        padding: 0 32px;
+        border-bottom: 1px solid var(--border);
+      }
+      .crumb {
+        margin-right: auto;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 18px;
+        border: 1px solid var(--border-strong);
+        border-radius: 6px;
+        background: none;
+        color: var(--text);
+        font: 600 14px system-ui;
+        cursor: pointer;
+      }
+      .btn.on {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px;
+        background: var(--primary);
+        color: var(--primary-ink);
+        font: 600 14px system-ui;
+        display: grid;
+        place-items: center;
+      }
+
+      /* 3. Contextual toolbar: the open section's pages. Nothing else. */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 0 32px;
+        border-bottom: 1px solid var(--border);
+      }
+      .tabs a {
+        margin-bottom: -1px;
+        padding: 10px 12px;
+        border-bottom: 2px solid transparent;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .tabs a[aria-current] {
+        border-bottom-color: var(--primary);
+        color: var(--text);
+      }
+
+      .main {
+        flex: 1;
+        min-height: 0;
+        padding: 24px 32px;
+      }
+      .page-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .sub {
+        margin-top: 4px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .btn.primary {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: var(--primary-ink);
+      }
+      .btn.ghost {
+        border-color: transparent;
+        color: var(--muted);
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--surface);
+      }
+      .filters {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .field {
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--bg);
+        color: var(--muted);
+        font: 400 14px system-ui;
+      }
+      .search {
+        width: 280px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      th {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        color: var(--muted);
+        font-weight: 500;
+        text-align: left;
+      }
+      td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      .right {
+        text-align: right;
+      }
+      .chip {
+        display: inline-block;
+        padding: 1px 12px;
+        border: 1px solid var(--primary);
+        border-radius: 9999px;
+        color: var(--primary);
+        font: 500 12px system-ui;
+      }
+      .chip.ok {
+        border-color: var(--success);
+        color: var(--success);
+      }
+
+      /* 4. Docked preview: 38% of the window, the frame scaled inside it. */
+      .preview {
+        width: 38%;
+        flex: none;
+        border-left: 1px solid var(--border);
+        background: var(--surface);
+        display: flex;
+        flex-direction: column;
+      }
+      .pv-head,
+      .pv-tools {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .pv-head h2 {
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .pv-tools .grow {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .readout {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .icon {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+      }
+      .seg button {
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid var(--border-strong);
+        border-radius: 6px;
+        background: none;
+        color: var(--muted);
+        font: 500 14px system-ui;
+      }
+      .seg button[aria-pressed='true'] {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: var(--primary-ink);
+      }
+      .note {
+        padding: 8px 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .stage {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        background: var(--bg);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        overflow: hidden;
+      }
+      /* Stand-in for the iframe: laid out at 1024px, drawn at 1024 * scale. */
+      .frame {
+        height: 100%;
+        background: var(--surface-alt);
+        color: var(--muted);
+        font:
+          500 12px ui-monospace,
+          monospace;
+        padding: 12px;
+      }
+
+      .caption {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 12px;
+      }
+      .caption b {
+        color: var(--text);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="viewport" id="viewport">
+      <div class="shell">
+        <aside class="side">
+          <div class="brand">VAC-TECH Jr.</div>
+          <nav class="nav" aria-label="Sections">
+            <a href="#"><i></i>Overview</a>
+            <a href="#" aria-current="page"><i></i>Content</a>
+            <a href="#"><i></i>Intake</a>
+            <a href="#"><i></i>People</a>
+            <a href="#"><i></i>System</a>
+          </nav>
+        </aside>
+
+        <div class="col">
+          <!-- global tools only: section context, Preview toggle, account -->
+          <header class="top">
+            <p class="crumb">Content</p>
+            <button class="btn on" aria-pressed="true">◉ Preview</button>
+            <span class="avatar">AR</span>
+          </header>
+
+          <!-- the open section's pages -->
+          <nav class="tabs" aria-label="Content pages">
+            <a href="#" aria-current="page">Notices</a>
+            <a href="#">Events</a>
+            <a href="#">Board of directors</a>
+            <a href="#">Gallery</a>
+            <a href="#">Registration forms</a>
+          </nav>
+
+          <main class="main">
+            <!-- page title + this page's own action, in the page, not the chrome -->
+            <div class="page-head">
+              <div>
+                <h1>Notices</h1>
+                <p class="sub">Announcements shown on the public notices page and on Home.</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="filters">
+                <input class="field search" placeholder="Search notices" />
+                <div style="display: flex; gap: 8px">
+                  <button class="btn ghost">Export</button>
+                  <button class="btn primary">New notice</button>
+                </div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Publish date</th>
+                    <th>Pinned</th>
+                    <th class="right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Robotics club open day</td>
+                    <td class="mono" style="font-size: 12px; color: var(--muted)">18 Oct 2026</td>
+                    <td><span class="chip">Pinned</span></td>
+                    <td class="right">
+                      <button class="btn ghost">Pin</button>
+                      <button class="btn">Edit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Winter workshop schedule</td>
+                    <td class="mono" style="font-size: 12px; color: var(--muted)">02 Oct 2026</td>
+                    <td></td>
+                    <td class="right">
+                      <button class="btn ghost">Pin</button>
+                      <button class="btn">Edit</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </main>
+        </div>
+
+        <!-- docked at 2xl and up: the workspace divides, the page keeps a column -->
+        <aside class="preview">
+          <div class="pv-head">
+            <h2>Live preview <span class="chip ok">Published</span></h2>
+            <span class="icon">⟳</span>
+            <span class="icon">↗</span>
+            <span class="icon">✕</span>
+          </div>
+          <div class="pv-tools">
+            <select class="field" style="width: auto">
+              <option>Notices</option>
+              <option>Home</option>
+            </select>
+            <div class="grow">
+              <span class="mono readout">1024px · 61%</span>
+              <div class="seg" role="group" aria-label="Preview width">
+                <button aria-pressed="false">Mobile</button>
+                <button aria-pressed="false">Tablet</button>
+                <button aria-pressed="true">Desktop</button>
+              </div>
+            </div>
+          </div>
+          <p class="note">
+            Shows saved content. An edit that is still open in a form will not appear here.
+          </p>
+          <div class="stage">
+            <div class="frame">public /notices — laid out at 1024px, scaled to fit</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <p class="caption">
+      <b>Blueprint only.</b> Live code: AdminLayout.jsx (sections, header, tabs, preview toggle) ·
+      Sidebar.jsx (5 rows) · PreviewDrawer.jsx (docked ≥1536px, slide-over below). Drawn at
+      1536×900.
+    </p>
+
+    <script>
+      // Draw the shell at 1536x900 and scale it to fit, like the preview pane does.
+      const viewport = document.getElementById('viewport')
+      const fit = () => {
+        const scale = Math.min(1, (window.innerWidth - 32) / 1536)
+        viewport.style.transform = `scale(${scale})`
+        viewport.style.height = `${Math.min(900, (window.innerHeight - 120) / scale)}px`
+
+        // Same rule the pane uses: 1024px frame, scaled only when it cannot fit.
+        const stage = document.querySelector('.stage')
+        const frame = document.querySelector('.frame')
+        const frameScale = Math.min(1, stage.clientWidth / 1024) || 1
+        frame.style.width = `${1024 * frameScale}px`
+        document.querySelector('.readout').textContent =
+          `1024px${frameScale < 1 ? ` · ${Math.round(frameScale * 100)}%` : ''}`
+      }
+      fit()
+      window.addEventListener('resize', fit)
+    </script>
+  </body>
+</html>

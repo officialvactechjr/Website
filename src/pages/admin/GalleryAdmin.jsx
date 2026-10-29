@@ -46,6 +46,8 @@ export default function GalleryAdmin() {
         <img
           src={photo.image_url}
           alt=""
+          width={80}
+          height={48}
           loading="lazy"
           className="h-12 w-20 rounded-sm border border-border object-cover"
         />

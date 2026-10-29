@@ -35,3 +35,41 @@ export function toDateTimeInput(value) {
 export function fromDateTimeInput(value) {
   return value ? new Date(value).toISOString() : null
 }
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+// Nepal is UTC+5:45 all year — there is no daylight saving — so a fixed offset is
+// exact. That is why this needs no time-zone library.
+const NEPAL_OFFSET_MINUTES = 5 * 60 + 45
+
+function nepalClock(value) {
+  return new Date(new Date(value).getTime() + NEPAL_OFFSET_MINUTES * 60 * 1000)
+}
+
+/** "18 Oct 2026" in Nepal time. */
+export function formatNepalDate(value) {
+  if (!value) return ''
+  const clock = nepalClock(value)
+  return `${clock.getUTCDate()} ${MONTHS[clock.getUTCMonth()]} ${clock.getUTCFullYear()}`
+}
+
+/** "18 Oct 2026, 10:00 AM" in Nepal time. */
+export function formatNepalDateTime(value) {
+  if (!value) return ''
+  const clock = nepalClock(value)
+  const hours24 = clock.getUTCHours()
+  const hours = hours24 % 12 === 0 ? 12 : hours24 % 12
+  const minutes = String(clock.getUTCMinutes()).padStart(2, '0')
+  return `${formatNepalDate(value)}, ${hours}:${minutes} ${hours24 < 12 ? 'AM' : 'PM'}`
+}
+
+/**
+ * Spreadsheet apps run a cell starting with = + - or @ as a formula, so a name
+ * typed as "=SUM(1)" would execute when staff open the export. Prefixing an
+ * apostrophe makes it literal text. (Tab and carriage return are in the same
+ * family, so they get the same treatment.)
+ */
+export function csvCell(value) {
+  const text = value == null ? '' : String(value)
+  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
+}

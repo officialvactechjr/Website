@@ -1,44 +1,11 @@
 @import 'tailwindcss';
 
-/* Dark mode is driven by the `.dark` class on <html> (set in index.html before first paint). */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* ---------------------------------------------------------------------------
    Design tokens. Values live here only; components use the semantic names.
-   Theme: light is the base, dark is the club's own logo palette
+   One theme only: the club's own logo palette, taken from the intro animation
    (VAC-TECH Jr.html: #06122A navy, #FFC349 gold, #1FD6F7 cyan).
    --------------------------------------------------------------------------- */
 :root {
-  --bg: #f7f9ff;
-  --surface: #ffffff;
-  --surface-alt: #eef2fb;
-  --border: #d8e0f0;
-  --border-strong: #b9c6e4;
-  --text: #06122a;
-  --muted: #4a5a7a;
-  --primary: #ffc349;
-  --primary-ink: #08142e;
-  --primary-hover: #ffd37a;
-  --primary-text: #8a5a00; /* gold fails AA as text on light, so links use this */
-  --accent: #0e7490;
-  --accent-ink: #ffffff;
-  --success: #166534;
-  --warning: #92400e;
-  --danger: #b91c1c;
-  --info: #0369a1;
-
-  /* Header logo width. The intro animation lands its pieces on these slots, so
-     the size and aspect ratios in the .hart / .htxt rules below are fixed. */
-  --logo-w: 128px;
-}
-
-@media (max-width: 960px) {
-  :root {
-    --logo-w: 92px;
-  }
-}
-
-.dark {
   --bg: #06122a;
   --surface: #0a1a3b;
   --surface-alt: #0e2350;
@@ -56,9 +23,19 @@
   --warning: #fbbf24;
   --danger: #f87171;
   --info: #38bdf8;
+
+  /* Header logo width. The intro animation lands its pieces on these slots, so
+     the size and aspect ratios in the .hart / .htxt rules below are fixed. */
+  --logo-w: 128px;
 }
 
-/* `inline` keeps the utilities pointing at the variables, so `.dark` wins. */
+@media (max-width: 960px) {
+  :root {
+    --logo-w: 92px;
+  }
+}
+
+/* `inline` keeps the utilities pointing straight at the variables above. */
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -82,14 +59,61 @@
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+/* Motion tokens (docs/DESIGN.md section 8). Values are theme-independent, so they
+   live outside the inline block: the utilities and the hand-written rules above
+   both read the same variables. */
+@theme {
+  --ease-assemble: cubic-bezier(0.16, 0.84, 0.24, 1);
+  --animate-pop: vac-pop 250ms cubic-bezier(0.16, 0.84, 0.24, 1) both;
+  --animate-fade: vac-fade 250ms cubic-bezier(0.16, 0.84, 0.24, 1) both;
+  /* The Home marquee. The track holds its items twice, so a -50% shift lands
+     exactly on the second copy and the loop has no seam. */
+  --animate-marquee: vac-marquee 34s linear infinite;
+  --animate-float: vac-float 6s ease-in-out infinite;
+}
+
+@keyframes vac-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes vac-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes vac-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* The hero artwork's idle drift. */
+@keyframes vac-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 @layer base {
   html {
-    color-scheme: light;
+    color-scheme: dark;
     /* "View about" on Home scrolls to #about instead of jumping. */
     scroll-behavior: smooth;
-  }
-  html.dark {
-    color-scheme: dark;
   }
   body {
     background: var(--bg);
@@ -108,26 +132,33 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Chrome that stays navy in both themes.
-   The club logo is drawn for the navy background, so the header, footer and the
-   intro overlay keep the dark token values even when the page is light.
+   Hairline materiality (docs/DESIGN.md section 4).
+   Depth without shadows: a palette-anchored corner light instead of a drop
+   shadow. The gradient values live here, never in a component.
    --------------------------------------------------------------------------- */
-.chrome-dark {
-  --bg: #06122a;
-  --surface: #0a1a3b;
-  --surface-alt: #0e2350;
-  --border: #17305e;
-  --border-strong: #27487f;
-  --text: #eef3ff;
-  --muted: #9baccb;
-  --primary: #ffc349;
-  --primary-ink: #08142e;
-  --primary-hover: #ffd37a;
-  --primary-text: #ffc349;
-  --accent: #1fd6f7;
-  --accent-ink: #06122a;
-  color: var(--text);
-  color-scheme: dark;
+.sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.sheen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 140% at 100% 0%,
+    color-mix(in oklab, var(--primary) 12%, transparent),
+    transparent 58%
+  );
+  opacity: 0.55;
+  transition: opacity 150ms var(--ease-assemble);
+}
+
+/* A focused field inside the card warms the same corner — the card answers the
+   form, not the passing cursor. */
+.sheen:focus-within::before {
+  opacity: 1;
 }
 
 /* ---------------------------------------------------------------------------

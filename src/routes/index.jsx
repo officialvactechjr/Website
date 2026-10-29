@@ -10,7 +10,7 @@ import PublicLayout from './PublicLayout'
 import ProtectedRoute from './ProtectedRoute'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/useAuth'
-import { ROLES, STAFF_ROLES } from '../lib/constants'
+import { ADMIN_ROLES, ROLES, STAFF_ROLES } from '../lib/constants'
 
 // Route-level code splitting keeps the first bundle small. The admin panel, the
 // auth pages and the member pages are only fetched when someone opens them.
@@ -31,12 +31,27 @@ const LoginPage = lazy(() => import('../features/auth/LoginPage'))
 const ChangePasswordPage = lazy(() => import('../features/auth/ChangePasswordPage'))
 const Profile = lazy(() => import('../pages/member/Profile'))
 const MemberDashboard = lazy(() => import('../pages/member/Dashboard'))
+const MemberSuggestions = lazy(() => import('../pages/member/Suggestions'))
+const UploadProject = lazy(() => import('../pages/member/UploadProject'))
+const EditProject = lazy(() => import('../pages/member/EditProject'))
 const AdminLayout = lazy(() => import('./AdminLayout'))
 const AdminDashboard = lazy(() => import('../pages/admin/Dashboard'))
 const NoticesAdmin = lazy(() => import('../pages/admin/NoticesAdmin'))
 const EventsAdmin = lazy(() => import('../pages/admin/EventsAdmin'))
 const BodAdmin = lazy(() => import('../pages/admin/BodAdmin'))
 const GalleryAdmin = lazy(() => import('../pages/admin/GalleryAdmin'))
+const FormBuilder = lazy(() => import('../pages/admin/FormBuilder'))
+const Registrations = lazy(() => import('../pages/admin/Registrations'))
+const Applications = lazy(() => import('../pages/admin/Applications'))
+const MembershipWindow = lazy(() => import('../pages/admin/MembershipWindow'))
+const MembersAdmin = lazy(() => import('../pages/admin/MembersAdmin'))
+const Approvals = lazy(() => import('../pages/admin/Approvals'))
+const ProfileChanges = lazy(() => import('../pages/admin/ProfileChanges'))
+const Points = lazy(() => import('../pages/admin/Points'))
+const SuggestionsAdmin = lazy(() => import('../pages/admin/SuggestionsAdmin'))
+const Emails = lazy(() => import('../pages/admin/Emails'))
+const Roles = lazy(() => import('../pages/admin/Roles'))
+const SettingsAdmin = lazy(() => import('../pages/admin/Settings'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 
 function PageFallback() {
@@ -90,7 +105,12 @@ const router = createBrowserRouter(
               element: <ProtectedRoute allow={ROLES} />,
               children: [
                 { path: 'profile', element: ready(<Profile />) },
+                // The old address from the Phase 1 plan; kept so shared links live on.
+                { path: 'member/profile', element: <Navigate to="/profile" replace /> },
                 { path: 'member', element: ready(<MemberDashboard />) },
+                { path: 'member/suggestions', element: ready(<MemberSuggestions />) },
+                { path: 'member/projects/new', element: ready(<UploadProject />) },
+                { path: 'member/projects/:id/edit', element: ready(<EditProject />) },
               ],
             },
           ],
@@ -101,7 +121,8 @@ const router = createBrowserRouter(
           children: [{ path: 'change-password', element: ready(<ChangePasswordPage />) }],
         },
 
-        // Staff only. Members never reach this.
+        // Staff only. Members never reach this, and inside the panel each route
+        // carries its own role gate, matching the sidebar in AdminLayout.
         {
           element: <ProtectedRoute allow={STAFF_ROLES} />,
           children: [
@@ -109,10 +130,38 @@ const router = createBrowserRouter(
               element: ready(<AdminLayout />),
               children: [
                 { path: 'admin', element: ready(<AdminDashboard />) },
+
+                // Content, approvals, registrations and the suggestion inbox.
                 { path: 'admin/notices', element: ready(<NoticesAdmin />) },
                 { path: 'admin/events', element: ready(<EventsAdmin />) },
                 { path: 'admin/bod', element: ready(<BodAdmin />) },
                 { path: 'admin/gallery', element: ready(<GalleryAdmin />) },
+                { path: 'admin/registration-forms', element: ready(<FormBuilder />) },
+                { path: 'admin/registrations', element: ready(<Registrations />) },
+                { path: 'admin/applications', element: ready(<Applications />) },
+                { path: 'admin/approvals', element: ready(<Approvals />) },
+                { path: 'admin/suggestions', element: ready(<SuggestionsAdmin />) },
+
+                // Accounts, points, email and the membership window.
+                {
+                  element: <ProtectedRoute allow={ADMIN_ROLES} />,
+                  children: [
+                    { path: 'admin/members', element: ready(<MembersAdmin />) },
+                    { path: 'admin/profile-changes', element: ready(<ProfileChanges />) },
+                    { path: 'admin/points', element: ready(<Points />) },
+                    { path: 'admin/emails', element: ready(<Emails />) },
+                    { path: 'admin/settings/membership', element: ready(<MembershipWindow />) },
+                  ],
+                },
+
+                // The institution's own screens.
+                {
+                  element: <ProtectedRoute allow={['super_admin']} />,
+                  children: [
+                    { path: 'admin/roles', element: ready(<Roles />) },
+                    { path: 'admin/settings', element: ready(<SettingsAdmin />) },
+                  ],
+                },
               ],
             },
           ],

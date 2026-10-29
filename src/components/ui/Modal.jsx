@@ -19,7 +19,7 @@ export default function Modal({ open, onClose, title, children, className }) {
       onClose={onClose}
       onCancel={onClose}
       className={cn(
-        'w-[min(32rem,calc(100vw-2rem))] rounded-sm border border-border bg-surface p-0 text-text backdrop:bg-black/60',
+        'animate-pop w-[min(32rem,calc(100vw-2rem))] rounded-sm border border-border bg-surface p-0 text-text backdrop:animate-fade backdrop:bg-black/60',
         className,
       )}
     >

@@ -1,0 +1,146 @@
+# OWNER-ACTIONS.md: what only you can do
+
+Everything the assistant cannot do for you: creating accounts, setting secrets,
+deploying, and the checks that need a human. **Do these in this order** — each
+section assumes the one above it is done.
+
+> Keep this list current. When an action is done, tick it here.
+>
+> The whole app is built. Nothing below has been done yet: `0005`, `0006` and
+> `0007` are **not applied** and **no Edge Function is deployed**.
+
+---
+
+## 1. Accounts (once, at the start)
+
+- [ ] **GitHub** — an account owned by the club (not a personal one), holding the repo.
+- [ ] **Supabase** — project created; email sign-ups **off**. Add the Super Admin
+      (institution staff) as an organisation member.
+- [ ] **Cloudflare Pages** — connected to the repo. Build command `npm run build`,
+      output directory `dist`, preset React/Vite.
+- [ ] **Cloudflare Pages env vars:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
+      `NODE_VERSION=22`.
+- [ ] **Supabase → Authentication → URL Configuration:** set the **Site URL** to the
+      Cloudflare address (`https://vactechjr.pages.dev`) and add it to the redirect list.
+
+## 2. Database
+
+Apply the migrations in the Supabase **SQL Editor**, in this order, one file per query.
+`0001`-`0004` are already applied; the four below are not.
+
+- [ ] `0005_registrations.sql`
+- [ ] `0006_projects_and_profile_changes.sql`
+- [ ] `0007_points_suggestions_email.sql`
+
+Each file is safe to re-run only if it has never been applied: they are written to be
+applied **once**, in order. If one fails, paste the error into the issue/changelog and stop
+— do not edit a migration that is already applied.
+
+Then, for a development or demo project only:
+
+- [ ] `seed.sql` — fake content. **Never run this against real club data.** It is
+      re-runnable, so it is also the way to put samples back after a test run.
+- [ ] Close the seed membership window before the site is public:
+      `sql
+update public.membership_windows set is_open = false;
+`
+- [ ] Verify: `select id, public from storage.buckets order by id;` → four buckets
+      (`avatars`, `bod-photos`, `gallery`, `project-images`), all public.
+
+## 3. The first Super Admin
+
+1. Supabase → **Authentication → Users → Add user**. Enter the institution staff
+   member's email and a password, tick **Auto Confirm User**. Copy the new UUID.
+2. In the SQL editor:
+   ```sql
+   insert into public.profiles (id, full_name, role, email, must_change_password)
+   values ('<paste-the-uuid>', 'Club Super Admin', 'super_admin', '<the same email>', true);
+   ```
+3. Hand over the email and password in person. They are asked to choose their own
+   password on first login.
+
+## 4. Edge Function secrets
+
+Supabase → **Project Settings → Edge Functions → Secrets** (or the CLI below). The
+service role key must never appear in the frontend, in `.env`, or in the repo.
+
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` — from Project Settings → API. (Supabase injects
+      `SUPABASE_URL` and `SUPABASE_ANON_KEY` automatically; do not set those by hand.)
+- [ ] `RESEND_API_KEY` — see section 6.
+- [ ] `SENDER_EMAIL` — the verified sender, for example `VAC-Tech Jr <club@yourdomain.com>`.
+- [ ] `EMAIL_PROVIDER` — optional. Leave it unset for Resend, or set it to `brevo`.
+
+With the CLI (run once; the values are read from your shell, never written to a file):
+
+```bash
+supabase login
+supabase link --project-ref <your-project-ref>
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
+supabase secrets set SENDER_EMAIL="VAC-Tech Jr <club@yourdomain.com>"
+supabase secrets set RESEND_API_KEY="<resend-api-key>"
+supabase secrets list          # names only; values are never shown again
+```
+
+## 5. Deploy the Edge Functions
+
+From the project root, with the CLI linked:
+
+```bash
+supabase functions deploy create-member
+supabase functions deploy bulk-create-members
+supabase functions deploy reset-password
+supabase functions deploy set-account-status
+supabase functions deploy apply-profile-change
+supabase functions deploy change-role
+supabase functions deploy send-email
+```
+
+- [ ] All **seven** deployed, each with **JWT verification on** (the default).
+- [ ] CORS is restricted to `https://vactechjr.pages.dev` and `http://localhost:5173`
+      in `supabase/functions/_shared/cors.ts` — change both entries if the address changes,
+      then redeploy every function.
+- [ ] Smoke test one function from the app (for example `/admin/members` → create a test
+      account) and check the browser's Network tab shows `200`.
+
+## 6. Email provider (Resend by default, Brevo optional)
+
+**Resend**
+
+1. Create an account at resend.com with the **club's** email address, not a personal one.
+2. **Domains → Add domain**, enter the club's domain, and add the DNS records it shows
+   (SPF/DKIM) at the domain registrar. Verification usually takes minutes.
+   _No domain yet?_ Resend's own `onboarding@resend.dev` sender works for a first test,
+   but it only delivers to the account owner's address.
+3. **API Keys → Create API Key**, permission _Sending access_. Copy it once — it is
+   never shown again — and set it as `RESEND_API_KEY` (section 4).
+4. Set `SENDER_EMAIL` to an address on the verified domain, e.g.
+   `VAC-Tech Jr <club@yourdomain.com>`.
+5. Send yourself one real email from `/admin/emails` (choose "Chosen members", pick
+   your own test account) and confirm it arrives.
+
+- [ ] Free tier: **Resend** gives about **3,000 emails a month, 100 a day** — a broadcast
+      to 60 members is 60 of them. **Brevo** gives about **300 a day**. Either fits the club.
+- [ ] The function sends at most **100 recipients per dispatch**, spaced ~0.5 s apart to stay
+      inside the provider's per-second limit. A bigger club sends in batches.
+- [ ] Swapping to Brevo later: set `BREVO_API_KEY`, set `EMAIL_PROVIDER=brevo`, redeploy
+      `send-email`. No code change.
+
+## 7. Before any real student data
+
+- [ ] The testing team has run `docs/TESTING.md` from Phase 1 to Phase 8 and every row has
+      a Pass or a logged decision.
+- [ ] The school has approved the consent wording on the Join form and the use of student photos.
+- [ ] A **data owner** is named — a person responsible for member records, who is told when a
+      member asks for their data to be corrected or removed.
+- [ ] The PRE-LAUNCH CHECKLIST at the end of `docs/TESTING.md` is complete: test accounts
+      removed or renamed, the seed window closed, seed content replaced, Supabase Site URL set,
+      dev keys rotated, storage swept.
+- [ ] `docs/HANDOVER.md` read by the next committee, accounts transferred, release tagged `v1.0`.
+
+## 8. The five-minute health check (any time)
+
+1. Home loads with the intro, then the hero, with no console errors.
+2. Log in as the Super Admin: you land on `/admin`, the sidebar shows all 17 entries.
+3. `/admin/members` lists accounts; open one and reset its password (a temp password appears once).
+4. `/admin/emails` shows the dispatch history (empty is fine).
+5. Log out, then open `/admin` — you are sent to `/login`.

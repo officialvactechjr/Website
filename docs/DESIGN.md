@@ -22,6 +22,10 @@ Personality: **modern, technical, friendly, student-led.** Clean and confident, 
 | `primary-text`   | `#8A5A00` (light) / `#FFC349` (dark) | Gold used **as text**: raw gold fails AA on light      |
 | `accent` (cyan)  | `#1FD6F7`                            | Focus ring, circuit traces, small accents              |
 | `accent-ink`     | `#06122A`                            | Text on cyan                                           |
+| `accent-soft`    | `#8FA9E0`                            | Footer headings and the social marks (the softer blue) |
+| `brand`          | `#2F6BFF`                            | The landing hero's call to action (the club's mock)    |
+| `brand-hover`    | `#2456D6`                            | Brand hover                                            |
+| `violet`         | `#8B5CF6`                            | The "Introducing" outline on the landing hero          |
 
 ### Surfaces
 
@@ -141,6 +145,11 @@ corner light on a surface (gold at low alpha, in both themes) instead of a drop 
 on `:focus-within`, so a card answers the form inside it. Cards use it; the values live only in
 `index.css`.
 
+The landing hero and the login page's brand panel carry the same material at hero scale: `.hero-glow`
+(`src/index.css`) is the mascot's halo — a cyan core inside the softer blue field, again a radial light
+rather than a shadow. Keep the intro copy on it to at most `accent-soft` 24% at its brightest or the
+muted text walks under 4.5:1.
+
 ## 5. Breakpoints
 
 | Name    | Width  | Layout                                 |
@@ -160,7 +169,14 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
 - Primary: gold (`primary`) fill, `primary-ink` text. Secondary: border + text. Outline: `accent`
   hairline with `accent` text and an `accent/10` wash on hover — the informational action, used for
   "View about" beside a gold CTA. Ghost: text only. Danger: `danger` fill.
-- Height 46px (40px for `size="sm"`), label 15px/600 (14px when small). Radius `radius-md` (6px). Visible focus ring (2px `accent` cyan, 2px offset). Matches the landing page.
+- Variants: **`primary`** gold, **`secondary`** border + text, **`outline`** cyan (informational
+  actions), **`brand`** filled `brand` blue — the landing hero's call to action, from the club's mock
+  — plus ghost and danger.
+- **`shape="pill"`** swaps the radius to `rounded-full`; the landing hero's pair uses it. Everything
+  else stays on the default `radius-md` (6px) — the radius lives in a `SHAPES` map rather than in the
+  base class, so a caller never has to out-specify it.
+- Height 46px (40px for `size="sm"`, 54px for `size="lg"` — the landing hero's pair), label 15px/600
+  (14px when small). Visible focus ring (2px `accent` cyan, 2px offset). Matches the landing page.
 - Every variant carries a 1px border, so primary and secondary keep the same edge weight side by side.
 - Press: `active:scale-[.98]`; hover and press run 150ms on `--ease-assemble` (section 8). This is the
   button's whole motion budget — no lift, no glow, no shadow.
@@ -227,6 +243,69 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
 **Section heading** (`SectionHeading`)
 
 - `title` + optional `description` + optional `action`, laid out with the landing page's wrapping `sec-head` rhythm. Used by every public section.
+
+**Board of Directors** (`BodTree`)
+
+- The board is a hierarchy, not a grid: the president's larger card alone on top, then the vice
+  president beside the secretary, then the vice secretary beside the treasurer, then anyone else in
+  centred rows. `BOD_ROWS` in `src/features/bod/positions.js` is the order, and `bodRank` places a
+  member in it — positions are free text in the admin form, so the matching stays loose. A pair drops
+  to one column on mobile.
+- **Each row hugs its cards and is centred**, so a card sits directly under the one above and the
+  president lands over the gap between the two below. Card widths are capped in `vw` as well as
+  `rem`, so a pair still fits side by side on a phone. **No lines are drawn between the levels.**
+
+**Login** (`LoginPage`)
+
+- A `lg` split: the mascot in the halo on the left, the form on the right.
+- The tabs (`Login` / `Sign Up`) match the design, but there is **no self sign-up** — the Sign Up
+  panel explains that the club hands accounts over in person and links to the membership form.
+
+**Mascot scene** (`MascotScene`)
+
+- Wherever a mascot appears — the landing hero, the Home hero, the login's brand panel — it is
+  **centred inside its halo with the club's floating objects around it**. The objects are one packed
+  sheet (`src/assets/hero/particles.webp`), placed at the container's full width and centred
+  vertically, so they fan out either side of the mascot instead of drifting with the viewport. The
+  container is square and sized by height, so the composition holds at any width.
+- **The landing hero stacks `Introducing` / the mascot / `VAC Tech Jr`** so the robot stands between
+  the two lines and both overlap it. **Both overlaps are a fraction of the headline size**
+  (`--head` in `index.css`; the word sits ~47% of the robot's height into it, the gold word covers the
+  robot's lower ~40%), so the composition keeps its proportions at any window shape. Do **not**
+  express these overlaps in `vw`: the robot is sized in `vh`, and a `vw` overlap on a `vh` box buried
+  the words on wide, short screens. "Introducing" is drawn in `violet`; "VAC Tech Jr" in gold with a
+  short extruded shadow. There is no welcome paragraph on the landing — the Home page carries that
+  copy.
+- **The landing is the hero and nothing else** — no sections below it. The section is a
+  `min-h-[calc(100svh-76px)]` column, and every size is capped in `vh` as well as `vw` (`--head`, the
+  robot's `min(52vh,62vw,520px)`, the padding), so it lands on one screen at any window shape.
+- **The halo washes the whole hero** (`.hero-glow-full`, a much wider radial than the mascot-sized
+  `.hero-glow`), and **the objects are spread across the page**, not clustered on the robot: the
+  packed sheet is sized `min(1600px, 92vw, calc((100svh - 76px) * 1.42))`, so it reaches most of the
+  width and every object stays inside the frame. The vertical factor is the one that matters — the
+  sheet is centred on the _robot_, which sits above the hero's middle, so a height-true sheet hangs
+  out of the top. Spreading the sheet also scales the objects up; splitting it into individual
+  objects is the fix if they ever look too large.
+- **The objects drift in from the centre**: `.hero-particles` runs `vac-particles-in` for **9s** and
+  settles at **0.45 opacity**, so they read as background rather than props. The pace is deliberate:
+  they arrive quickly (~0.9s brings them to 0.28 opacity and 0.87 scale) and then creep the last of
+  the way for the remaining eight seconds. The transform lives in the keyframes, not in utilities,
+  because the animation owns it end to end. `prefers-reduced-motion` snaps to the end state.
+- **The intro overlay's pace is tunable by the owner.** It was sped up once and then slowed back to
+  roughly the original (fly 720ms, ring 620ms, pause 240ms, entries 760/820ms, letters 220ms + 38ms).
+  The comment in `IntroAnimation.jsx` says so; that file is the place to change it.
+- **Headline and logo sizes are the largest that still fit.** `--head` is
+  `clamp(1.75rem, min(9vw, 13vh), 6.5rem)` (99px at 1440×760) and the header logo is `--logo-w: 84px`
+  (60px below 960px). Growing the headline is nearly free — the two overlaps grow with it, so the
+  hero's height barely changes — but the robot's `vh` share is what decides whether the page still
+  fits: it was tuned against a 1024×600 window, the tightest case.
+
+**Membership questions** (`MEMBERSHIP_FIELDS`, the `Standard membership` template)
+
+- Name, **faculty**, class, section, email, **skills / bio** and **the committee they want to join**
+  (Coding, Graphics Design, ECA, PR), plus the consent line. `faculty`, `skills` and `committee` are
+  extra questions, so they live in `membership_applications.answers`; the rest keep their columns.
+  A window renders its own snapshot, so a window made before `0011` still shows the old questions.
 
 **Admin layout**
 

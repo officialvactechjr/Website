@@ -1,8 +1,9 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import { homeForRole } from '../lib/constants'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
+import intruder from '../assets/intruder.webp'
 
 function FullPageSpinner() {
   return (
@@ -37,6 +38,38 @@ function NoProfile() {
 }
 
 /**
+ * Signed in, but this area is not for their role. Say so with the club's
+ * intruder illustration and send them somewhere they may go — a silent redirect
+ * leaves them wondering why the link did nothing.
+ */
+function NotAllowed() {
+  const { profile } = useAuth()
+
+  return (
+    <div className="hero-glow relative grid min-h-screen place-items-center overflow-hidden px-6 py-10 text-center">
+      <div>
+        <img
+          src={intruder}
+          alt=""
+          aria-hidden="true"
+          width={1000}
+          height={562}
+          className="mx-auto w-[min(20rem,64vw)]"
+        />
+        <h1 className="mt-6 text-2xl font-semibold">Halt — this area is not for you</h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted">
+          That page belongs to the club team, and your account does not have access to it. If you
+          think that is wrong, ask the club team to check your role.
+        </p>
+        <Button as={Link} to={homeForRole(profile?.role)} className="mt-6">
+          Take me back
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+/**
  * Gate for signed-in areas.
  * - `allow`: roles permitted here.
  * - `passwordChange`: the forced-password-change route itself.
@@ -63,9 +96,7 @@ export default function ProtectedRoute({ allow, passwordChange = false }) {
     )
   }
 
-  if (allow && !allow.includes(profile.role)) {
-    return <Navigate to={homeForRole(profile.role)} replace />
-  }
+  if (allow && !allow.includes(profile.role)) return <NotAllowed />
 
   return <Outlet />
 }

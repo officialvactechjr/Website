@@ -8,12 +8,17 @@ import {
 } from 'react-router-dom'
 import PublicLayout from './PublicLayout'
 import ProtectedRoute from './ProtectedRoute'
+import SiteChrome from '../components/layout/SiteChrome'
+import PageMeta from '../components/shared/PageMeta'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/useAuth'
 import { ADMIN_ROLES, ROLES, STAFF_ROLES } from '../lib/constants'
 
 // Route-level code splitting keeps the first bundle small. The admin panel, the
 // auth pages and the member pages are only fetched when someone opens them.
+const Landing = lazy(() => import('../pages/public/Landing'))
+const Terms = lazy(() => import('../pages/public/Terms'))
+const Privacy = lazy(() => import('../pages/public/Privacy'))
 const Home = lazy(() => import('../pages/public/Home'))
 const Notices = lazy(() => import('../pages/public/Notices'))
 const NoticeDetail = lazy(() => import('../pages/public/NoticeDetail'))
@@ -77,7 +82,13 @@ function AppGate() {
   if (session && profile?.must_change_password && pathname !== '/change-password') {
     return <Navigate to="/change-password" replace />
   }
-  return <Outlet />
+  return (
+    <>
+      <PageMeta />
+      <SiteChrome />
+      <Outlet />
+    </>
+  )
 }
 
 const router = createBrowserRouter(
@@ -88,13 +99,16 @@ const router = createBrowserRouter(
         {
           element: <PublicLayout />,
           children: [
-            { index: true, element: ready(<Home />) },
+            { index: true, element: ready(<Landing />) },
+            { path: 'home', element: ready(<Home />) },
             { path: 'login', element: ready(<LoginPage />) },
             { path: 'notices', element: ready(<Notices />) },
             { path: 'notices/:id', element: ready(<NoticeDetail />) },
             { path: 'events', element: ready(<Events />) },
             { path: 'events/:id', element: ready(<EventDetail />) },
             { path: 'contact', element: ready(<Contact />) },
+            { path: 'terms', element: ready(<Terms />) },
+            { path: 'privacy', element: ready(<Privacy />) },
             { path: 'join', element: ready(<Join />) },
             { path: 'bod', element: ready(<Bod />) },
             { path: 'gallery', element: ready(<Gallery />) },

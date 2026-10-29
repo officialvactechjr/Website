@@ -1,21 +1,24 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Mail, Menu, X } from 'lucide-react'
 import Button from '../ui/Button'
 import ProfileMenu from './ProfileMenu'
 import { useAuth } from '../../context/useAuth'
 import { cn } from '../../lib/utils'
-import logoMark from '../../assets/logo-mark.png'
-import logoWord from '../../assets/logo-word.png'
+// Inlined as data URIs: two requests fewer, and as WebP they cost ~24 KB
+// instead of ~75 KB of PNG riding inside the entry bundle.
+import logoMark from '../../assets/logo-mark.webp?inline'
+import logoWord from '../../assets/logo-word.webp?inline'
 
-// Labels come from the club's landing page. Gallery, Contributors, Members, Join
-// and Contact live in the footer and on Home, so every public page stays reachable.
+// The club's landing-page nav. `anchor` items are plain links (an in-page jump),
+// never "active". The extra public pages (notices, gallery, contributors, the
+// board) stay reachable from the footer.
 const LINKS = [
-  { to: '/', label: 'About', end: true },
-  { to: '/notices', label: 'Notices' },
+  { to: '/home', label: 'Home' },
+  { to: '/home#about', label: 'About Us', anchor: true },
   { to: '/events', label: 'Events' },
   { to: '/projects', label: 'Projects' },
-  { to: '/bod', label: 'Team' },
+  { to: '/members', label: 'Community' },
 ]
 
 const linkClass = ({ isActive }) =>
@@ -26,12 +29,18 @@ const linkClass = ({ isActive }) =>
       : 'border-transparent text-muted hover:border-primary hover:text-text',
   )
 
+const anchorClass =
+  'border-b border-transparent py-1.5 text-sm font-medium text-muted transition-colors ease-assemble hover:border-primary hover:text-text'
+
 // Drawer rows: the current page keeps a 1px gold hairline at the left edge.
 const drawerClass = ({ isActive }) =>
   cn(
     'border-b border-b-border border-l py-4 pl-3 font-medium transition-colors ease-assemble',
     isActive ? 'border-l-primary text-text' : 'border-l-transparent text-muted',
   )
+
+const drawerPlain =
+  'border-b border-b-border border-l border-l-transparent py-4 pl-3 font-medium text-muted'
 
 export default function Navbar() {
   const { profile } = useAuth()
@@ -41,7 +50,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur-md supports-[backdrop-filter]:bg-bg/85">
       <div className="mx-auto flex h-[76px] max-w-[1180px] items-center gap-5 px-[clamp(16px,4vw,40px)]">
         <Link
-          to="/"
+          to="/home"
           className="mr-auto flex flex-none items-center gap-3"
           data-intro-brand
           aria-label="VAC-Tech Jr. home"
@@ -55,27 +64,33 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-[30px] lg:flex" aria-label="Main">
-          {LINKS.map((link) => (
-            <NavLink key={link.to} to={link.to} end={link.end} className={linkClass}>
-              {link.label}
-            </NavLink>
-          ))}
+          {LINKS.map((link) =>
+            link.anchor ? (
+              <Link key={link.to} to={link.to} className={anchorClass}>
+                {link.label}
+              </Link>
+            ) : (
+              <NavLink key={link.to} to={link.to} className={linkClass}>
+                {link.label}
+              </NavLink>
+            ),
+          )}
         </nav>
+
+        <Link
+          to="/contact"
+          aria-label="Contact"
+          className="hidden size-11 place-items-center rounded-md text-muted transition-colors hover:text-text lg:grid"
+        >
+          <Mail className="size-5" aria-hidden="true" />
+        </Link>
 
         {profile ? (
           <ProfileMenu />
         ) : (
-          <div className="hidden items-center gap-3.5 lg:flex">
-            <Link
-              to="/login"
-              className="py-2 text-sm font-medium text-muted transition-colors hover:text-text"
-            >
-              Member login
-            </Link>
-            <Button as={Link} to="/join" size="sm">
-              Join the club
-            </Button>
-          </div>
+          <Button as={Link} to="/login" size="sm" variant="secondary" className="max-lg:hidden">
+            Get Started
+          </Button>
         )}
 
         <button
@@ -97,31 +112,36 @@ export default function Navbar() {
       {open && (
         <nav id="mobile-nav" aria-label="Mobile" className="border-t border-border lg:hidden">
           <div className="mx-auto flex max-w-[1180px] flex-col px-[clamp(16px,4vw,40px)]">
-            {LINKS.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.end}
-                onClick={() => setOpen(false)}
-                className={drawerClass}
-              >
-                {link.label}
-              </NavLink>
-            ))}
+            {LINKS.map((link) =>
+              link.anchor ? (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setOpen(false)}
+                  className={drawerPlain}
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setOpen(false)}
+                  className={drawerClass}
+                >
+                  {link.label}
+                </NavLink>
+              ),
+            )}
+
+            <Link to="/contact" onClick={() => setOpen(false)} className={drawerPlain}>
+              Contact
+            </Link>
 
             {!profile && (
-              <>
-                <NavLink
-                  to="/login"
-                  onClick={() => setOpen(false)}
-                  className="border-b border-b-border border-l border-l-transparent py-4 pl-3 font-medium text-muted"
-                >
-                  Member login
-                </NavLink>
-                <Button as={Link} to="/join" onClick={() => setOpen(false)} className="my-5">
-                  Join the club
-                </Button>
-              </>
+              <Button as={Link} to="/login" onClick={() => setOpen(false)} className="my-5">
+                Get Started
+              </Button>
             )}
           </div>
         </nav>

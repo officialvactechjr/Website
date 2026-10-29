@@ -61,7 +61,9 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    START([Visitor opens site]) --> HOME[Home /]
+    START([Visitor opens site]) --> LANDING[Introducing landing /]
+    LANDING -->|View| HOME[Home /home]
+    LANDING -->|Login| LOGIN[Member Login /login]
 
     HOME --> NOTICES[Notices /notices]
     NOTICES --> NOTICE_D[Notice detail /notices/:id]
@@ -272,13 +274,13 @@ vac-tech-jr/
 │   │   └── useAuth.js
 │   ├── components/
 │   │   ├── ui/                # Button, Input, Textarea, Card, Modal, DataTable, Badge, Spinner, EmptyState, ErrorState
-│   │   ├── layout/            # Navbar, Footer, Sidebar, PageHeader, SectionHeading, Section, ProfileMenu
-│   │   └── shared/            # IntroAnimation, HeroVisual, ImageUpload, ConfirmDialog, CsvExportButton, DynamicForm, ErrorBoundary
+│   │   ├── layout/            # Navbar, Footer, Sidebar, PageHeader, SectionHeading, CenterHeading, Section, ProfileMenu
+│   │   └── shared/            # IntroAnimation, HeroVisual, ImageUpload, ConfirmDialog, CsvExportButton, DynamicForm, CommitteeMarquee, ErrorBoundary
 │   ├── features/              # one folder per domain
 │   │   ├── auth/              # LoginPage, ChangePasswordPage, PasswordForm, api.js, hooks.js
 │   │   ├── notices/           # components, api.js, hooks.js, schema.js
 │   │   ├── events/
-│   │   ├── bod/
+│   │   ├── bod/               # BodTree + BodCard + CommitteeHeads, positions.js (president / head)
 │   │   ├── gallery/
 │   │   ├── projects/
 │   │   ├── registrations/     # membership + event forms, form builder
@@ -292,7 +294,7 @@ vac-tech-jr/
 │   │   ├── dashboard/
 │   │   └── storage/           # upload, shrink, remove, storageLocation
 │   ├── pages/
-│   │   ├── public/            # Home, Notices, Events, Bod, Gallery, Projects, Contributors, Members, Join, Contact
+│   │   ├── public/            # Landing (/), Home (/home), Notices, Events, Bod, Gallery, Projects, Contributors, Members, Join, Contact
 │   │   ├── member/            # Dashboard (My projects), UploadProject, EditProject, Suggestions, Profile
 │   │   ├── admin/             # Dashboard, NoticesAdmin, …, Roles, Settings
 │   │   └── NotFound.jsx

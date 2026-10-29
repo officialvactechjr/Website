@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /member
+Disallow: /profile
+
+Sitemap: https://vactechjr.pages.dev/sitemap.xml

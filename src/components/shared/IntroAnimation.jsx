@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import './IntroAnimation.css'
 
-// A faithful port of the animation in `VAC-TECH Jr.html`: same 27 pieces, same
-// sequence, timings and easings. Do not "tidy" these numbers.
+// A port of the animation in `VAC-TECH Jr.html`: the same 27 pieces and the same
+// sequence and easings. The owner has tuned the pace twice — the current numbers
+// are about three quarters of a second slower than the quickest version, which
+// reads best at the size the landing now uses.
 const EASE = 'cubic-bezier(.16,.84,.24,1)'
 const FLY_EASE = 'cubic-bezier(.65,0,.2,1)'
 const FLY_MS = 720
@@ -382,10 +384,6 @@ export default function IntroAnimation() {
           />
         </>
       )}
-
-      <button type="button" className="intro-skip" onClick={() => stop(true)}>
-        Skip intro
-      </button>
     </div>
   )
 }

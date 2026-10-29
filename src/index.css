@@ -19,6 +19,19 @@
   --primary-text: #ffc349;
   --accent: #1fd6f7;
   --accent-ink: #06122a;
+  /* The softer blue used for the footer's headings and social marks. */
+  --accent-soft: #8fa9e0;
+  /* From the club's landing-page mock: the hero's call to action, and the violet
+     outline the word "Introducing" is drawn in. */
+  --brand: #2f6bff;
+  --brand-hover: #2456d6;
+  --violet: #8b5cf6;
+  /* The landing hero's headline size. It is capped in `vh` as well as `vw`, and
+     the robot's overlaps are a fraction of it, so the composition fits one screen
+     and keeps its proportions at any window shape. Growing it costs almost no
+     height — the two overlaps grow with it (see the landing's height budget in
+     docs/DESIGN.md). */
+  --head: clamp(1.75rem, min(9vw, 13vh), 6.5rem);
   --success: #4ade80;
   --warning: #fbbf24;
   --danger: #f87171;
@@ -26,12 +39,12 @@
 
   /* Header logo width. The intro animation lands its pieces on these slots, so
      the size and aspect ratios in the .hart / .htxt rules below are fixed. */
-  --logo-w: 128px;
+  --logo-w: 110px;
 }
 
 @media (max-width: 960px) {
   :root {
-    --logo-w: 92px;
+    --logo-w: 76px;
   }
 }
 
@@ -50,6 +63,10 @@
   --color-primary-text: var(--primary-text);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-violet: var(--violet);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
@@ -159,6 +176,74 @@
    form, not the passing cursor. */
 .sheen:focus-within::before {
   opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Hero glow (docs/DESIGN.md section 4). The landing hero and the login brand
+   panel share it: the mascot's halo, a cyan core inside the softer blue field.
+   Same material as .sheen — a radial light, never a shadow.
+   --------------------------------------------------------------------------- */
+.hero-glow {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      30% 26% at 50% 45%,
+      color-mix(in oklab, var(--accent) 10%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      62% 52% at 50% 47%,
+      color-mix(in oklab, var(--accent-soft) 24%, transparent),
+      transparent 74%
+    );
+}
+
+/* The landing's halo is not a point light on the mascot: it washes the whole
+   hero, so the page does not read as a bright middle and two dead margins. */
+.hero-glow-full::before {
+  background:
+    radial-gradient(
+      42% 36% at 50% 45%,
+      color-mix(in oklab, var(--accent) 8%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      108% 86% at 50% 47%,
+      color-mix(in oklab, var(--accent-soft) 18%, transparent),
+      transparent 78%
+    );
+}
+
+/* The landing's floating objects drift in from the centre. They arrive quickly —
+   about a second — then creep the last of the way for the rest of nine, and they
+   settle at a dim 0.45 so they read as background rather than props. The transform
+   lives here (not in utilities) because the animation owns it end to end. */
+.hero-particles {
+  animation: vac-particles-in 9s cubic-bezier(0.33, 0, 0.67, 1) both;
+}
+
+@keyframes vac-particles-in {
+  0% {
+    transform: translate(-50%, -50%) scale(0.18);
+    opacity: 0;
+  }
+  12% {
+    transform: translate(-50%, -50%) scale(0.92);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.45;
+  }
 }
 
 /* ---------------------------------------------------------------------------

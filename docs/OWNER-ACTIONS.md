@@ -6,7 +6,7 @@ section assumes the one above it is done.
 
 > Keep this list current. When an action is done, tick it here.
 >
-> The whole app is built. Nothing below has been done yet: `0005`-`0010` are **not applied** and
+> The whole app is built. Nothing below has been done yet: `0005`-`0011` are **not applied** and
 > **no Edge Function is deployed**. Because no function is deployed, every account screen shows
 > "The account service is not reachable…" until section 5 is done.
 
@@ -27,7 +27,7 @@ section assumes the one above it is done.
 ## 2. Database
 
 Apply the migrations in the Supabase **SQL Editor**, in this order, one file per query.
-`0001`-`0004` are already applied; the seven below are not.
+`0001`-`0004` are already applied; the eight below are not.
 
 - [ ] `0005_registrations.sql`
 - [ ] `0006_projects_and_profile_changes.sql`
@@ -39,6 +39,10 @@ Apply the migrations in the Supabase **SQL Editor**, in this order, one file per
 - [ ] `0010_atomic_account_status.sql` — moves the "last active super admin" check into one
       database function (`set_account_active`), so two admins deactivating each other at the same
       moment cannot both succeed and lock the club out.
+- [ ] `0011_membership_template_fields.sql` — the club's membership questions (name, faculty,
+      class, section, email, skills / bio, committee + consent) on the "Standard membership"
+      template. **A window created before this keeps its old questions** — create the next window
+      from the template to pick them up.
 
 Each file is safe to re-run only if it has never been applied: they are written to be
 applied **once**, in order. If one fails, paste the error into the issue/changelog and stop
@@ -80,18 +84,18 @@ variable, or in the repo — it lives only as a Supabase secret.
 
 **Secret** (never commit, never paste into the app or a screenshot):
 
-| Name                         | Where to find it                          | Used by              |
-| ---------------------------- | ----------------------------------------- | -------------------- |
-| `SUPABASE_SERVICE_ROLE_KEY`  | Project Settings → API → `service_role`   | every account function |
-| `RESEND_API_KEY`             | resend.com → API Keys (section 6)         | `send-email`         |
-| `BREVO_API_KEY`              | brevo.com → SMTP & API (only if using Brevo) | `send-email`      |
+| Name                        | Where to find it                             | Used by                |
+| --------------------------- | -------------------------------------------- | ---------------------- |
+| `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API → `service_role`      | every account function |
+| `RESEND_API_KEY`            | resend.com → API Keys (section 6)            | `send-email`           |
+| `BREVO_API_KEY`             | brevo.com → SMTP & API (only if using Brevo) | `send-email`           |
 
 **Not secret** (safe to keep in the dashboard, still set them as secrets for tidiness):
 
-| Name             | Value                                              |
-| ---------------- | -------------------------------------------------- |
+| Name             | Value                                                         |
+| ---------------- | ------------------------------------------------------------- |
 | `SENDER_EMAIL`   | the verified sender, e.g. `VAC-Tech Jr <club@yourdomain.com>` |
-| `EMAIL_PROVIDER` | leave unset for Resend, or set it to `brevo`       |
+| `EMAIL_PROVIDER` | leave unset for Resend, or set it to `brevo`                  |
 
 Supabase injects `SUPABASE_URL` and `SUPABASE_ANON_KEY` automatically. **Do not set those by
 hand.**
@@ -186,6 +190,14 @@ supabase functions deploy send-email
       `send-email`. No code change.
 
 ## 7. Before any real student data
+
+- [ ] **Write the Terms and Privacy pages in the club's own words.** They are at `/terms` and
+      `/privacy`, linked from the footer, and they **arrive with placeholder paragraphs** — replace
+      them and delete the "Replace the paragraphs below…" line on each. The school must approve the
+      privacy wording, because it describes student names, classes, emails, phones and photos.
+- [ ] **Confirm the address in three places** if the site ever moves off
+      `https://vactechjr.pages.dev`: `index.html` (canonical + `og:image`), `src/lib/meta.js`
+      (`SITE`), and `public/sitemap.xml` + `public/robots.txt`.
 
 - [ ] The testing team has run `docs/TESTING.md` from Phase 1 to Phase 8 and every row has
       a Pass or a logged decision.

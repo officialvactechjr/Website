@@ -12,11 +12,12 @@ export const ADMIN_ROLES = ['admin', 'super_admin']
  * Members use the same public site as visitors; staff go to the panel.
  */
 export function homeForRole(role) {
-  return STAFF_ROLES.includes(role) ? '/admin' : '/'
+  return STAFF_ROLES.includes(role) ? '/admin' : '/home'
 }
 
 /** Breadcrumb labels, keyed by URL segment. Unknown segments (ids) are skipped. */
 export const ROUTE_LABELS = {
+  home: 'Home',
   notices: 'Notices',
   events: 'Events',
   projects: 'Projects',
@@ -27,6 +28,8 @@ export const ROUTE_LABELS = {
   import: 'Add many members',
   contributors: 'Top contributors',
   contact: 'Contact',
+  terms: 'Terms and conditions',
+  privacy: 'Privacy policy',
   join: 'Join the club',
   profile: 'My profile',
   member: 'My area',

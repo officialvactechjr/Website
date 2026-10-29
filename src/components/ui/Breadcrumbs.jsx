@@ -32,7 +32,7 @@ export default function Breadcrumbs({ items }) {
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-muted">
         <li>
           <Link
-            to="/"
+            to="/home"
             aria-label="Home"
             className="inline-flex rounded-md p-1 text-muted transition-colors duration-150 hover:text-text"
           >

@@ -1,266 +1,178 @@
 import { Link } from 'react-router-dom'
+import {
+  Code,
+  Handshake,
+  MessageSquare,
+  Palette,
+  Rocket,
+  Sparkles,
+  Target,
+  Trophy,
+  Users,
+} from 'lucide-react'
 import Button from '../../components/ui/Button'
 import Section from '../../components/layout/Section'
-import SectionHeading from '../../components/layout/SectionHeading'
+import CenterHeading from '../../components/layout/CenterHeading'
 import HeroVisual from '../../components/shared/HeroVisual'
+import MascotScene from '../../components/shared/MascotScene'
 import CommitteeMarquee from '../../components/shared/CommitteeMarquee'
-import NoticeList from '../../features/notices/components/NoticeList'
-import EventList from '../../features/events/components/EventList'
-import ProjectList from '../../features/projects/components/ProjectList'
-import LeaderboardList from '../../features/leaderboard/components/LeaderboardList'
-import BodGrid from '../../features/bod/components/BodGrid'
-import WindowCountdown from '../../features/registrations/components/WindowCountdown'
-import { useNow, useWindows } from '../../features/registrations/hooks'
-import { windowState } from '../../features/registrations/window'
-import { useAuth } from '../../context/useAuth'
-import { cn, formatNepalDateTime } from '../../lib/utils'
+import BodTree from '../../features/bod/components/BodTree'
+import CommitteeHeads from '../../features/bod/components/CommitteeHeads'
+import { isCommitteeHead } from '../../features/bod/positions'
+import { useMembers } from '../../features/members/hooks'
+import { useProjects } from '../../features/projects/hooks'
+import { useEvents } from '../../features/events/hooks'
 
-const WHAT_WE_DO = [
+// The club's own words about itself. Fixed copy, not data.
+const STORY = [
   {
-    title: 'Workshops',
-    text: 'Hands-on sessions run by senior members and invited teachers. You write code during the session and leave with something working.',
+    icon: Users,
+    title: 'About VAC Tech Club',
+    body: [
+      'VAC Tech Club (+2 Wing) is a tech-driven initiative of Vishwa Adarsha College, created to spark innovation, collaboration, and creative problem-solving.',
+      'Through workshops, hackathons, and mentorship, we help students turn curiosity into capability — empowering them to learn, build, and lead.',
+    ],
   },
   {
-    title: 'Projects',
-    text: 'Members build their own apps, sites and tools. Approved work goes on the projects page with the builder\u2019s name and GitHub link.',
+    icon: Target,
+    title: 'Mission & Vision',
+    body: [
+      'Our vision is to make Vishwa Adarsha +2 College a leading center for youth innovation.',
+    ],
+    points: [
+      { icon: Code, text: 'Empower students with skills in tech, creativity, and teamwork.' },
+      { icon: Handshake, text: 'Build a strong, connected network of tech communities.' },
+      { icon: Trophy, text: 'Establish a Core Team to represent us in hackathons and events.' },
+    ],
   },
   {
-    title: 'Events',
-    text: 'Quizzes, coding contests and talks across the year. Registration opens on the event page for a set time, then closes.',
+    icon: Users,
+    title: 'Our Committees',
+    body: ['Our club thrives through four active committees driving innovation.'],
+    points: [
+      { icon: Code, text: 'Coding: Turns ideas into digital solutions.' },
+      { icon: Palette, text: 'Graphics Design: Brings imagination to life with visuals.' },
+      { icon: Sparkles, text: 'ECA: Energizes campus with creative events.' },
+      { icon: MessageSquare, text: 'PR: Drives outreach and partnerships.' },
+    ],
   },
-]
-
-// Every public page has to be reachable from Home as well as the footer.
-// Projects, Top contributors and the board now have their own sections below,
-// so this row only carries the rest.
-const EXPLORE = [
-  { to: '/gallery', label: 'Photo gallery' },
-  { to: '/members', label: 'Member list' },
-  { to: '/contact', label: 'Contact' },
-]
-
-const MORE =
-  'border-b border-transparent pb-0.5 text-sm font-semibold text-primary-text transition-colors hover:border-primary'
-
-// The landing page's "club at a glance" rows. Membership is filled in live below.
-const AT_A_GLANCE = [
-  { label: 'Club', value: 'VAC-Tech Jr.' },
-  { label: 'College', value: 'Vishwa Adarsha Academy' },
-  { label: 'Section', value: '+2' },
-  { label: 'We do', value: 'Workshops, projects, events' },
 ]
 
 export default function Home() {
-  const { profile } = useAuth()
-  const { data: windows } = useWindows()
-  const now = useNow()
+  // Real counts, straight from the public data.
+  const members = useMembers()
+  const projects = useProjects()
+  const events = useEvents()
 
-  // `now` ticks, so the card and the hero button follow the real window state
-  // without a reload.
-  const state = windowState(windows ?? [], new Date(now))
-  const open = state.open
-
-  const closedText = state.next
-    ? `The next window opens on ${formatNepalDateTime(state.next.opens_at)} (Nepal time).`
-    : state.last
-      ? `Registration closed on ${formatNepalDateTime(state.last.closes_at)}. Watch the notices page for the next one.`
-      : 'The club team will announce the next window on the notices page.'
+  const stats = [
+    { icon: Users, value: members.data?.length, label: 'Active Members', plus: true },
+    { icon: Code, value: 4, label: 'Committees', plus: false },
+    { icon: Trophy, value: projects.data?.length, label: 'Projects Completed', plus: true },
+    { icon: Rocket, value: events.data?.length, label: 'Events Hosted', plus: true },
+  ]
 
   return (
     <>
       <section className="border-b border-border">
-        <div className="mx-auto max-w-[1180px] px-[clamp(16px,4vw,40px)] py-[clamp(48px,8vw,96px)]">
-          <div className="mx-auto max-w-3xl text-center">
-            <p
-              className="rv font-mono text-xs tracking-[0.18em] text-muted uppercase"
-              style={{ '--d': '0.05s' }}
-            >
-              VAC-Tech Jr.
-            </p>
-            <h1
-              className="rv mt-4 text-[clamp(2.2rem,5.6vw,3.8rem)] leading-[1.05] font-semibold tracking-tight text-balance"
-              style={{ '--d': '0.12s' }}
-            >
-              Students who build.
+        <div className="mx-auto grid max-w-[1180px] items-center gap-10 px-[clamp(16px,4vw,40px)] py-[clamp(40px,7vw,88px)] lg:grid-cols-[1.15fr_1fr]">
+          <div>
+            <h1 className="text-[clamp(2rem,4.4vw,3.1rem)] leading-[1.08] font-bold tracking-tight text-balance text-accent-soft">
+              Empowering Students to Innovate, Create &amp; Lead
             </h1>
-            <p className="rv mx-auto mt-5 max-w-[34em] text-muted" style={{ '--d': '0.2s' }}>
-              The IT club of Vishwa Adarsha Academy&apos;s +2 section. We run workshops, hold events
-              and put what our members make on show.
+            <p className="mt-5 max-w-xl text-[15px] text-muted">
+              Welcome to VAC Tech Jr Club— a community where curiosity meets innovation. We build
+              real-world solutions, sharpen technical skills, and grow together as future tech
+              leaders.
             </p>
-          </div>
-
-          <div
-            className="rv mx-auto mt-[clamp(28px,5vw,56px)] w-full max-w-[640px]"
-            style={{ '--d': '0.3s' }}
-          >
-            <HeroVisual />
-          </div>
-
-          <div
-            className="rv mt-[clamp(24px,4vw,40px)] flex flex-wrap justify-center gap-3.5"
-            style={{ '--d': '0.4s' }}
-          >
-            <Button as="a" href="#about" variant="outline">
-              View about
-            </Button>
-            {!profile && open && (
+            <div className="mt-7 flex flex-wrap gap-3.5">
               <Button as={Link} to="/join">
-                Join the club
+                Join the Club
               </Button>
-            )}
+              <Button as={Link} to="/projects" variant="outline">
+                Explore Projects
+              </Button>
+            </div>
           </div>
 
-          {/* The landing page's at-a-glance card, below the CTAs so the robot
-              stays centred. Fills the hero's lower half with facts, not air. */}
-          <div
-            className="rv mx-auto mt-[clamp(32px,5vw,56px)] max-w-2xl rounded-sm border border-border-strong bg-surface"
-            style={{ '--d': '0.5s' }}
-          >
-            <dl>
-              {AT_A_GLANCE.map((row) => (
-                <div
-                  key={row.label}
-                  className="grid grid-cols-[96px_minmax(0,1fr)] items-baseline gap-4 border-t border-border px-5 py-3 first:border-t-0"
-                >
-                  <dt className="text-[13px] text-muted">{row.label}</dt>
-                  <dd className="text-[15px] font-medium">{row.value}</dd>
-                </div>
-              ))}
-              <div className="grid grid-cols-[96px_minmax(0,1fr)] items-baseline gap-4 border-t border-border px-5 py-3">
-                <dt className="text-[13px] text-muted">Membership</dt>
-                <dd className="flex items-center gap-2.5 text-[15px] font-medium">
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      'size-2 shrink-0 rounded-full',
-                      open ? 'bg-primary' : 'bg-border-strong',
-                    )}
-                  />
-                  {open
-                    ? `Open — closes ${formatNepalDateTime(open.closes_at)}`
-                    : state.next
-                      ? `Opens ${formatNepalDateTime(state.next.opens_at)}`
-                      : 'Closed — watch the notices page'}
-                </dd>
+          <div className="flex justify-center lg:justify-end">
+            <MascotScene className="aspect-square h-[min(46vh,360px)]">
+              <div className="h-[76%]">
+                <HeroVisual />
               </div>
-            </dl>
+            </MascotScene>
           </div>
         </div>
       </section>
 
       <CommitteeMarquee />
 
-      <Section id="about" className="scroll-mt-[96px] border-b border-border">
-        <SectionHeading title="What the club does" />
-        <div className="grid gap-[clamp(24px,4vw,56px)] md:grid-cols-3">
-          {WHAT_WE_DO.map((item) => (
-            <div key={item.title} className="border-t border-border-strong pt-5">
-              <h3 className="text-[19px] font-semibold">{item.title}</h3>
-              <p className="mt-2.5 text-[15px] text-muted">{item.text}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section className="border-b border-border">
-        <SectionHeading
-          title="Notices"
-          description="Official announcements from the club team."
-          action={
-            <Link to="/notices" className={MORE}>
-              All notices
-            </Link>
-          }
-        />
-        <NoticeList limit={4} />
-      </Section>
-
-      <Section className="border-b border-border">
-        <SectionHeading
-          title="Events and workshops"
-          action={
-            <Link to="/events" className={MORE}>
-              All events
-            </Link>
-          }
-        />
-        <EventList limit={3} />
-      </Section>
-
-      <Section className="border-b border-border">
-        <SectionHeading
-          title="Built by members"
-          description="Every project is checked by the club team before it is shown here."
-          action={
-            <Link to="/projects" className={MORE}>
-              All projects
-            </Link>
-          }
-        />
-        <div className="grid gap-[clamp(32px,6vw,80px)] lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-start">
-          <ProjectList limit={2} columns="grid-cols-1" />
-          <div>
-            <h3 className="text-[17px] font-semibold">Top contributors</h3>
-            <p className="mt-0.5 mb-4 text-[13px] text-muted">Points are added by the club team.</p>
-            <LeaderboardList limit={5} />
-          </div>
-        </div>
-      </Section>
-
-      <Section className="border-b border-border">
-        <SectionHeading
-          title="Board of directors"
-          description="The students who run the club this year."
-          action={
-            <Link to="/bod" className={MORE}>
-              Meet the board
-            </Link>
-          }
-        />
-        <BodGrid limit={4} />
-      </Section>
-
-      <Section className="border-b border-border">
-        <SectionHeading
-          title="More from the club"
-          description="Everything the club publishes is open to everyone."
-        />
-        <ul className="flex flex-wrap gap-x-6 gap-y-3">
-          {EXPLORE.map((item) => (
-            <li key={item.to}>
-              <Link
-                to={item.to}
-                className="border-b border-border-strong pb-0.5 text-[15px] font-medium text-muted transition-colors hover:border-primary hover:text-text"
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      {!profile && (
-        <Section>
-          <div className="flex flex-wrap items-center justify-between gap-8 rounded-sm border border-primary p-[clamp(24px,4.5vw,56px)]">
-            <div>
-              <h2 className="text-[clamp(1.7rem,3.4vw,2.6rem)] leading-[1.12] font-semibold tracking-tight text-balance">
-                {open ? 'Membership registration is open.' : 'Registration opens soon.'}
-              </h2>
-              <p className="mt-3.5 max-w-[34em] text-[15px] text-muted">
-                {open
-                  ? `Fill in the form before the window closes on ${formatNepalDateTime(open.closes_at)} (Nepal time).`
-                  : closedText}
+      <section className="border-b border-border">
+        <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-x-6 gap-y-8 px-[clamp(16px,4vw,40px)] py-[clamp(28px,4vw,48px)] lg:grid-cols-4">
+          {stats.map(({ icon: Icon, value, label, plus }) => (
+            <div key={label} className="flex flex-col items-center text-center">
+              <Icon className="size-6 text-accent-soft" aria-hidden="true" />
+              <p className="mt-2.5 text-2xl font-bold">
+                {value ?? 0}
+                {plus && (value ?? 0) > 0 ? '+' : ''}
               </p>
-              {open && <WindowCountdown closesAt={open.closes_at} now={now} />}
+              <p className="mt-0.5 text-xs text-muted">{label}</p>
             </div>
-            {open && (
-              <Button as={Link} to="/join">
-                Apply for membership
-              </Button>
-            )}
-          </div>
-        </Section>
-      )}
+          ))}
+        </div>
+      </section>
+
+      <Section id="about" className="scroll-mt-[96px] border-b border-border">
+        <CenterHeading
+          title="Our Story"
+          description="Welcome to VAC Tech Club (+2 wing), the official technology community of Vishwa Adarsha College – where ideas evolve into innovation and every student becomes a creator. We are a passionate group of +2 students exploring the limitless world of technology, design, and innovation, united by one goal — to build the future, together."
+        />
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          {STORY.map(({ icon: Icon, title, body, points }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-border bg-surface p-[clamp(20px,3vw,32px)] text-center"
+            >
+              <span className="mx-auto grid size-11 place-items-center rounded-full border border-border-strong text-accent-soft">
+                <Icon className="size-5" aria-hidden="true" />
+              </span>
+              <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+              {body.map((line) => (
+                <p key={line} className="mt-3 text-sm leading-relaxed text-muted">
+                  {line}
+                </p>
+              ))}
+              {points && (
+                <ul className="mt-4 space-y-2.5 text-left">
+                  {points.map((point) => {
+                    const PointIcon = point.icon
+                    return (
+                      <li key={point.text} className="flex items-start gap-2.5 text-sm text-muted">
+                        <PointIcon
+                          className="mt-0.5 size-4 shrink-0 text-accent-soft"
+                          aria-hidden="true"
+                        />
+                        <span>{point.text}</span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section className="border-b border-border">
+        <CenterHeading
+          title="Board of Directors"
+          description="Meet the brilliant minds leading our technical, creative, and operational divisions."
+        />
+        {/* Committee heads have their own section below. */}
+        <BodTree filter={(member) => !isCommitteeHead(member.position)} />
+      </Section>
+
+      <CommitteeHeads />
     </>
   )
 }

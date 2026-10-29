@@ -171,7 +171,7 @@ export default function AdminLayout() {
           </nav>
         )}
 
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <main id="content" className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
       </div>

@@ -9,6 +9,7 @@ import PageHeader from '../../components/layout/PageHeader'
 import Spinner from '../../components/ui/Spinner'
 import { useEventsForAdmin } from '../../features/events/hooks'
 import { useCreateForm, useFormsForAdmin, useUpdateForm } from '../../features/registrations/hooks'
+import { useCreateTemplate, useTemplates } from '../../features/templates/hooks'
 import {
   FORM_TEMPLATE,
   formFieldSchema,
@@ -16,24 +17,31 @@ import {
 } from '../../features/registrations/schema'
 import { formatNepalDateTime, fromDateTimeInput, toDateTimeInput } from '../../lib/utils'
 
-function FormBody({ form, events, onSubmit, onCancel, submitting }) {
+/** The template questions a saved template's ids match. Unknown ids are dropped. */
+function knownIds(fields) {
+  return (fields ?? [])
+    .map((field) => field.id)
+    .filter((id) => FORM_TEMPLATE.some((template) => template.id === id))
+}
+
+function FormBody({ form, events, templates, seedFields, onSubmit, onCancel, submitting }) {
   // Once answers exist the database freezes the questions, so the UI does too.
   const locked = (form?.registrationCount ?? 0) > 0
+  // A duplicate starts from another form's questions; a fresh form starts empty.
+  const source = form?.fields ?? (seedFields?.length ? seedFields : [])
 
   const [eventId, setEventId] = useState(form?.event_id ?? '')
   const [included, setIncluded] = useState(
-    () => new Set(form ? form.fields.map((field) => field.id) : ['full_name', 'email']),
+    () => new Set(source.length ? knownIds(source) : ['full_name', 'email']),
   )
   const [required, setRequired] = useState(
     () =>
       new Set(
-        form
-          ? form.fields.filter((field) => field.required).map((field) => field.id)
-          : ['full_name', 'email'],
+        source.length ? knownIds(source.filter((field) => field.required)) : ['full_name', 'email'],
       ),
   )
   const [customLabel, setCustomLabel] = useState(
-    () => form?.fields.find((field) => field.id === 'question')?.label ?? 'Anything else?',
+    () => source.find((field) => field.id === 'question')?.label ?? 'Anything else?',
   )
   const [opensAt, setOpensAt] = useState(() => toDateTimeInput(form?.opens_at ?? new Date()))
   const [closesAt, setClosesAt] = useState(() =>
@@ -48,6 +56,16 @@ function FormBody({ form, events, onSubmit, onCancel, submitting }) {
       else next.add(id)
       return next
     })
+  }
+
+  function startFromTemplate(event) {
+    const template = (templates ?? []).find((item) => item.id === event.target.value)
+    if (!template) return
+    setIncluded(new Set(knownIds(template.fields)))
+    setRequired(new Set(knownIds(template.fields.filter((field) => field.required))))
+    setCustomLabel(
+      template.fields.find((field) => field.id === 'question')?.label ?? 'Anything else?',
+    )
   }
 
   function buildFields() {
@@ -122,12 +140,33 @@ function FormBody({ form, events, onSubmit, onCancel, submitting }) {
         </div>
       )}
 
+      {!form && (templates ?? []).length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="form-template" className="text-sm font-medium text-text">
+            Start from a template
+          </label>
+          <select
+            id="form-template"
+            defaultValue=""
+            onChange={startFromTemplate}
+            className="h-11 rounded-sm border border-border bg-surface px-3 text-text focus:border-primary"
+          >
+            <option value="">No template</option>
+            {(templates ?? []).map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <fieldset disabled={locked} className="flex flex-col gap-2">
         <legend className="text-sm font-medium text-text">Questions</legend>
         {locked && (
           <p className="text-xs text-warning">
             This form already has registrations, so the questions are locked. You can still change
-            the dates.
+            the dates, or use Duplicate as a new form.
           </p>
         )}
         {FORM_TEMPLATE.map((template) => (
@@ -199,21 +238,52 @@ function FormBody({ form, events, onSubmit, onCancel, submitting }) {
 export default function FormBuilder() {
   const { data: forms, isPending, isError, refetch } = useFormsForAdmin()
   const events = useEventsForAdmin()
+  const { data: templates } = useTemplates('event')
   const createForm = useCreateForm()
   const updateForm = useUpdateForm()
+  const createTemplate = useCreateTemplate()
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [seedFields, setSeedFields] = useState(null)
+  const [templating, setTemplating] = useState(null)
+  const [templateName, setTemplateName] = useState('')
 
   function save(values) {
     const options = {
       onSuccess: () => {
         setFormOpen(false)
         setEditing(null)
+        setSeedFields(null)
       },
     }
     if (editing) updateForm.mutate({ id: editing.id, values }, options)
     else createForm.mutate(values, options)
+  }
+
+  function openNew(seed = null) {
+    setEditing(null)
+    setSeedFields(seed)
+    setFormOpen(true)
+  }
+
+  function saveTemplate() {
+    const name = templateName.trim()
+    if (name.length < 2) return
+    createTemplate.mutate(
+      {
+        kind: 'event',
+        name,
+        description: `Saved from the form for "${templating.events?.title ?? 'an event'}".`,
+        fields: templating.fields,
+      },
+      {
+        onSuccess: () => {
+          setTemplating(null)
+          setTemplateName('')
+        },
+      },
+    )
   }
 
   if (isPending) {
@@ -274,16 +344,32 @@ export default function FormBuilder() {
       label: 'Actions',
       className: 'text-right',
       render: (row) => (
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => {
-            setEditing(row)
-            setFormOpen(true)
-          }}
-        >
-          Edit
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setTemplating(row)
+              setTemplateName(row.events?.title ? `${row.events.title} form` : '')
+            }}
+          >
+            Save as template
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => openNew(row.fields)}>
+            Duplicate as a new form
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setEditing(row)
+              setSeedFields(null)
+              setFormOpen(true)
+            }}
+          >
+            Edit
+          </Button>
+        </div>
       ),
     },
   ]
@@ -302,16 +388,7 @@ export default function FormBuilder() {
         searchPlaceholder="Search forms"
         emptyTitle="No registration forms yet"
         emptyDescription="Create one and the form appears on that event's page while it is open."
-        toolbar={
-          <Button
-            onClick={() => {
-              setEditing(null)
-              setFormOpen(true)
-            }}
-          >
-            New form
-          </Button>
-        }
+        toolbar={<Button onClick={() => openNew()}>New form</Button>}
       />
 
       <Modal
@@ -322,10 +399,42 @@ export default function FormBuilder() {
         <FormBody
           form={editing}
           events={events.data ?? []}
+          templates={templates ?? []}
+          seedFields={seedFields}
           onSubmit={save}
           onCancel={() => setFormOpen(false)}
           submitting={createForm.isPending || updateForm.isPending}
         />
+      </Modal>
+
+      <Modal
+        open={Boolean(templating)}
+        onClose={() => setTemplating(null)}
+        title="Save as template"
+      >
+        <p className="text-sm text-muted">
+          Saves this form's questions as a reusable template. It does not change the form, and later
+          edits to the template never change forms already in use.
+        </p>
+        <div className="mt-4">
+          <Input
+            label="Template name"
+            value={templateName}
+            onChange={(event) => setTemplateName(event.target.value)}
+          />
+        </div>
+        <div className="mt-5 flex justify-end gap-3">
+          <Button variant="secondary" onClick={() => setTemplating(null)}>
+            Cancel
+          </Button>
+          <Button
+            loading={createTemplate.isPending}
+            disabled={templateName.trim().length < 2}
+            onClick={saveTemplate}
+          >
+            Save template
+          </Button>
+        </div>
       </Modal>
     </>
   )

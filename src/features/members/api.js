@@ -23,14 +23,18 @@ export async function fetchMembers({ limit = 200 } = {}) {
 const ADMIN_COLUMNS =
   'id, full_name, email, phone, class, section, role, is_active, must_change_password, created_at'
 
-/** Reads full profile rows, including email and phone. Admins only. */
-export async function fetchAccounts({ limit = 500 } = {}) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(ADMIN_COLUMNS)
-    .order('full_name')
-    .limit(limit)
+/**
+ * Reads full profile rows, including email and phone. Admins only.
+ *
+ * `role`: pass `'member'` for the Members page, `'staff'` for the Staff page
+ * (everyone who is not a member), or omit it for every account.
+ */
+export async function fetchAccounts({ role } = {}) {
+  let query = supabase.from('profiles').select(ADMIN_COLUMNS).order('full_name').limit(500)
+  if (role === 'staff') query = query.neq('role', 'member')
+  else if (role) query = query.eq('role', role)
 
+  const { data, error } = await query
   if (error) throw error
   return data
 }
@@ -39,12 +43,18 @@ export async function createMember(payload) {
   return invokeFunction('create-member', payload)
 }
 
+/** Super Admin only. Creates a manager or an admin; never a super admin. */
+export async function createStaff(payload) {
+  return invokeFunction('create-staff', payload)
+}
+
 export async function bulkCreateMembers(rows) {
   return invokeFunction('bulk-create-members', { rows })
 }
 
-export async function resetMemberPassword(userId) {
-  return invokeFunction('reset-password', { user_id: userId })
+/** `password` omitted means "generate one"; a typed one is validated server-side. */
+export async function resetMemberPassword({ userId, password }) {
+  return invokeFunction('reset-password', { user_id: userId, password: password ?? '' })
 }
 
 export async function setMemberStatus({ userId, isActive }) {

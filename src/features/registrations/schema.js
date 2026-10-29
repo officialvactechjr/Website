@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-/** The questions the form builder offers. Each one can be included and required. */
+/** The questions the event form builder offers. Each one can be included and required. */
 export const FORM_TEMPLATE = [
   { id: 'full_name', label: 'Full name', type: 'text' },
   { id: 'class', label: 'Class', type: 'text' },
@@ -11,19 +11,53 @@ export const FORM_TEMPLATE = [
   { id: 'question', label: 'Anything else?', type: 'textarea' },
 ]
 
-export const membershipApplicationSchema = z.object({
-  full_name: z.string().trim().min(2, 'Enter your full name').max(120),
-  class: z.string().trim().max(40).optional(),
-  section: z.string().trim().max(40).optional(),
-  email: z.email('Enter a valid email address').max(160),
-  phone: z.string().trim().max(30).optional(),
-  reason: z.string().trim().max(1000).optional(),
-  // Honeypot: hidden from people, irresistible to bots. `onSubmit` decides.
-  website: z.string().optional(),
-  consent: z
-    .boolean()
-    .refine((value) => value === true, 'Please tick the box so we can show your name'),
-})
+/**
+ * The membership questions used when a window has no snapshot of its own (a
+ * window created before migration `0008`, or one saved without fields). A new
+ * window stores its own copy, so editing this list never changes a live form.
+ *
+ * The five core answers (full name, class, section, email, phone) and consent
+ * keep their own columns; everything else lands in `membership_applications.answers`.
+ */
+export const MEMBERSHIP_FIELDS = [
+  { id: 'full_name', label: 'Full name', type: 'text', required: true, max: 120 },
+  {
+    id: 'class',
+    label: 'Class',
+    type: 'text',
+    required: false,
+    max: 40,
+    help: 'For example 11 or 12',
+  },
+  { id: 'section', label: 'Section', type: 'text', required: false, max: 40 },
+  { id: 'email', label: 'Email', type: 'email', required: true, max: 160 },
+  { id: 'phone', label: 'Phone', type: 'tel', required: false, max: 30 },
+  { id: 'github_url', label: 'GitHub link', type: 'url', required: false, max: 200 },
+  {
+    id: 'interests',
+    label: 'Interests',
+    type: 'multiselect',
+    required: false,
+    options: ['Web', 'AI', 'Robotics', 'Design', 'Cybersecurity', 'Games', 'Other'],
+  },
+  {
+    id: 'experience_level',
+    label: 'Experience level',
+    type: 'select',
+    required: false,
+    options: ['Beginner', 'Some experience', 'Confident'],
+  },
+  { id: 'reason', label: 'Why do you want to join?', type: 'textarea', required: false, max: 1000 },
+  {
+    id: 'consent',
+    label: "My name, class and GitHub link may be shown on the club's public pages.",
+    type: 'consent',
+    required: true,
+  },
+]
+
+/** The answer columns that live on a membership application, not in `answers`. */
+export const MEMBERSHIP_CORE = ['full_name', 'class', 'section', 'email', 'phone', 'reason']
 
 /** The form builder's own fields (ADM-05). */
 export const registrationFormSchema = z
@@ -41,9 +75,11 @@ export const registrationFormSchema = z
 export const formFieldSchema = z.object({
   id: z.string().min(1),
   label: z.string().trim().min(2, 'Every question needs a label').max(120),
-  type: z.enum(['text', 'email', 'tel', 'textarea', 'select']),
+  type: z.enum(['text', 'email', 'tel', 'textarea', 'select', 'url', 'multiselect', 'consent']),
   required: z.boolean(),
   options: z.array(z.string()).max(20).optional(),
+  help: z.string().trim().max(200).optional(),
+  max: z.number().int().positive().max(2000).optional(),
 })
 
 /** The membership window the admin opens and closes (ADM-14). */

@@ -810,13 +810,13 @@ These are the checks that do not need the console. Run them on the deployed site
 
 Use this when you would rather stay signed in as one account than keep switching.
 
-| Role            | Phase 1              | Phase 2-4        | Phase 5     | Phase 6                              | Phase 7                                                   | Phase 8                      |
-| --------------- | -------------------- | ---------------- | ----------- | ------------------------------------ | --------------------------------------------------------- | ---------------------------- |
-| **visitor**     | P1.4                 | P2._, P3._, P4.2 | P5.1-P5.4   | —                                    | P7.22                                                     | P8.1, P8.3-P8.6, P8.9, P8.11 |
-| **member**      | P1.1-P1.3, P1.5-P1.8 | P3.*             | P5.9-P5.12  | P6.1, P6.4-P6.7, P6.10, P6.19-P6.28  | P7.5, P7.7, P7.8, P7.12                                   | P8.2, P8.10                  |
-| **manager**     | —                    | P4.3-P4.7        | P5.13-P5.16 | P6.8, P6.23 (blocked)                | P7.4, P7.9-P7.11, P7.15, P7.23                            | P8.2, P8.4                   |
-| **admin**       | —                    | P4.8-P4.12       | P5.17-P5.20 | P6.2, P6.3, P6.9, P6.11-P6.17, P6.20 | P7.1-P7.3, P7.6, P7.13, P7.14, P7.16, P7.19, P7.21, P7.23 | P8.2, P8.4                   |
-| **super admin** | —                    | —                | —           | P6.18                                | P7.17, P7.18, P7.20, P7.23                                | P8.7, P8.8                   |
+| Role            | Phase 1              | Phase 2-4        | Phase 5     | Phase 6                              | Phase 7                                                   | Phase 8                      | Brief 1             | Brief 2                    | Brief 4                                                  |
+| --------------- | -------------------- | ---------------- | ----------- | ------------------------------------ | --------------------------------------------------------- | ---------------------------- | ------------------- | -------------------------- | -------------------------------------------------------- |
+| **visitor**     | P1.4                 | P2._, P3._, P4.2 | P5.1-P5.4   | —                                    | P7.22                                                     | P8.1, P8.3-P8.6, P8.9, P8.11 | P9.1-P9.3, P9.9     | P10.3                      | P11.11                                                   |
+| **member**      | P1.1-P1.3, P1.5-P1.8 | P3.*             | P5.9-P5.12  | P6.1, P6.4-P6.7, P6.10, P6.19-P6.28  | P7.5, P7.7, P7.8, P7.12                                   | P8.2, P8.10                  | P9.10               | P10.3                      | —                                                        |
+| **manager**     | —                    | P4.3-P4.7        | P5.13-P5.16 | P6.8, P6.23 (blocked)                | P7.4, P7.9-P7.11, P7.15, P7.23                            | P8.2, P8.4                   | P9.5, P9.6          | P10.1, P10.2, P10.8        | —                                                        |
+| **admin**       | —                    | P4.8-P4.12       | P5.17-P5.20 | P6.2, P6.3, P6.9, P6.11-P6.17, P6.20 | P7.1-P7.3, P7.6, P7.13, P7.14, P7.16, P7.19, P7.21, P7.23 | P8.2, P8.4                   | P9.4, P9.7, P9.8    | P10.4-P10.7, P10.9         | P11.1, P11.2, P11.4-P11.9, P11.11, P11.12               |
+| **super admin** | —                    | —                | —           | P6.18                                | P7.17, P7.18, P7.20, P7.23                                | P8.7, P8.8                   | —                   | P10.5                      | P11.3, P11.10, P11.11                                    |
 
 > The phase sections above are the source of truth; this table is only a shortcut, so a row here
 > never replaces reading the test.
@@ -858,8 +858,178 @@ update public.membership_windows set is_open = false;
 
 ---
 
-## 13. Adding the next phase
+## 14. Brief Step 1 — The membership form and its applications
 
-When a future phase adds a feature, add a `## 14. Phase 9 — …` style section here with the same table
-shape, keep the numbering pattern (`P9.1`, `S9.1`), and add its column to section 11. Do not renumber the
-earlier phases: testers may have already written results against them.
+> Needs migration `0008` applied and an open membership window (see section 6's setup for the window).
+
+| #    | Goal                                                          | Sign in as | Steps                                                                                             | Expected                                                                                                                    | Pass / Fail |
+| ---- | ------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| P9.1 | The form carries the extra questions                          | visitor    | Open `/join` with a window open and the `0008` snapshot in place                                  | Form shows full name, class, section, email, phone, GitHub link, interests (checkboxes), experience level, a reason box and the editable consent sentence | ☐           |
+| P9.2 | Extra answers are stored and readable                         | visitor    | Fill the form (pick interests, choose a level, add a reason) and send; then check `/admin/applications` → **View answers** | The row appears; the modal shows every answer under its question label                                                     | ☐           |
+| P9.3 | Answers land in `answers`, core in columns                     | admin      | Snippet S9.3                                                                                      | `answers` holds the extras; `full_name`/`class`/`section`/`email`/`phone`/`reason` hold the core values                     | ☐           |
+| P9.4 | **Security:** the answers size check holds                     | admin      | Snippet S9.4                                                                                      | The oversized row is rejected                                                                                               | ☐           |
+| P9.5 | The list filters and searches                                 | admin      | `/admin/applications`: pick a **Status** and a **Window**, type in the search box                  | Rows narrow by both filters; search still matches name, email, phone, class                                                 | ☐           |
+| P9.6 | **Security:** the application CSV cannot inject               | admin      | Apply an application whose name starts with `=`, export CSV, open it                               | The cell has a leading apostrophe and shows as text, not a formula (same rule as S5.12)                                     | ☐           |
+| P9.7 | An approved application becomes an account                    | admin      | Set an application to **Approved**, click **Create account**, fix any prefill, submit              | The form is prefilled (name, class, section, email, phone, GitHub); after success the temp password shows once and the row says **Created** | ☐           |
+| P9.8 | A new window chooses its questions                            | admin      | `/admin/settings/membership` → **New window** → pick **Start from** a template or **Copy the last window** → save | The window stores that question snapshot                                                    | ☐           |
+| P9.9 | An old window still works                                     | visitor    | Snippet S9.9, then open `/join`                                                                   | A window whose `fields` is empty still shows the default membership questions                                               | ☐           |
+| P9.10 | **Security:** a visitor still cannot read the applications   | visitor    | Snippet S5.4 again                                                                                | **0 rows**                                                                                                                  | ☐           |
+
+### Snippets (Brief 1)
+
+**S9.3** — as staff, in the console:
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const { data } = await supabase
+  .from('membership_applications')
+  .select('full_name, class, email, reason, answers')
+  .order('submitted_at', { ascending: false })
+  .limit(1)
+console.log(data?.[0])
+```
+
+**S9.4** — too big for the `answers` column:
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const win = (await supabase.from('membership_windows').select('id').limit(1)).data?.[0]
+const { error } = await supabase.from('membership_applications').insert({
+  window_id: win.id,
+  full_name: 'Oversized Test',
+  email: `${Date.now()}@example.com`,
+  consent: true,
+  answers: { blob: 'x'.repeat(9000) },
+})
+console.log(error ? 'BLOCKED ' + error.message : 'LEAK CHECK — should have been blocked')
+```
+
+**S9.9** — clear a window's snapshot (use a test window, never a live one):
+
+```sql
+-- in the SQL editor, on a test project
+update public.membership_windows set fields = '[]'::jsonb where id = '<a test window id>';
+```
+
+Then open `/join` while that window is open: the club default questions must appear.
+
+---
+
+## 15. Brief Step 2 — Saved form templates
+
+| #     | Goal                                                       | Sign in as | Steps                                                                                                   | Expected                                                                                                                     | Pass / Fail |
+| ----- | ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| P10.1 | The seeded templates are there                             | admin      | Open `/admin/form-templates`                                                                            | Five templates: Standard membership, Workshop registration, Competition team registration, Simple RSVP, Feedback form          | ☐           |
+| P10.2 | **Security:** a manager cannot delete a template           | manager    | Open `/admin/form-templates`; check for a **Delete** button, then run S10.2                             | No Delete button, and the direct delete is refused by row level security                                                      | ☐           |
+| P10.3 | **Security:** visitors and members cannot read the table   | visitor    | Snippet S10.3                                                                                           | **0 rows** (repeat signed in as a member)                                                                                     | ☐           |
+| P10.4 | Rename, duplicate and archive                              | admin      | On a template use **Rename**, then **Duplicate**, then **Archive**                                      | The name changes; a "(copy)" appears with the same questions; the state flips to Archived and back                           | ☐           |
+| P10.5 | Delete (admin only)                                        | admin      | On a copy, **Delete** and confirm                                                                       | It disappears from the list                                                                                                   | ☐           |
+| P10.6 | Save a membership window as a template                     | admin      | `/admin/settings/membership` → **Save as template** → name it → **Save template**                       | It appears on `/admin/form-templates` under Membership                                                                       | ☐           |
+| P10.7 | Start a new window from a template                         | admin      | **New window** → **Start from** that template → save                                                    | The new window's questions match the template (`select fields from membership_windows …`)                                    | ☐           |
+| P10.8 | Save and reuse an event form template                      | admin      | `/admin/registration-forms` → **Save as template** on a form; then **New form** → **Start from a template** | The builder preloads that template's questions                                                                              | ☐           |
+| P10.9 | Duplicate a locked form instead of editing it              | admin      | On a form with registrations, **Duplicate as a new form**, pick a different event, save                  | A second form exists with the same questions; the first never changed                                                        | ☐           |
+
+### Snippets (Brief 2)
+
+**S10.2** — as a manager:
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const t = (await supabase.from('form_templates').select('id').limit(1)).data?.[0]
+const { error } = await supabase.from('form_templates').delete().eq('id', t.id)
+console.log(error ? 'BLOCKED (expected)' : 'LEAK CHECK — a manager deleted a template')
+```
+
+**S10.3**
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const { data, error } = await supabase.from('form_templates').select('*')
+console.log(error ? 'blocked: ' + error.message : (data?.length ?? 0) + ' rows (must be 0 for a visitor or member)')
+```
+
+---
+
+## 16. Brief Step 4 — Account creation and the staff page
+
+> Needs migrations `0005`-`0009` applied and every function in `docs/OWNER-ACTIONS.md` section 5
+> deployed. If they are not, **P11.11** explains the message you will see instead.
+
+| #     | Goal                                                     | Sign in as  | Steps                                                                                                                    | Expected                                                                                                        | Pass / Fail |
+| ----- | -------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- | ----------- |
+| P11.1 | Members page lists only members                          | admin       | Open `/admin/members`                                                                                                    | Every row has `role = 'member'`; no manager, admin or super admin appears                                        | ☐           |
+| P11.2 | Staff page shows staff with a role badge                 | admin       | Open `/admin/staff`                                                                                                      | Manager / Admin / Super Admin badges, status and added date; no action buttons for a non-super admin             | ☐           |
+| P11.3 | A super admin creates a staff account                    | super admin | `/admin/staff` → **Create staff account** → role Manager, a test email → create                                          | The temporary password shows once; the account appears with a Manager badge; `class`/`section` are empty         | ☐           |
+| P11.4 | **Security:** only a super admin creates staff           | admin       | Open `/admin/staff`; look for the create button, then run S11.4                                                          | No create button; the direct call is refused (403)                                                              | ☐           |
+| P11.5 | Typed passwords follow the rules                         | admin       | On **New member**, choose "Type a password" and try `short`, the person's name, the email name, then `password123`        | Each is refused with a plain reason; a good 10+ character password is accepted                                   | ☐           |
+| P11.6 | The password shows once and must be changed              | admin       | Create a member, close the dialog, then run S11.6                                                                        | The password cannot be reopened; the profile shows `must_change_password = true`                                | ☐           |
+| P11.7 | Phone and GitHub link are saved                          | admin       | Create a member with a phone and a GitHub link, then run S11.7                                                            | Both values are on the profile row                                                                              | ☐           |
+| P11.8 | Bulk import: preview, skip, results, credentials         | admin       | `/admin/members` → **Add many members**; paste rows with a bad email, a repeat, an existing email and one missing a class | The preview marks each problem and fixing a cell clears it; confirm shows per-row results and a Credentials dialog with **Download CSV** and **Print credential slips** | ☐           |
+| P11.9 | **Security:** only a super admin resets a staff password | admin       | On `/admin/staff` the reset button is hidden; run S11.9                                                                   | The direct reset of a staff account is refused (403)                                                            | ☐           |
+| P11.10 | **Security:** the last super admin cannot be deactivated | super admin | Try to deactivate the only active super admin                                                                            | Refused: "This is the last active super admin…"                                                                 | ☐           |
+| P11.11 | Failures are explained in plain language                | any         | Trigger each: an undeployed function (before section 5), a duplicate email, an expired session, a forbidden action        | "The account service is not reachable…", "That email already has an account", "Your session expired. Log in again.", "You are not allowed to do this." — never a stack trace or key | ☐           |
+| P11.12 | Every account action is audited, with no password       | admin       | Create a member, reset a password, change a role, then run S11.12                                                         | One `audit_log` row per action, with the actor, action, target and a small detail; **no password appears anywhere** | ☐           |
+
+### Snippets (Brief 4)
+
+**S11.4** — as an **admin** (not a super admin), in the console:
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const { error } = await supabase.functions.invoke('create-staff', {
+  body: { role: 'manager', full_name: 'Should Fail', email: `staff${Date.now()}@example.com` },
+})
+console.log(error ? 'BLOCKED (expected): ' + error.context.status : 'LEAK CHECK — an admin created staff')
+```
+
+**S11.6**
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const { data } = await supabase
+  .from('profiles')
+  .select('full_name, role, class, section, must_change_password')
+  .eq('role', 'member')
+  .order('created_at', { ascending: false })
+  .limit(1)
+console.log(data?.[0])
+```
+
+**S11.7** — read the same row as S11.6 but select `phone, github_url`.
+
+**S11.9** — as an **admin**, with a staff `user_id` (copy one from the `profiles` table):
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const { error } = await supabase.functions.invoke('reset-password', {
+  body: { user_id: '<a manager or admin uuid>' },
+})
+console.log(error ? 'BLOCKED (expected): ' + error.context.status : 'LEAK CHECK — an admin reset staff')
+```
+
+**S11.12** — as an **admin** or super admin:
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const { data } = await supabase
+  .from('audit_log')
+  .select('action, actor_role, target_email, detail, created_at')
+  .order('created_at', { ascending: false })
+  .limit(10)
+console.table(data)
+```
+
+Expected: recent rows for `member.create`, `account.reset_password`, `role.change`, `member.bulk_create`, `staff.create`, `account.set_status`. No `password` key in any `detail`.
+
+---
+
+## 17. Adding the next phase
+
+When a future phase adds a feature, add a `## 18. Phase 10 — …` style section here with the same
+table shape, keep the numbering pattern (`P12.1`, `S12.1`), and add its column to section 11. Do
+not renumber the earlier phases: testers may have already written results against them.
+
+> Sections 14-16 follow that rule: **14** is the membership-form brief's Step 1, **15** its Step 2
+> (templates), **16** its Step 4 (accounts). Run them after section 6, once `0008` and `0009` are
+> applied.
+

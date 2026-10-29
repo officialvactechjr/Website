@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import DataTable from '../../components/ui/DataTable'
@@ -8,8 +9,8 @@ import PageHeader from '../../components/layout/PageHeader'
 import Spinner from '../../components/ui/Spinner'
 import ConfirmDialog from '../../components/shared/ConfirmDialog'
 import CsvExportButton from '../../components/shared/CsvExportButton'
-import BulkImport from '../../features/members/components/BulkImport'
 import MemberForm from '../../features/members/components/MemberForm'
+import ResetPasswordDialog from '../../features/members/components/ResetPasswordDialog'
 import TempPassword from '../../features/members/components/TempPassword'
 import {
   useAccounts,
@@ -17,33 +18,38 @@ import {
   useResetMemberPassword,
   useSetMemberStatus,
 } from '../../features/members/hooks'
-import { formatDate } from '../../lib/utils'
+import { cn, formatDate } from '../../lib/utils'
 
+// The columns the bulk-import CSV expects, in order. `password` is optional.
 const TEMPLATE = [
   {
     full_name: 'Sample Student',
     email: 'sample@example.com',
     class: '11',
     section: 'A',
+    phone: '',
     github_url: '',
+    password: '',
   },
 ]
 
+const TABS = [
+  { value: 'all', label: 'All' },
+  { value: 'active', label: 'Active' },
+  { value: 'deactivated', label: 'Deactivated' },
+]
+
 export default function MembersAdmin() {
-  const { data, isPending, isError, refetch } = useAccounts()
+  const { data, isPending, isError, refetch } = useAccounts('member')
   const createMember = useCreateMember()
   const resetPassword = useResetMemberPassword()
   const setStatus = useSetMemberStatus()
 
+  const [tab, setTab] = useState('all')
   const [creating, setCreating] = useState(false)
-  const [importing, setImporting] = useState(false)
+  const [resetting, setResetting] = useState(null)
   const [handover, setHandover] = useState(null)
   const [confirming, setConfirming] = useState(null)
-
-  function created(result) {
-    setCreating(false)
-    setHandover(result)
-  }
 
   if (isPending) {
     return (
@@ -62,6 +68,10 @@ export default function MembersAdmin() {
     )
   }
 
+  const rows = (data ?? []).filter((row) =>
+    tab === 'all' ? true : tab === 'active' ? row.is_active : !row.is_active,
+  )
+
   const columns = [
     { key: 'full_name', label: 'Name', sortable: true, className: 'font-medium' },
     {
@@ -74,14 +84,6 @@ export default function MembersAdmin() {
       label: 'Class',
       sortable: true,
       render: (row) => [row.class, row.section].filter(Boolean).join(' · ') || '—',
-    },
-    {
-      key: 'role',
-      label: 'Role',
-      sortable: true,
-      render: (row) => (
-        <Badge variant={row.role === 'member' ? 'neutral' : 'gold'}>{row.role}</Badge>
-      ),
     },
     {
       key: 'is_active',
@@ -107,14 +109,7 @@ export default function MembersAdmin() {
       className: 'text-right',
       render: (row) => (
         <div className="flex flex-wrap justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            loading={resetPassword.isPending}
-            onClick={() =>
-              resetPassword.mutate(row.id, { onSuccess: (result) => setHandover(result) })
-            }
-          >
+          <Button variant="ghost" size="sm" onClick={() => setResetting(row)}>
             Reset password
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setConfirming(row)}>
@@ -129,16 +124,35 @@ export default function MembersAdmin() {
     <>
       <PageHeader
         title="Members"
-        description="Every club account. Create one at a time or import a spreadsheet."
+        description="Member accounts only. Staff accounts live on the Staff page."
       />
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        {TABS.map((item) => (
+          <button
+            key={item.value}
+            type="button"
+            onClick={() => setTab(item.value)}
+            aria-pressed={tab === item.value}
+            className={cn(
+              'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ease-assemble',
+              tab === item.value
+                ? 'border-primary text-text'
+                : 'border-border-strong text-muted hover:text-text',
+            )}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
 
       <DataTable
         columns={columns}
-        rows={data ?? []}
-        searchText={(row) => `${row.full_name} ${row.email ?? ''} ${row.class ?? ''} ${row.role}`}
+        rows={rows}
+        searchText={(row) => `${row.full_name} ${row.email ?? ''} ${row.class ?? ''}`}
         searchPlaceholder="Search members"
-        emptyTitle="No accounts yet"
-        emptyDescription="Create the first member and hand them their password in person."
+        emptyTitle="No member accounts yet"
+        emptyDescription="Create one, or import a list, and hand out the passwords in person."
         toolbar={
           <div className="flex flex-wrap gap-3">
             <CsvExportButton
@@ -146,8 +160,8 @@ export default function MembersAdmin() {
               filename="members-template.csv"
               label="Download template"
             />
-            <Button variant="secondary" onClick={() => setImporting(true)}>
-              Import CSV
+            <Button as={Link} to="/admin/members/import" variant="secondary">
+              Add many members
             </Button>
             <Button onClick={() => setCreating(true)}>New member</Button>
           </div>
@@ -156,20 +170,39 @@ export default function MembersAdmin() {
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Create a member account">
         <MemberForm
-          onSubmit={(values) => createMember.mutate(values, { onSuccess: created })}
+          onSubmit={(values) =>
+            createMember.mutate(values, {
+              onSuccess: (result) => {
+                setCreating(false)
+                setHandover({ ...result, full_name: values.full_name })
+              },
+            })
+          }
           onCancel={() => setCreating(false)}
           submitting={createMember.isPending}
         />
       </Modal>
 
-      <Modal open={importing} onClose={() => setImporting(false)} title="Import members from CSV">
-        <BulkImport
-          onDone={(result) => {
-            setImporting(false)
-            setHandover(result)
-          }}
-          onCancel={() => setImporting(false)}
-        />
+      <Modal
+        open={Boolean(resetting)}
+        onClose={() => setResetting(null)}
+        title="Reset this password"
+      >
+        {resetting && (
+          <ResetPasswordDialog
+            account={resetting}
+            onSubmit={(values) =>
+              resetPassword.mutate(values, {
+                onSuccess: (result) => {
+                  setResetting(null)
+                  setHandover(result)
+                },
+              })
+            }
+            onCancel={() => setResetting(null)}
+            submitting={resetPassword.isPending}
+          />
+        )}
       </Modal>
 
       {handover && <TempPassword result={handover} onClose={() => setHandover(null)} />}

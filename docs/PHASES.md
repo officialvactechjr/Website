@@ -298,6 +298,54 @@ flowchart LR
 
 ---
 
+## Post-v1 brief: Membership form, templates, event forms, accounts (2026-10-29)
+
+**Goal:** complete the membership form and its admin side, add reusable form templates, then
+(Steps 3-5) a full event-form builder, bulk member add and account creation with passwords.
+
+> **Status: Steps 1, 2, 4 and 5 BUILT, TESTS DEFERRED (2026-10-29).** `0008` and `0009` are **not
+> applied** and no function is deployed. Tests are in `docs/TESTING.md` sections 14-16. Step 3 (the
+> event registration builder) is open. The brief itself is `docs/BRIEF-membership-accounts.md`.
+
+**Step 1 — Membership form (public + admin) — built**
+
+- [x] `/join` renders the window's own question snapshot (migration `0008`), falling back to the club default
+- [x] Core answers (full name, class, section, email, phone) and consent keep their columns; extras go in a size-checked `answers` JSON
+- [x] Default extras: GitHub link, interests (multiple choice), experience level, "Why do you want to join?"
+- [x] Consent wording is a question in the snapshot (editable in a template, shown on the form)
+- [x] `/admin/applications`: filter by status and window, search, **View answers**, status change, CSV export, **Create account** on an approved row (prefilled, marks it "Created")
+- [x] New membership window: **Start from** a saved template or **copy the last window**
+
+**Step 2 — Saved templates (migration 0008) — built**
+
+- [x] `form_templates` table + RLS (staff read/create/update; Admin and Super Admin delete; visitors and members nothing)
+- [x] Five seeded templates: Standard membership, Workshop registration, Competition team registration, Simple RSVP, Feedback form
+- [x] `/admin/form-templates`: rename, duplicate, archive/unarchive, delete
+- [x] **Save as template** from a membership window and from a registration form; **Start from template** when creating either
+- [x] A locked form (already has registrations) offers **Duplicate as a new form**
+
+**Step 3 — Event registration builder** — not started (a later session)
+
+**Step 4 — Account creation with passwords — built**
+
+- [x] Safe error codes (`validation`, `unauthenticated`, `forbidden`, `not_found`, `conflict`, `rate_limited`, `server_error`); the UI maps each to one plain line and names the function to deploy when it is unreachable
+- [x] `create-member`: generate or type a password, phone + GitHub saved, `must_change_password`, shown once, `no-store`, audited
+- [x] `bulk-create-members`: per-row password + phone, preview statuses, chunked import, per-row results, credentials screen (download CSV + printable slips)
+- [x] `create-staff` (super admin only): manager or admin, no class/section, never a super admin
+- [x] `profiles.class`/`section` required for members, nullable for staff (`0009`); `public_members` lists members only
+- [x] Members page lists members only, with All / Active / Deactivated tabs and an "Add many members" page
+- [x] Staff page (`/admin/staff`): role badges, status, added date; create/reset/role/deactivate for super admin only
+- [x] `reset-password` and `set-account-status` refuse staff targets for a non-super admin
+- [x] `audit_log` (`0009`) — append-only, Admin/Super Admin read, never a password
+- [x] Windows PowerShell deploy steps (CLI install, login, link, secrets, 8 deploys) in `docs/OWNER-ACTIONS.md`
+
+**Step 5 — Docs and final report — built**
+
+- [x] `docs/PRD.md` (ADM-08/09/10 refined, ADM-17 staff, ADM-18 audit), `docs/ARCHITECTURE.md` (routes, tables, error codes, security rules), `docs/TESTING.md` (section 16 + section 11 column), `docs/OWNER-ACTIONS.md`
+- [x] Lint, build and prettier clean; no secrets and no logged passwords
+
+---
+
 ## Backlog (after v1, not now)
 
 - Automatic points rules (e.g. +10 per approved project)

@@ -6,6 +6,7 @@ import {
   bulkCreateMembers,
   createChangeRequest,
   createMember,
+  createStaff,
   fetchAccounts,
   fetchChangeRequests,
   fetchMembers,
@@ -22,8 +23,15 @@ export function useMembers(options) {
   return useQuery({ queryKey: ['members', options ?? {}], queryFn: () => fetchMembers(options) })
 }
 
-export function useAccounts() {
-  return useQuery({ queryKey: ['accounts'], queryFn: () => fetchAccounts() })
+/**
+ * Accounts, filtered by `role` so the Members page never mixes in staff:
+ * `'member'` for Members, `'staff'` for the Staff page, omitted for every account.
+ */
+export function useAccounts(role) {
+  return useQuery({
+    queryKey: ['accounts', role ?? 'all'],
+    queryFn: () => fetchAccounts({ role }),
+  })
 }
 
 /**
@@ -45,6 +53,14 @@ function useAccountMutation(mutationFn, successMessage, fallbackMessage) {
 
 export function useCreateMember() {
   return useAccountMutation(createMember, 'Account created', 'We could not create that account.')
+}
+
+export function useCreateStaff() {
+  return useAccountMutation(
+    createStaff,
+    'Staff account created',
+    'We could not create that account.',
+  )
 }
 
 export function useBulkCreateMembers() {

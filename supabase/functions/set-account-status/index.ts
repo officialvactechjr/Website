@@ -1,11 +1,12 @@
 import { z } from 'npm:zod@4'
+import { audit } from '../_shared/audit.ts'
 import { activeSuperAdmins, caller, service } from '../_shared/auth.ts'
 import { preflight } from '../_shared/cors.ts'
 import { rateLimit } from '../_shared/rateLimit.ts'
 import { failure, HttpError, json, readJson } from '../_shared/respond.ts'
 
 const schema = z.object({
-  user_id: z.uuid('Pick a member'),
+  user_id: z.uuid('Pick an account'),
   is_active: z.boolean(),
 })
 
@@ -23,25 +24,37 @@ Deno.serve(async (req) => {
 
     const { data: target, error: targetError } = await service()
       .from('profiles')
-      .select('id, role, full_name')
+      .select('id, role, full_name, email')
       .eq('id', user_id)
       .single()
 
     if (targetError || !target) throw new HttpError(404, 'We could not find that account.')
 
-    // Mirrors reset-password: an admin runs the club, but the institution's own
-    // account is only ever touched by another super admin.
-    if (target.role === 'super_admin' && me.role !== 'super_admin') {
-      throw new HttpError(403, 'Only a super admin can change a super admin account.')
+    // An admin manages members; a staff account is only ever touched by a super
+    // admin (this also covers the institution's own account).
+    if (target.role !== 'member' && me.role !== 'super_admin') {
+      throw new HttpError(403, 'Only a super admin can change a staff account.', 'forbidden')
     }
 
     // Never let the club lock itself out of its own site.
     if (!is_active && target.role === 'super_admin' && (await activeSuperAdmins()) <= 1) {
-      throw new HttpError(400, 'This is the last active super admin, so it cannot be deactivated.')
+      throw new HttpError(
+        400,
+        'This is the last active super admin, so it cannot be deactivated.',
+        'validation',
+      )
     }
 
     const { error } = await service().from('profiles').update({ is_active }).eq('id', user_id)
     if (error) throw new HttpError(500, 'We could not change that account. Please try again.')
+
+    await audit({
+      actor: me,
+      action: 'account.set_status',
+      targetId: user_id,
+      targetEmail: target.email,
+      detail: { role: target.role, is_active },
+    })
 
     return json({ id: user_id, is_active }, 200, origin)
   } catch (error) {

@@ -6,8 +6,9 @@ section assumes the one above it is done.
 
 > Keep this list current. When an action is done, tick it here.
 >
-> The whole app is built. Nothing below has been done yet: `0005`, `0006` and
-> `0007` are **not applied** and **no Edge Function is deployed**.
+> The whole app is built. Nothing below has been done yet: `0005`-`0009` are **not applied** and
+> **no Edge Function is deployed**. Because no function is deployed, every account screen shows
+> "The account service is not reachable…" until section 5 is done.
 
 ---
 
@@ -26,15 +27,24 @@ section assumes the one above it is done.
 ## 2. Database
 
 Apply the migrations in the Supabase **SQL Editor**, in this order, one file per query.
-`0001`-`0004` are already applied; the four below are not.
+`0001`-`0004` are already applied; the six below are not.
 
 - [ ] `0005_registrations.sql`
 - [ ] `0006_projects_and_profile_changes.sql`
 - [ ] `0007_points_suggestions_email.sql`
+- [ ] `0008_membership_form_and_templates.sql` — the membership form's question snapshot and
+      the extra-answers column, plus the `form_templates` table and its five starting templates.
+- [ ] `0009_accounts_and_audit.sql` — the member class/section rule, `public_members` limited to
+      members, and the append-only `audit_log` table.
 
 Each file is safe to re-run only if it has never been applied: they are written to be
 applied **once**, in order. If one fails, paste the error into the issue/changelog and stop
 — do not edit a migration that is already applied.
+
+> **School must approve the consent wording before real students apply.** The consent sentence is
+> an editable question on the membership form (stored with each window's question snapshot and in
+> the "Standard membership" template). Get the school's sign-off on that exact wording — and on
+> publishing student photos — before a real window is opened.
 
 Then, for a development or demo project only:
 
@@ -61,33 +71,78 @@ update public.membership_windows set is_open = false;
 
 ## 4. Edge Function secrets
 
-Supabase → **Project Settings → Edge Functions → Secrets** (or the CLI below). The
-service role key must never appear in the frontend, in `.env`, or in the repo.
+Supabase → **Project Settings → Edge Functions → Secrets** (or the CLI in section 5). The
+service role key must never appear in the frontend, in `.env`, in `src/`, in any `VITE_…`
+variable, or in the repo — it lives only as a Supabase secret.
 
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` — from Project Settings → API. (Supabase injects
-      `SUPABASE_URL` and `SUPABASE_ANON_KEY` automatically; do not set those by hand.)
-- [ ] `RESEND_API_KEY` — see section 6.
-- [ ] `SENDER_EMAIL` — the verified sender, for example `VAC-Tech Jr <club@yourdomain.com>`.
-- [ ] `EMAIL_PROVIDER` — optional. Leave it unset for Resend, or set it to `brevo`.
+**Secret** (never commit, never paste into the app or a screenshot):
 
-With the CLI (run once; the values are read from your shell, never written to a file):
+| Name                         | Where to find it                          | Used by              |
+| ---------------------------- | ----------------------------------------- | -------------------- |
+| `SUPABASE_SERVICE_ROLE_KEY`  | Project Settings → API → `service_role`   | every account function |
+| `RESEND_API_KEY`             | resend.com → API Keys (section 6)         | `send-email`         |
+| `BREVO_API_KEY`              | brevo.com → SMTP & API (only if using Brevo) | `send-email`      |
 
-```bash
+**Not secret** (safe to keep in the dashboard, still set them as secrets for tidiness):
+
+| Name             | Value                                              |
+| ---------------- | -------------------------------------------------- |
+| `SENDER_EMAIL`   | the verified sender, e.g. `VAC-Tech Jr <club@yourdomain.com>` |
+| `EMAIL_PROVIDER` | leave unset for Resend, or set it to `brevo`       |
+
+Supabase injects `SUPABASE_URL` and `SUPABASE_ANON_KEY` automatically. **Do not set those by
+hand.**
+
+## 5. Deploy the Edge Functions (Windows PowerShell)
+
+Run these from the project root. Copy each block as-is.
+
+**1. Install the Supabase CLI** (once). If you have Scoop:
+
+```powershell
+scoop install supabase
+```
+
+Otherwise use npm (Node 22 is already installed for the site):
+
+```powershell
+npm install --global supabase
+supabase --version
+```
+
+**2. Log in** (once). This opens a browser to approve the login:
+
+```powershell
 supabase login
+```
+
+**3. Link this folder to the project.** `<your-project-ref>` is the short code in the dashboard
+URL (`https://supabase.com/dashboard/project/<your-project-ref>`):
+
+```powershell
+cd "D:\VAC - Tech Jr\Website"
 supabase link --project-ref <your-project-ref>
+```
+
+**4. Set the secrets** (once, and again any time a key changes). These are **secret** — they are
+read from your shell and are never written to a file:
+
+```powershell
 supabase secrets set SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
 supabase secrets set SENDER_EMAIL="VAC-Tech Jr <club@yourdomain.com>"
 supabase secrets set RESEND_API_KEY="<resend-api-key>"
+# Only if you chose Brevo instead of Resend:
+# supabase secrets set EMAIL_PROVIDER="brevo"
+# supabase secrets set BREVO_API_KEY="<brevo-api-key>"
 supabase secrets list          # names only; values are never shown again
 ```
 
-## 5. Deploy the Edge Functions
+**5. Deploy every function.** Each command prints the function URL when it succeeds:
 
-From the project root, with the CLI linked:
-
-```bash
+```powershell
 supabase functions deploy create-member
 supabase functions deploy bulk-create-members
+supabase functions deploy create-staff
 supabase functions deploy reset-password
 supabase functions deploy set-account-status
 supabase functions deploy apply-profile-change
@@ -95,12 +150,14 @@ supabase functions deploy change-role
 supabase functions deploy send-email
 ```
 
-- [ ] All **seven** deployed, each with **JWT verification on** (the default).
+- [ ] All **eight** deployed, each with **JWT verification on** (the default).
 - [ ] CORS is restricted to `https://vactechjr.pages.dev` and `http://localhost:5173`
       in `supabase/functions/_shared/cors.ts` — change both entries if the address changes,
       then redeploy every function.
-- [ ] Smoke test one function from the app (for example `/admin/members` → create a test
-      account) and check the browser's Network tab shows `200`.
+- [ ] **Smoke test:** open `/admin/members` → **New member** → create a test account. The
+      temporary password must appear once. If it does not, the message now names the function to
+      deploy (for example "…deploy the create-member function…"). Check the browser's Network tab
+      shows `200`, not `404`.
 
 ## 6. Email provider (Resend by default, Brevo optional)
 

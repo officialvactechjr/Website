@@ -1,18 +1,14 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from 'react-router-dom'
-import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import ErrorState from '../../components/ui/ErrorState'
-import Input from '../../components/ui/Input'
 import PageHeader from '../../components/layout/PageHeader'
 import Section from '../../components/layout/Section'
 import Spinner from '../../components/ui/Spinner'
-import Textarea from '../../components/ui/Textarea'
+import DynamicForm from '../../components/shared/DynamicForm'
 import WindowCountdown from '../../features/registrations/components/WindowCountdown'
 import { useCreateApplication, useNow, useWindows } from '../../features/registrations/hooks'
-import { membershipApplicationSchema } from '../../features/registrations/schema'
+import { MEMBERSHIP_CORE, MEMBERSHIP_FIELDS } from '../../features/registrations/schema'
 import { windowState } from '../../features/registrations/window'
 import { useAuth } from '../../context/useAuth'
 import { formatNepalDateTime } from '../../lib/utils'
@@ -48,14 +44,15 @@ export default function Join() {
   const createApplication = useCreateApplication()
   const [sent, setSent] = useState(false)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({ resolver: zodResolver(membershipApplicationSchema) })
-
   // `now` ticks, so this flips to closed on its own when the deadline passes.
   const state = windowState(data ?? [], new Date(now))
+
+  // The window carries its own question snapshot. An older window with no
+  // snapshot falls back to the club's default questions.
+  const fields =
+    state.open && Array.isArray(state.open.fields) && state.open.fields.length > 0
+      ? state.open.fields
+      : MEMBERSHIP_FIELDS
 
   function submit(values) {
     if (values.website) {
@@ -63,12 +60,18 @@ export default function Join() {
       return
     }
 
-    const application = { ...values }
-    delete application.website // honeypot, never stored
-    createApplication.mutate(
-      { ...application, window_id: state.open.id },
-      { onSuccess: () => setSent(true) },
-    )
+    // The five core answers keep their columns; everything else is stored in
+    // `answers`, keyed by question id, so a changed form never breaks an old row.
+    const application = { window_id: state.open.id, consent: values.consent === true, answers: {} }
+    for (const [key, value] of Object.entries(values)) {
+      if (key === 'website' || key === 'consent') continue
+      if (MEMBERSHIP_CORE.includes(key)) application[key] = value === '' ? null : value
+      else application.answers[key] = value
+    }
+    application.full_name = String(application.full_name ?? '').trim()
+    application.email = String(application.email ?? '').trim()
+
+    createApplication.mutate(application, { onSuccess: () => setSent(true) })
   }
 
   return (
@@ -121,63 +124,14 @@ export default function Join() {
           </p>
           <WindowCountdown closesAt={state.open.closes_at} now={now} />
 
-          <form onSubmit={handleSubmit(submit)} noValidate className="mt-6 flex flex-col gap-4">
-            <Input label="Full name" error={errors.full_name?.message} {...register('full_name')} />
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                label="Class"
-                hint="For example 11 or 12"
-                error={errors.class?.message}
-                {...register('class')}
-              />
-              <Input label="Section" error={errors.section?.message} {...register('section')} />
-            </div>
-
-            <Input
-              label="Email"
-              type="email"
-              error={errors.email?.message}
-              {...register('email')}
+          <div className="mt-6">
+            <DynamicForm
+              fields={fields}
+              onSubmit={submit}
+              submitting={createApplication.isPending}
+              submitLabel="Send application"
             />
-            <Input
-              label="Phone"
-              type="tel"
-              hint="Optional"
-              error={errors.phone?.message}
-              {...register('phone')}
-            />
-            <Textarea
-              label="Why do you want to join?"
-              rows={4}
-              hint="Optional, but it helps the team."
-              error={errors.reason?.message}
-              {...register('reason')}
-            />
-
-            <label className="flex items-start gap-3 text-sm">
-              <input
-                type="checkbox"
-                className="mt-1 size-4 accent-[var(--primary)]"
-                {...register('consent')}
-              />
-              <span>My name, class and GitHub link may be shown on the club's public pages.</span>
-            </label>
-            {errors.consent && <p className="text-xs text-danger">{errors.consent.message}</p>}
-
-            <input
-              type="text"
-              tabIndex={-1}
-              autoComplete="off"
-              aria-hidden="true"
-              className="hidden"
-              {...register('website')}
-            />
-
-            <Button type="submit" loading={createApplication.isPending} className="self-start">
-              Send application
-            </Button>
-          </form>
+          </div>
         </Card>
       )}
 

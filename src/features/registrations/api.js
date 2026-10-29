@@ -7,13 +7,13 @@
 //      displays what the database will allow.
 import { supabase } from '../../lib/supabaseClient'
 
-const WINDOW_COLUMNS = 'id, label, opens_at, closes_at, is_open'
+const WINDOW_COLUMNS = 'id, label, opens_at, closes_at, is_open, fields'
 const FORM_COLUMNS = 'id, event_id, fields, opens_at, closes_at'
 
 // ---------------------------------------------------------------------------
-// Membership windows (public read; dates only, never private data)
+// Membership windows (public read; dates and question text only, never private)
 // ---------------------------------------------------------------------------
-export async function fetchWindows({ limit = 20 } = {}) {
+export async function fetchWindows({ limit = 50 } = {}) {
   const { data, error } = await supabase
     .from('membership_windows')
     .select(WINDOW_COLUMNS)
@@ -46,7 +46,7 @@ export async function fetchApplications({ limit = 500 } = {}) {
   const { data, error } = await supabase
     .from('membership_applications')
     .select(
-      'id, window_id, full_name, class, section, email, phone, reason, consent, status, submitted_at, reviewed_by, reviewed_at',
+      'id, window_id, full_name, class, section, email, phone, reason, answers, consent, status, submitted_at, reviewed_by, reviewed_at, account_created_at',
     )
     .order('submitted_at', { ascending: false })
     .limit(limit)
@@ -59,6 +59,15 @@ export async function updateApplicationStatus({ id, status, reviewedBy }) {
   const { error } = await supabase
     .from('membership_applications')
     .update({ status, reviewed_by: reviewedBy, reviewed_at: new Date().toISOString() })
+    .eq('id', id)
+  if (error) throw error
+}
+
+/** Stamped once the account exists, so the button is not offered twice. */
+export async function markApplicationAccountCreated(id) {
+  const { error } = await supabase
+    .from('membership_applications')
+    .update({ account_created_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw error
 }

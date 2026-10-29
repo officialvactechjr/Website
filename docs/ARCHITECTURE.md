@@ -105,16 +105,17 @@ flowchart TD
     ADMAREA --> A2[Events CRUD]
     ADMAREA --> A3[BOD CRUD]
     ADMAREA --> A4[Gallery CRUD]
-    ADMAREA --> A5[Form builder]
+    ADMAREA --> A5[Form builder + Form templates]
     ADMAREA --> A6[Registrations + Applications]
     ADMAREA --> A7[Project approvals]
-    ADMAREA --> A8[Members: create, CSV, reset, deactivate]
+    ADMAREA --> A8[Members: members only — create, import, reset, deactivate]
     ADMAREA --> A9[Points]
     ADMAREA --> A10[Suggestions]
     ADMAREA --> A11[Emails]
     ADMAREA --> A12[Membership window]
     ADMAREA --> A13[Profile change requests]
-    ADMAREA --> A14[Super Admin: roles + settings]
+    ADMAREA --> A14[Staff: list; create/reset/role/status (Super Admin only)]
+    ADMAREA --> A15[Super Admin: roles + settings]
 ```
 
 ## 4. Login flow (detailed)
@@ -238,11 +239,14 @@ vac-tech-jr/
 │   │   ├── 0004_showcase_tables.sql
 │   │   ├── 0005_registrations.sql
 │   │   ├── 0006_projects_and_profile_changes.sql
-│   │   └── 0007_points_suggestions_email.sql
+│   │   ├── 0007_points_suggestions_email.sql
+│   │   ├── 0008_membership_form_and_templates.sql
+│   │   └── 0009_accounts_and_audit.sql
 │   ├── functions/             # the ONLY place the service role key is used
-│   │   ├── _shared/           # auth, cors, respond, email, password, rateLimit, members
+│   │   ├── _shared/           # auth, cors, respond, email, password, rateLimit, members, audit
 │   │   ├── create-member/index.ts
 │   │   ├── bulk-create-members/index.ts
+│   │   ├── create-staff/index.ts
 │   │   ├── reset-password/index.ts
 │   │   ├── set-account-status/index.ts
 │   │   ├── apply-profile-change/index.ts
@@ -308,9 +312,13 @@ vac-tech-jr/
 
 ### Tables (all have RLS enabled)
 
-`profiles`, `notices`, `events`, `bod_members`, `gallery_photos`, `projects`, `registration_forms`, `event_registrations`, `membership_windows`, `membership_applications`, `points_log`, `suggestions`, `settings`, `email_log`, `profile_change_requests`
+`profiles`, `notices`, `events`, `bod_members`, `gallery_photos`, `projects`, `registration_forms`, `event_registrations`, `membership_windows`, `membership_applications`, `points_log`, `suggestions`, `settings`, `email_log`, `profile_change_requests`, `form_templates`, `audit_log`
 
 `profiles` also carries `email` and `phone`. Both are **private**: they never appear in a public view and a member can only change them through `profile_change_requests`.
+
+A **member** must have a `class` and a `section` (a checked constraint, `0009`); a **staff** account (manager, admin, super_admin) must not. `staff_roles` are never on a public page.
+
+`audit_log` is **append-only** and records every account action (create, bulk create, staff create, reset, role change, status change). It is readable by Admin and Super Admin only, and **never holds a password**.
 
 `settings` is the opposite: it is a public key/value store (site name, contact details, links), readable by everyone. Nothing private may be written there.
 
@@ -318,7 +326,7 @@ vac-tech-jr/
 
 | View                | Read by                            | Exposes                                                              |
 | ------------------- | ---------------------------------- | -------------------------------------------------------------------- |
-| `public_members`    | everyone                           | full_name, class, section, github_url, avatar_url (active members)   |
+| `public_members`    | everyone                           | full_name, class, section, github_url, avatar_url (**active members only** — staff never appear) |
 | `public_projects`   | everyone                           | project fields (approved only) + owner name, class, section, GitHub  |
 | `leaderboard`       | everyone                           | member name, class, total points (only members who have scored)      |
 | `staff_projects`    | staff (role-gated inside the view) | every project + owner name and class, for the review queue           |
@@ -362,6 +370,9 @@ Limits: images only (jpeg, png, webp), max 2 MB per file enforced in bucket sett
 18. **Every Edge Function re-checks the caller.** It verifies the JWT, reads the role from `profiles` (never from the request body), refuses a deactivated account, applies a per-caller rate limit, and validates its body with Zod before touching the database.
 19. **`change-role` can never touch a super admin** — not create, not promote, not demote — and refuses a self-change. The institution's account is handed over by hand, in Supabase.
 20. **A hidden link is never the only defence.** Each admin route carries the same role check as its sidebar entry (`routes/index.jsx` + `AdminLayout.jsx`).
+21. **Every account action is audited.** Create, bulk create, staff create, reset, role change and status change append to `audit_log` (service role writes; Admin and Super Admin read). A password is never written to `audit_log`, a response body is `no-store`, and a temporary password is shown once and never stored.
+22. **Only a super admin touches a staff account.** An admin manages members. Creating staff, resetting a staff password, changing a staff role and deactivating a staff account are all refused unless the caller is a super admin. `create-staff` and `change-role` can never produce a super admin, and the last active super admin cannot be deactivated.
+23. **`public_members` lists active members only.** A staff account (manager, admin, super_admin) must never appear on a public page or in the members list.
 
 ## 12. Error handling conventions
 
@@ -374,9 +385,17 @@ Limits: images only (jpeg, png, webp), max 2 MB per file enforced in bucket sett
 | Form validation             | Zod schema + inline field messages                                    |
 | Mutation success or failure | Toast message (short, plain language)                                 |
 | Auth expiry                 | On 401, sign out and redirect to `/login` with a message              |
+| Account function failure    | The function returns a safe **error code** (see below); the browser maps it to one plain line |
 | Unexpected crash            | A top-level React **Error Boundary** with a friendly fallback         |
 | Unknown route               | `NotFound` page                                                       |
 | Window closed (forms)       | Show "Registration closed", not an error                              |
+
+**Edge Function error codes.** Every function answers with `{ code, error }`, where `code` is one of
+`validation`, `unauthenticated`, `forbidden`, `not_found`, `conflict`, `rate_limited`,
+`server_error`. `src/lib/functions.js` maps a code to a fixed sentence — the only server text it
+passes through is a `validation` message, which the function writes for a person. A missing or
+undeployed function (a 404, or no HTTP answer) becomes "The account service is not reachable…", so
+the owner is told to deploy it. No stack trace, database message or key ever reaches the UI.
 
 Rules:
 

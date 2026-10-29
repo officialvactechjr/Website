@@ -11,6 +11,7 @@ import {
   fetchFormForEvent,
   fetchFormsForAdmin,
   fetchWindows,
+  markApplicationAccountCreated,
   updateApplicationStatus,
   updateForm,
   updateWindow,
@@ -113,6 +114,16 @@ export function useUpdateApplicationStatus() {
       toast.success('Application updated')
     },
     onError: () => toast.error('We could not update that application. Please try again.'),
+  })
+}
+
+/** Marks an approved application whose account has just been created. */
+export function useMarkApplicationAccountCreated() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: markApplicationAccountCreated,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['applications'] }),
+    onError: () => toast.error('The account was created, but the application was not marked.'),
   })
 }
 

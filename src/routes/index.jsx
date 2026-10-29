@@ -41,10 +41,13 @@ const EventsAdmin = lazy(() => import('../pages/admin/EventsAdmin'))
 const BodAdmin = lazy(() => import('../pages/admin/BodAdmin'))
 const GalleryAdmin = lazy(() => import('../pages/admin/GalleryAdmin'))
 const FormBuilder = lazy(() => import('../pages/admin/FormBuilder'))
+const FormTemplates = lazy(() => import('../pages/admin/FormTemplates'))
 const Registrations = lazy(() => import('../pages/admin/Registrations'))
 const Applications = lazy(() => import('../pages/admin/Applications'))
 const MembershipWindow = lazy(() => import('../pages/admin/MembershipWindow'))
 const MembersAdmin = lazy(() => import('../pages/admin/MembersAdmin'))
+const MembersImport = lazy(() => import('../pages/admin/MembersImport'))
+const StaffAdmin = lazy(() => import('../pages/admin/StaffAdmin'))
 const Approvals = lazy(() => import('../pages/admin/Approvals'))
 const ProfileChanges = lazy(() => import('../pages/admin/ProfileChanges'))
 const Points = lazy(() => import('../pages/admin/Points'))
@@ -137,6 +140,7 @@ const router = createBrowserRouter(
                 { path: 'admin/bod', element: ready(<BodAdmin />) },
                 { path: 'admin/gallery', element: ready(<GalleryAdmin />) },
                 { path: 'admin/registration-forms', element: ready(<FormBuilder />) },
+                { path: 'admin/form-templates', element: ready(<FormTemplates />) },
                 { path: 'admin/registrations', element: ready(<Registrations />) },
                 { path: 'admin/applications', element: ready(<Applications />) },
                 { path: 'admin/approvals', element: ready(<Approvals />) },
@@ -147,6 +151,8 @@ const router = createBrowserRouter(
                   element: <ProtectedRoute allow={ADMIN_ROLES} />,
                   children: [
                     { path: 'admin/members', element: ready(<MembersAdmin />) },
+                    { path: 'admin/members/import', element: ready(<MembersImport />) },
+                    { path: 'admin/staff', element: ready(<StaffAdmin />) },
                     { path: 'admin/profile-changes', element: ready(<ProfileChanges />) },
                     { path: 'admin/points', element: ready(<Points />) },
                     { path: 'admin/emails', element: ready(<Emails />) },

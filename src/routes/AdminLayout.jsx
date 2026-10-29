@@ -29,6 +29,7 @@ const NAV = [
       { to: '/admin/bod', label: 'Board of directors' },
       { to: '/admin/gallery', label: 'Gallery' },
       { to: '/admin/registration-forms', label: 'Registration forms' },
+      { to: '/admin/form-templates', label: 'Form templates' },
     ],
   },
   {
@@ -46,6 +47,7 @@ const NAV = [
     icon: Users,
     items: [
       { to: '/admin/members', label: 'Members', roles: ADMIN_ROLES },
+      { to: '/admin/staff', label: 'Staff', roles: ADMIN_ROLES },
       { to: '/admin/profile-changes', label: 'Profile changes', roles: ADMIN_ROLES },
       { to: '/admin/points', label: 'Points', roles: ADMIN_ROLES },
     ],

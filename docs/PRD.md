@@ -102,15 +102,17 @@ IDs are used in `PHASES.md` and `MEMORY.md` for tracking.
 | ADM-05 | Event registration form builder (template, open/close time)         | Manager, Admin, Super Admin |
 | ADM-06 | View and CSV-export event registrations and membership applications | Manager, Admin, Super Admin |
 | ADM-07 | Approve or reject projects (rejection needs a reason)               | Manager, Admin, Super Admin |
-| ADM-08 | Create member accounts (single form)                                | Admin, Super Admin          |
-| ADM-09 | Bulk create accounts from CSV                                       | Admin, Super Admin          |
-| ADM-10 | Reset password, deactivate or reactivate account                    | Admin, Super Admin          |
+| ADM-08 | Create member accounts (single form). Class and section are required for a member; the password is generated or typed, shown once, and never stored | Admin, Super Admin |
+| ADM-09 | Bulk create member accounts from CSV, with a preview (per-row status), skip rows, chunked import and a Credentials screen (download or print slips) | Admin, Super Admin |
+| ADM-10 | Reset password (generate or type), deactivate or reactivate a member account    | Admin, Super Admin          |
 | ADM-11 | Give points to members                                              | Admin, Super Admin          |
 | ADM-12 | Read suggestions                                                    | Manager, Admin, Super Admin |
 | ADM-13 | Send emails                                                         | Admin, Super Admin          |
 | ADM-14 | Open or close membership window                                     | Admin, Super Admin          |
 | ADM-15 | Dashboard (pending counts, recent activity)                         | All staff roles             |
 | ADM-16 | Review profile change requests: approve or reject with a note       | Admin, Super Admin          |
+| ADM-17 | **Staff page** (`/admin/staff`): list managers, admins and the super admin with a role badge, status and added date. Create a staff account, reset a staff password, change a staff role or deactivate a staff account — **Super Admin only**; an Admin may view the list | View: Admin, Super Admin. Act: Super Admin |
+| ADM-18 | **Audit log**: every account action (create, bulk create, staff create, reset, role change, status change) is appended with the actor and target. Append-only, readable by Admin and Super Admin only, and **never holds a password** | Admin, Super Admin |
 
 ### 5.4 Super Admin extras
 

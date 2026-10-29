@@ -50,14 +50,3 @@ export async function caller(req: Request, allowed: Caller['role'][]): Promise<C
 
   return profile as Caller
 }
-
-/** How many active super admins are left, so we never lock the club out. */
-export async function activeSuperAdmins(): Promise<number> {
-  const { count } = await service()
-    .from('profiles')
-    .select('id', { count: 'exact', head: true })
-    .eq('role', 'super_admin')
-    .eq('is_active', true)
-
-  return count ?? 0
-}

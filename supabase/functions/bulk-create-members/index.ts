@@ -7,7 +7,10 @@ import { passwordProblem } from '../_shared/password.ts'
 import { rateLimit } from '../_shared/rateLimit.ts'
 import { failure, json, readJson } from '../_shared/respond.ts'
 
-const MAX_ROWS = 200
+// The admin UI sends chunks of 25 rows, so one call handles a small batch. 50 is
+// the hard cap for a direct caller: each row is a sequential Auth + profile write,
+// and a bigger call risks the function timeout (which would lose the passwords).
+const MAX_ROWS = 50
 
 const row = z.object({
   full_name: z.string().trim().min(2, 'Every row needs a full name').max(120),
@@ -93,11 +96,13 @@ Deno.serve(async (req) => {
     }
 
     const created = results.filter((entry) => entry.status === 'created').length
+    const failed = results.filter((entry) => entry.status === 'failed').length
+    const skipped = results.filter((entry) => entry.status === 'skipped').length
 
     await audit({
       actor: me,
       action: 'member.bulk_create',
-      detail: { created, total: rows.length, skipped: rows.length - created },
+      detail: { created, failed, skipped, total: rows.length },
     })
 
     return json({ created, total: rows.length, results }, 200, origin)

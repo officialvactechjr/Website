@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 // The same rule the Edge Functions enforce, so the admin sees the problem
 // immediately. The server checks it again — that is the check that counts.
+// KEEP IN STEP with `supabase/functions/_shared/password.ts`: change both copies
+// together, or the UI will accept what the server rejects.
 const COMMON = new Set([
   'password',
   'password1',
@@ -24,7 +26,7 @@ const COMMON = new Set([
   'school1234',
 ])
 
-/** Returns a plain-language problem with a typed password, or null. */
+/** Returns a plain-language problem with a typed password, or null. Mirrors the server rule. */
 export function passwordProblem(password, email, fullName) {
   const value = String(password ?? '')
   if (value.length < 10) return 'Use at least 10 characters.'

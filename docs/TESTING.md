@@ -815,8 +815,8 @@ Use this when you would rather stay signed in as one account than keep switching
 | **visitor**     | P1.4                 | P2._, P3._, P4.2 | P5.1-P5.4   | —                                    | P7.22                                                     | P8.1, P8.3-P8.6, P8.9, P8.11 | P9.1-P9.3, P9.9     | P10.3                      | P11.11                                                   |
 | **member**      | P1.1-P1.3, P1.5-P1.8 | P3.*             | P5.9-P5.12  | P6.1, P6.4-P6.7, P6.10, P6.19-P6.28  | P7.5, P7.7, P7.8, P7.12                                   | P8.2, P8.10                  | P9.10               | P10.3                      | —                                                        |
 | **manager**     | —                    | P4.3-P4.7        | P5.13-P5.16 | P6.8, P6.23 (blocked)                | P7.4, P7.9-P7.11, P7.15, P7.23                            | P8.2, P8.4                   | P9.5, P9.6          | P10.1, P10.2, P10.8        | —                                                        |
-| **admin**       | —                    | P4.8-P4.12       | P5.17-P5.20 | P6.2, P6.3, P6.9, P6.11-P6.17, P6.20 | P7.1-P7.3, P7.6, P7.13, P7.14, P7.16, P7.19, P7.21, P7.23 | P8.2, P8.4                   | P9.4, P9.7, P9.8    | P10.4-P10.7, P10.9         | P11.1, P11.2, P11.4-P11.9, P11.11, P11.12               |
-| **super admin** | —                    | —                | —           | P6.18                                | P7.17, P7.18, P7.20, P7.23                                | P8.7, P8.8                   | —                   | P10.5                      | P11.3, P11.10, P11.11                                    |
+| **admin**       | —                    | P4.8-P4.12       | P5.17-P5.20 | P6.2, P6.3, P6.9, P6.11-P6.17, P6.20 | P7.1-P7.3, P7.6, P7.13, P7.14, P7.16, P7.19, P7.21, P7.23 | P8.2, P8.4                   | P9.4, P9.7, P9.8    | P10.4-P10.7, P10.9         | P11.1, P11.2, P11.4-P11.9, P11.11-P11.13, P11.16       |
+| **super admin** | —                    | —                | —           | P6.18                                | P7.17, P7.18, P7.20, P7.23                                | P8.7, P8.8                   | —                   | P10.5                      | P11.3, P11.10, P11.11, P11.14-P11.16                    |
 
 > The phase sections above are the source of truth; this table is only a shortcut, so a row here
 > never replaces reading the test.
@@ -969,8 +969,30 @@ console.log(error ? 'blocked: ' + error.message : (data?.length ?? 0) + ' rows (
 | P11.10 | **Security:** the last super admin cannot be deactivated | super admin | Try to deactivate the only active super admin                                                                            | Refused: "This is the last active super admin…"                                                                 | ☐           |
 | P11.11 | Failures are explained in plain language                | any         | Trigger each: an undeployed function (before section 5), a duplicate email, an expired session, a forbidden action        | "The account service is not reachable…", "That email already has an account", "Your session expired. Log in again.", "You are not allowed to do this." — never a stack trace or key | ☐           |
 | P11.12 | Every account action is audited, with no password       | admin       | Create a member, reset a password, change a role, then run S11.12                                                         | One `audit_log` row per action, with the actor, action, target and a small detail; **no password appears anywhere** | ☐           |
+| P11.13 | A failed chunk never loses the earlier passwords        | admin       | `/admin/members` → **Add many members** → add ~60 valid rows (more than two 25-row chunks), then run a second import in the same minute to trip the rate limit, or sign out in another tab mid-send | The **Credentials** dialog still shows the passwords for every account the successful chunks created; the failed rows are not shown, and a toast names the reason | ☐           |
+| P11.14 | **Security:** two super admins cannot both be deactivated | super admin | With two active super admins, run S11.14 (deactivates two others at once)                                                                | Exactly one succeeds; the other is refused "This is the last active super admin…". At least one active super admin always remains | ☐           |
+| P11.15 | A promoted member keeps their phone and can be demoted  | super admin | `/admin/roles`: set a member who has a phone to **Admin**, then set them back to **Member**                                                | The phone is unchanged after promotion, and the demotion succeeds                                                            | ☐           |
+| P11.16 | A failed reset flag is reported, not swallowed          | admin       | Cannot be forced from the UI — the rule is in `reset-password`. Confirm in code that a failed `must_change_password` write returns "The password was changed, but the … flag was not set. Reset the password again." | The message names what happened and what to do                                                                                | ☐           |
 
 ### Snippets (Brief 4)
+
+**S11.14** — as a **super admin**, with at least **three** active super admins (so the caller is
+one and there are two others). **This deactivates the two others** — reactivate them afterwards,
+or run it only on a test project.
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+const me = (await supabase.auth.getUser()).data.user?.id
+const { data } = await supabase.from('profiles').select('id').eq('role', 'super_admin').eq('is_active', true)
+const others = (data ?? []).map((row) => row.id).filter((id) => id !== me).slice(0, 2)
+console.log('deactivating', others.length, 'super admins at once')
+const kill = (id) =>
+  supabase.functions.invoke('set-account-status', { body: { user_id: id, is_active: false } })
+const [a, b] = await Promise.all(others.map(kill))
+console.log(a.error ? 'A refused: ' + a.error.context?.status : 'A allowed', '|', b.error ? 'B refused: ' + b.error.context?.status : 'B allowed')
+```
+
+Expected: one allowed, one refused (400) — never two allowed with zero active super admins left.
 
 **S11.4** — as an **admin** (not a super admin), in the console:
 

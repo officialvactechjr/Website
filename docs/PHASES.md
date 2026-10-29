@@ -337,6 +337,7 @@ flowchart LR
 - [x] Staff page (`/admin/staff`): role badges, status, added date; create/reset/role/deactivate for super admin only
 - [x] `reset-password` and `set-account-status` refuse staff targets for a non-super admin
 - [x] `audit_log` (`0009`) — append-only, Admin/Super Admin read, never a password
+- [x] The last-super-admin check is atomic (`set_account_active`, migration `0010`); bulk import keeps the passwords of chunks that succeeded
 - [x] Windows PowerShell deploy steps (CLI install, login, link, secrets, 8 deploys) in `docs/OWNER-ACTIONS.md`
 
 **Step 5 — Docs and final report — built**

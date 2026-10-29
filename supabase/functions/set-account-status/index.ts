@@ -1,6 +1,6 @@
 import { z } from 'npm:zod@4'
 import { audit } from '../_shared/audit.ts'
-import { activeSuperAdmins, caller, service } from '../_shared/auth.ts'
+import { caller, service } from '../_shared/auth.ts'
 import { preflight } from '../_shared/cors.ts'
 import { rateLimit } from '../_shared/rateLimit.ts'
 import { failure, HttpError, json, readJson } from '../_shared/respond.ts'
@@ -36,17 +36,25 @@ Deno.serve(async (req) => {
       throw new HttpError(403, 'Only a super admin can change a staff account.', 'forbidden')
     }
 
-    // Never let the club lock itself out of its own site.
-    if (!is_active && target.role === 'super_admin' && (await activeSuperAdmins()) <= 1) {
-      throw new HttpError(
-        400,
-        'This is the last active super admin, so it cannot be deactivated.',
-        'validation',
-      )
+    // The "last active super admin" check and the write happen together inside the
+    // database (migration 0010), so two requests at once cannot both pass it.
+    const { error } = await service().rpc('set_account_active', {
+      p_user_id: user_id,
+      p_is_active: is_active,
+    })
+    if (error) {
+      if (error.message.includes('last_super_admin')) {
+        throw new HttpError(
+          400,
+          'This is the last active super admin, so it cannot be deactivated.',
+          'validation',
+        )
+      }
+      if (error.message.includes('account_not_found')) {
+        throw new HttpError(404, 'We could not find that account.')
+      }
+      throw new HttpError(500, 'We could not change that account. Please try again.')
     }
-
-    const { error } = await service().from('profiles').update({ is_active }).eq('id', user_id)
-    if (error) throw new HttpError(500, 'We could not change that account. Please try again.')
 
     await audit({
       actor: me,

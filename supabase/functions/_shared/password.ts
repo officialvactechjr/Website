@@ -29,6 +29,9 @@ export function temporaryPassword(length = 16): string {
  * A short list of the passwords that appear first in every breach dump. It is
  * not a full blacklist — the name and email checks catch the common case of a
  * club member choosing something guessable.
+ *
+ * KEEP IN STEP with the browser copy: `src/features/members/schema.js` holds the
+ * same list and the same rule, for instant feedback. Change both together.
  */
 const COMMON = new Set([
   'password',
@@ -56,6 +59,9 @@ const COMMON = new Set([
  * The server-side rule for a typed password. Returns a plain-language problem,
  * or null when the password is acceptable. The same rule runs in the admin UI
  * for instant feedback, but this is the one that counts.
+ *
+ * KEEP IN STEP with the browser copy in `src/features/members/schema.js`: change
+ * this function and that one together, or the UI will accept what the server rejects.
  */
 export function passwordProblem(password: string, email: string, fullName: string): string | null {
   const value = password ?? ''

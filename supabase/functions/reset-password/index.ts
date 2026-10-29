@@ -47,7 +47,17 @@ Deno.serve(async (req) => {
     if (error) throw new HttpError(500, 'We could not reset that password. Nothing was changed.')
 
     // Whoever holds this password must choose their own on the way in.
-    await service().from('profiles').update({ must_change_password: true }).eq('id', user_id)
+    const { error: flagError } = await service()
+      .from('profiles')
+      .update({ must_change_password: true })
+      .eq('id', user_id)
+    if (flagError) {
+      throw new HttpError(
+        500,
+        'The password was changed, but the "change it at next login" flag was not set. Reset the password again.',
+        'server_error',
+      )
+    }
 
     await audit({
       actor: me,

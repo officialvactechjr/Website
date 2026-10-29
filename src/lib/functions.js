@@ -19,6 +19,13 @@ function unreachable(name) {
   return `The account service is not reachable. The owner needs to deploy the ${name} function (see docs/OWNER-ACTIONS.md).`
 }
 
+/** A plain-language Error that also carries the safe code, so a caller can react. */
+function fail(message, code) {
+  const error = new Error(message)
+  error.code = code
+  return error
+}
+
 /**
  * Calls an Edge Function and turns any failure into one plain-language line.
  *
@@ -41,13 +48,13 @@ export async function invokeFunction(name, body) {
   }
 
   if (payload?.code === 'validation') {
-    throw new Error(payload.error || 'Please check the form and try again.')
+    throw fail(payload.error || 'Please check the form and try again.', 'validation')
   }
-  if (payload?.code && MESSAGES[payload.code]) throw new Error(MESSAGES[payload.code])
+  if (payload?.code && MESSAGES[payload.code]) throw fail(MESSAGES[payload.code], payload.code)
 
   // No code, and no HTTP answer at all (or a 404): the function is not reachable.
   const status = error.context?.status
-  if (!payload?.code && (!status || status === 404)) throw new Error(unreachable(name))
+  if (!payload?.code && (!status || status === 404)) throw fail(unreachable(name), 'unreachable')
 
-  throw new Error('Something went wrong on our side. Please try again.')
+  throw fail('Something went wrong on our side. Please try again.', 'server_error')
 }

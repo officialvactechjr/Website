@@ -6,7 +6,7 @@ section assumes the one above it is done.
 
 > Keep this list current. When an action is done, tick it here.
 >
-> The whole app is built. Nothing below has been done yet: `0005`-`0009` are **not applied** and
+> The whole app is built. Nothing below has been done yet: `0005`-`0010` are **not applied** and
 > **no Edge Function is deployed**. Because no function is deployed, every account screen shows
 > "The account service is not reachable…" until section 5 is done.
 
@@ -27,7 +27,7 @@ section assumes the one above it is done.
 ## 2. Database
 
 Apply the migrations in the Supabase **SQL Editor**, in this order, one file per query.
-`0001`-`0004` are already applied; the six below are not.
+`0001`-`0004` are already applied; the seven below are not.
 
 - [ ] `0005_registrations.sql`
 - [ ] `0006_projects_and_profile_changes.sql`
@@ -36,6 +36,9 @@ Apply the migrations in the Supabase **SQL Editor**, in this order, one file per
       the extra-answers column, plus the `form_templates` table and its five starting templates.
 - [ ] `0009_accounts_and_audit.sql` — the member class/section rule, `public_members` limited to
       members, and the append-only `audit_log` table.
+- [ ] `0010_atomic_account_status.sql` — moves the "last active super admin" check into one
+      database function (`set_account_active`), so two admins deactivating each other at the same
+      moment cannot both succeed and lock the club out.
 
 Each file is safe to re-run only if it has never been applied: they are written to be
 applied **once**, in order. If one fails, paste the error into the issue/changelog and stop

@@ -373,6 +373,7 @@ Limits: images only (jpeg, png, webp), max 2 MB per file enforced in bucket sett
 21. **Every account action is audited.** Create, bulk create, staff create, reset, role change and status change append to `audit_log` (service role writes; Admin and Super Admin read). A password is never written to `audit_log`, a response body is `no-store`, and a temporary password is shown once and never stored.
 22. **Only a super admin touches a staff account.** An admin manages members. Creating staff, resetting a staff password, changing a staff role and deactivating a staff account are all refused unless the caller is a super admin. `create-staff` and `change-role` can never produce a super admin, and the last active super admin cannot be deactivated.
 23. **`public_members` lists active members only.** A staff account (manager, admin, super_admin) must never appear on a public page or in the members list.
+24. **The typed-password rule exists twice on purpose and must be kept in step.** `supabase/functions/_shared/password.ts` is the check that counts; `src/features/members/schema.js` is the same rule for instant feedback in the browser (the two runtimes cannot share a file). Change both together, or the UI will accept what the server rejects.
 
 ## 12. Error handling conventions
 

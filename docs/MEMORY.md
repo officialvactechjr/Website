@@ -23,7 +23,7 @@
 
 - **Last thing done:** Brief **Steps 4 and 5**. Fixed the accounts failure end to end: every Edge Function now returns a safe `{ code, error }` and the UI maps it to one plain line (an undeployed function becomes "The account service is not reachable…"); `create-member`/`reset-password` take a generated **or typed** password (rules: ≥10 chars, no name, no email name, not common) shown once with `no-store`; `create-member`/`bulk-create-members` now save **phone**, and bulk import got per-row passwords, a preview with per-row status, chunked sending and printable credential slips. New **`create-staff`** (super_admin only), a **Staff page** (`/admin/staff`), the **Members page lists members only** (with All/Active/Deactivated tabs and an **Add many members** page), and migration **`0009`** (member class/section rule, `public_members` members-only, append-only **`audit_log`**). Docs: `PRD.md` (ADM-17/18), `ARCHITECTURE.md`, `TESTING.md` (section 16 + 11), `OWNER-ACTIONS.md` (PowerShell deploy steps). Lint 0, build clean.
 - **Next thing to do:** **Step 3** — the event registration builder (`docs/BRIEF-membership-accounts.md`): question types, builder usability, event settings (capacity/waitlist), answers + CSV. Then the owner's apply/deploy pass.
-- **Watch out for:** `0008` and `0009` are **not applied** and **no function is deployed**, so every account screen shows "The account service is not reachable…" until `docs/OWNER-ACTIONS.md` sections 2, 4 and 5 are done. The account functions are the highest-risk code and are still unrun. Nothing is committed (**well over 100 changed/untracked entries**).
+- **Watch out for:** `0008`, `0009` and `0010` are **not applied** and **no function is deployed**, so every account screen shows "The account service is not reachable…" until `docs/OWNER-ACTIONS.md` sections 2, 4 and 5 are done. The account functions are the highest-risk code and are still unrun. Nothing is committed except the review fixes on top of commit `a0bae99`.
 
 ## 3. Phase tracker
 
@@ -131,11 +131,12 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 | `0007_points_suggestions_email.sql`     | points locking, suggestions (+ rate limit), email log                     | yes     | **no**  |
 | `0008_membership_form_and_templates.sql` | window question snapshot + application `answers`/`account_created_at`, `form_templates` (+ 5 seeds) | yes | **no**  |
 | `0009_accounts_and_audit.sql`           | member class/section rule, `public_members` members-only, append-only `audit_log` | yes | **no**  |
+| `0010_atomic_account_status.sql`        | `set_account_active()` — the last-super-admin check and the write in one locked step | yes | **no**  |
 | `seed.sql` (not a migration)            | fake notices, events and settings for development                         | yes     | yes     |
 
 > Numbering note: the earlier plan had `0006_projects_flow` + `0007_profile_changes` +
-> `0008_suggestions_email`. The real files are `0005`-`0009` (brief Steps 1, 2 and 4) — they must be
-> applied in order and `0005`-`0009` are still **not applied**.
+> `0008_suggestions_email`. The real files are `0005`-`0010` (brief Steps 1, 2 and 4, plus the
+> atomic-status fix) — they must be applied in order and `0005`-`0010` are still **not applied**.
 
 ### Edge Functions
 
@@ -261,6 +262,7 @@ Update the status as each page is built. Statuses: `todo`, `wip`, `done`, `needs
 | 29  | **Event "Start from template" only knows the current question set.** Until **Step 3** rebuilds the event builder, an event template may only use the seven existing question ids; any others would be dropped when the template is loaded. Membership templates are unaffected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `src/pages/admin/FormBuilder.jsx`                                                                                  | 2026-10-29 | noted  |
 | 30  | **The eight account functions have never been run.** They are written and reviewed but not deployed or executed, so the JWT check, the CORS list, the rollback when a profile insert fails, the audit write, the `NOT VALID` class/section check and the last-super-admin guard are all unverified. They are the highest-risk code in the repo.                                                                                                                                                                                                                                                                                                                                                                                                                  | `supabase/functions/**`                                                                                            | 2026-10-29 | open   |
 | 31  | **The Members/Emails/Points lists read `profiles` in one query (500-row cap).** The Members page is filtered to `role = 'member'`; Emails and Points still read **every** account, so a staff account can appear as a points or email recipient. Fine for a club; filter those two to members if staff ever get points.                                                                                                                                                                                                                                                                                                                                                                                                                                           | `src/features/members/api.js`, `src/pages/admin/{Emails,Points}.jsx`                                               | 2026-10-29 | noted  |
+| 32  | **Idea: merge `createMemberAccount` and `createStaffAccount`** into one `createAccount({ full_name, email, role, class?, section?, phone?, github_url?, password? })`. They are near-copies (~40 lines each) that differ only in the profile columns written, so a fix (the duplicate-email mapping, the rollback) can be made in one and forgotten in the other. Not done now — left as a follow-up from the account-functions review.                                                                                                       | `supabase/functions/_shared/members.ts`                                                                            | 2026-10-29 | idea   |
 
 Every `TODO` comment in code must appear here.
 
@@ -276,6 +278,14 @@ Format:
 - Problems / decisions:
 - Next step:
 ```
+
+### 2026-10-29: Review fixes — atomic super-admin guard, bulk-import chunk safety
+
+- Phase / task: the senior review of the account-functions commit (a0bae99), findings 1-7. Finding 8 logged as an idea (item 32).
+- Done: **bulk import** (`BulkImport.jsx`) wraps each 25-row chunk in try/catch, marks a failed chunk's rows failed and keeps going, always calls `onDone` with the rows that succeeded so their one-time passwords are shown, toasts a total failure, and waits out a 429 (`sendChunk`, `RETRY_AFTER_MS`) before one retry; `src/lib/functions.js` now tags the thrown `Error` with its `code`. **migration `0010`** adds `public.set_account_active(uuid, boolean)` — locks the active super admins `FOR UPDATE` in a fixed order, counts, then writes — granted to `service_role` only; `set-account-status` calls it via `rpc`, and the now-unused `activeSuperAdmins` helper is deleted. **`change-role`** uses `patch = { role }` (a promoted member keeps their phone and can be demoted back), with a message that says what to fill in. **`reset-password`** checks the `must_change_password` write. **`bulk-create-members`**: `MAX_ROWS` 50 (comment notes the UI sends 25), audit splits `created`/`failed`/`skipped`. Comments in `_shared/password.ts` and `src/features/members/schema.js` point at each other, with rule 24 in `ARCHITECTURE.md`. Docs: `OWNER-ACTIONS.md` (0010 step), `TESTING.md` (P11.13-P11.16 + S11.14 + section 11).
+- Not finished: nothing from the review. `0005`-`0010` and the deploys are still the owner's.
+- Problems / decisions: `change-role` cannot zero the super admins (it refuses a super-admin target), so only `set-account-status` needed the atomic function. Locking the active super admins in `id` order avoids the deadlock two opposite deactivations would otherwise cause.
+- Next step: the owner applies `0005`-`0010` and deploys the 8 functions; then **Step 3** (event builder).
 
 ### 2026-10-29: Brief Steps 4 and 5 — account functions, staff page, error codes, docs
 
@@ -469,7 +479,7 @@ added in Phase 1 — it is built from what was already installed.
       (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=22`)
 - [x] First Super Admin account created, plus a test member account
 - [x] `0004_showcase_tables.sql` applied (it holds the BOD / gallery / projects tables and the public storage buckets)
-- [ ] `0005`, `0006`, `0007`, `0008`, `0009` applied, in that order — **owner**, `docs/OWNER-ACTIONS.md` section 2
+- [ ] `0005`, `0006`, `0007`, `0008`, `0009`, `0010` applied, in that order — **owner**, `docs/OWNER-ACTIONS.md` section 2
 - [ ] Supabase **Site URL** set to the Cloudflare address (Authentication → URL Configuration)
 - [ ] Edge Function secrets set (service role key, Resend key, sender address) — `docs/OWNER-ACTIONS.md` section 4
 - [ ] The eight Edge Functions deployed — `docs/OWNER-ACTIONS.md` section 5

@@ -36,16 +36,18 @@ Deno.serve(async (req) => {
       throw new HttpError(400, 'A super admin cannot be changed from here. Hand it over in person.')
     }
 
-    // A member needs a class and a section; staff must not carry one.
+    // A member needs a class and a section (the `0009` check). Staff may keep a
+    // leftover one, so nothing is cleared here — nulling them would make the
+    // change back to a member impossible and would drop the phone for nothing.
     if (role === 'member' && (!target.class || !target.section)) {
       throw new HttpError(
         400,
-        'This account has no class or section. Set them before making it a member.',
+        'This account has no class or section. Fill both in on the profile, then make it a member.',
         'validation',
       )
     }
 
-    const patch = role === 'member' ? { role } : { role, class: null, section: null, phone: null }
+    const patch = { role }
 
     const { error } = await service().from('profiles').update(patch).eq('id', user_id)
     if (error) throw new HttpError(500, 'We could not change that role. Please try again.')

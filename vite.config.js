@@ -20,7 +20,14 @@ export default defineConfig({
             ),
             vendor('vendor-supabase', /node_modules[\\/]@supabase[\\/]/),
             vendor('vendor-query', /node_modules[\\/]@tanstack[\\/]/),
-            vendor('vendor-ui', /node_modules[\\/](sonner|lucide-react|date-fns)[\\/]/),
+            vendor('vendor-ui', /node_modules[\\/](sonner|lucide-react)[\\/]/),
+            // date-fns must NOT sit with sonner/lucide. `src/lib/utils.js` imports
+            // it, and the shared chunk rollup builds for that file also carries the
+            // CommonJS interop helpers React needs. Putting date-fns in vendor-ui
+            // made vendor-react → (helpers) → vendor-ui → vendor-react, a cycle
+            // that broke the deployed app with "e is not a function". A leaf chunk
+            // for date-fns breaks it.
+            vendor('vendor-dates', /node_modules[\\/]date-fns[\\/]/),
             // Forms only: zod and friends stay out of the first paint, because
             // every page that uses them is already lazy.
             vendor('vendor-forms', /node_modules[\\/](@hookform|react-hook-form|zod)[\\/]/),

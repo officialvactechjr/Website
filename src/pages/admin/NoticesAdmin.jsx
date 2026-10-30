@@ -17,7 +17,7 @@ import {
 import { formatDate } from '../../lib/utils'
 
 export default function NoticesAdmin() {
-  const { data, isPending, isError, refetch } = useNoticesForAdmin()
+  const { data, isPending, isError, refetch, isFetching } = useNoticesForAdmin()
   const createNotice = useCreateNotice()
   const updateNotice = useUpdateNotice()
   const deleteNotice = useDeleteNotice()
@@ -111,6 +111,8 @@ export default function NoticesAdmin() {
       />
 
       <DataTable
+        onRefresh={refetch}
+        refreshing={isFetching}
         columns={columns}
         rows={data ?? []}
         searchText={(notice) => notice.title}

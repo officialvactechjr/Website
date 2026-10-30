@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
   ChevronDown,
   FolderGit,
@@ -10,6 +10,7 @@ import {
   User,
 } from 'lucide-react'
 import { useAuth } from '../../context/useAuth'
+import { useSignOutConfirm } from '../../features/auth/useSignOutConfirm'
 import { STAFF_ROLES } from '../../lib/constants'
 import { initials } from '../../lib/utils'
 
@@ -21,10 +22,10 @@ const ITEMS = [
 ]
 
 export default function ProfileMenu() {
-  const { profile, signOut } = useAuth()
+  const { profile } = useAuth()
+  const { requestSignOut, signOutDialog } = useSignOutConfirm()
   const [open, setOpen] = useState(false)
   const container = useRef(null)
-  const navigate = useNavigate()
 
   // Close on a click outside or Esc. Link clicks close it themselves.
   useEffect(() => {
@@ -51,14 +52,9 @@ export default function ProfileMenu() {
     ? [...ITEMS, { to: '/admin', label: 'Admin panel', icon: LayoutDashboard }]
     : ITEMS
 
-  async function handleSignOut() {
+  function handleSignOut() {
     setOpen(false)
-    try {
-      await signOut()
-    } catch (error) {
-      if (import.meta.env.DEV) console.error(error)
-    }
-    navigate('/', { replace: true })
+    requestSignOut()
   }
 
   return (
@@ -68,7 +64,7 @@ export default function ProfileMenu() {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex items-center gap-2 rounded-full border border-border-strong p-0.5 pr-2 text-muted transition-colors ease-assemble hover:border-primary hover:text-primary"
+        className="flex min-h-11 items-center gap-2 rounded-full border border-border-strong p-0.5 pr-2 text-muted transition-colors ease-assemble hover:border-primary hover:text-primary"
       >
         {profile.avatar_url ? (
           <img
@@ -117,6 +113,8 @@ export default function ProfileMenu() {
           </button>
         </div>
       )}
+
+      {signOutDialog}
     </div>
   )
 }

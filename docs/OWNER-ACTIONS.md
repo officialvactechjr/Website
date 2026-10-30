@@ -27,7 +27,7 @@ section assumes the one above it is done.
 ## 2. Database
 
 Apply the migrations in the Supabase **SQL Editor**, in this order, one file per query.
-`0001`-`0004` are already applied; the eight below are not.
+`0001`-`0004` are already applied; the nine below are not.
 
 - [ ] `0005_registrations.sql`
 - [ ] `0006_projects_and_profile_changes.sql`
@@ -43,6 +43,54 @@ Apply the migrations in the Supabase **SQL Editor**, in this order, one file per
       class, section, email, skills / bio, committee + consent) on the "Standard membership"
       template. **A window created before this keeps its old questions** — create the next window
       from the template to pick them up.
+- [ ] `0012_public_site_stats.sql` — **the fix for the Home page's wrong stats row.** One view that
+      returns a single row of three counts: active members, approved projects, and published events
+      that have already finished. Aggregates only, every filter inside the view, `select` granted to
+      `anon` and `authenticated` and to nobody else. **Home cannot show a real number until this is
+      applied** — until then the row deliberately shows a dash (`—`) rather than a `0`. A dashboard
+      lint notice about the view running with its owner's rights is expected and intended; the
+      header comment in the file explains why, and `security_invoker` must **not** be turned on (it
+      would make every number `0` again).
+- [ ] `0013_performance_indexes.sql` — four composite indexes for filters the app actually runs:
+      events by status + date, active-member lookups, a member's own projects, and applications by
+      window + status. A speed change only; safe to re-run.
+
+### Verify `0012` (Home's stats view)
+
+- [ ] Paste this — it must come back as **exactly one row** of three numbers:
+
+```sql
+select * from public.public_site_stats;
+```
+
+Expected: one row, columns `members_count`, `projects_count`, `events_count`. All three are numbers
+and may legitimately be `0` on a brand-new project.
+
+- [ ] Confirm the view exposes **only** those three columns:
+
+```sql
+select column_name, data_type
+from information_schema.columns
+where table_schema = 'public' and table_name = 'public_site_stats'
+order by ordinal_position;
+```
+
+- [ ] Cross-check the numbers against the tables themselves (run as `postgres`, so RLS cannot hide
+      rows). Both queries must agree:
+
+```sql
+select
+  (select count(*) from public.profiles where role = 'member' and is_active) as members_count,
+  (select count(*) from public.projects where status = 'approved')           as projects_count,
+  (select count(*) from public.events
+    where status = 'published' and coalesce(ends_at, starts_at) <= now())    as events_count;
+```
+
+- [ ] Open `/home`. The stats row must match those numbers exactly — formatted with thousands
+      separators — and "Events Hosted" must agree with the Past events strip (every published event
+      that has already finished; drafts, cancelled and future events are excluded). Then publish a
+      draft event with a past date in `/admin/events` and reload `/home`: the number goes up without
+      a hard refresh.
 
 Each file is safe to re-run only if it has never been applied: they are written to be
 applied **once**, in order. If one fails, paste the error into the issue/changelog and stop
@@ -216,3 +264,35 @@ supabase functions deploy send-email
 3. `/admin/members` lists accounts; open one and reset its password (a temp password appears once).
 4. `/admin/emails` shows the dispatch history (empty is fine).
 5. Log out, then open `/admin` — you are sent to `/login`.
+
+## 9. Security headers and the CSP (after the first deploy)
+
+`public/_headers` ships with Cloudflare Pages and is deployed with the site. It sets
+`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options: DENY`, a restrictive
+`Permissions-Policy`, year-long immutable caching for `/assets/*`, and `no-cache` for
+`index.html` and the manifest.
+
+The Content-Security-Policy goes out as **`Content-Security-Policy-Report-Only`**: nothing is
+blocked, violations are printed in the browser console, so the policy can be checked against the
+real app before it can break anything.
+
+- [ ] After the first deploy, open every main page (`/`, `/home`, `/login`, an event, `/join`,
+      `/admin` while signed in) and watch the console for CSP reports.
+- [ ] Fix real violations; widen the policy only where the app genuinely needs it. The policy
+      allows `connect-src`/`img-src` to `https://*.supabase.co` on purpose — narrow that to the
+      project origin once the list is stable.
+- [ ] Rename the header to `Content-Security-Policy` and redeploy.
+
+**The inline pre-paint script hash.** `script-src` allows exactly one inline script — the intro /
+staff redirect block in `index.html` — by its SHA-256. **If that script changes, the hash must be
+recomputed**, or the script is blocked once the policy enforces. Recompute it from the built file:
+
+```powershell
+$html = Get-Content dist\index.html -Raw
+$m = [regex]::Match($html, '(?s)<script>(.*?)</script>')
+$sha = [System.Security.Cryptography.SHA256]::Create().ComputeHash(
+  [System.Text.Encoding]::UTF8.GetBytes($m.Groups[1].Value))
+"sha256-" + [Convert]::ToBase64String($sha)
+```
+
+Paste the result into `public/_headers`, replacing the existing `sha256-...` value.

@@ -127,7 +127,12 @@ export default function FormTemplates() {
         emptyDescription="Save one as a template from a membership window or a registration form."
       />
 
-      <Modal open={Boolean(renaming)} onClose={() => setRenaming(null)} title="Rename template">
+      <Modal
+        open={Boolean(renaming)}
+        onClose={() => setRenaming(null)}
+        title="Rename template"
+        size="sm"
+      >
         <Input
           label="Template name"
           value={name}

@@ -1,10 +1,9 @@
+import { Link } from 'react-router-dom'
 import { CalendarDays, Megaphone, Palette, Rocket, Terminal, Users } from 'lucide-react'
-import { cn } from '../../lib/utils'
+import HorizontalMarquee from './HorizontalMarquee'
 
 // The four committees first, then two general hooks, so a single pass carries
-// the whole pitch. Every item is the same width, and the track renders the list
-// twice — that is what makes the -50% shift in `vac-marquee` land on the second
-// copy with no seam.
+// the whole pitch. Every card is the same width.
 const ITEMS = [
   {
     Icon: Terminal,
@@ -30,6 +29,7 @@ const ITEMS = [
     Icon: Users,
     title: 'Join a Team',
     text: 'Collaborate across Coding, Graphics, PR, or Event Management committees.',
+    to: '/join',
   },
   {
     Icon: Rocket,
@@ -38,20 +38,41 @@ const ITEMS = [
   },
 ]
 
-function Item({ Icon, title, text, duplicate }) {
+// One card: 280px on a phone, 340 at `sm`, 400 from `lg` — so the centres are
+// that far apart too, since the track has no gap. 40px above and 44 below on a
+// desktop give the band ~230px of height, which is the look it wants.
+//
+// shortcut: on a phone the band runs taller (~280px) than the 210-230 asked for,
+// because the longest title and the longest one-line descriptions each wrap —
+// which the brief allows. Shrink the type or drop a description's words to bring
+// it down.
+const CARD =
+  'w-[min(280px,80vw)] shrink-0 px-4 pt-9 pb-10 text-center sm:w-[340px] sm:pt-10 sm:pb-11 lg:w-[400px]'
+
+function Body({ Icon, title, text }) {
   return (
-    <li
-      aria-hidden={duplicate || undefined}
-      className={cn(
-        'flex w-[min(78vw,320px)] shrink-0 flex-col items-center px-4 text-center',
-        // With reduced motion the track stops and wraps, so the second copy
-        // would just read as a duplicate.
-        duplicate && 'motion-reduce:hidden',
+    <>
+      <Icon aria-hidden="true" strokeWidth={1.5} className="mx-auto size-10 text-accent" />
+      <h3 className="mt-3 text-[22px] leading-tight font-semibold text-balance text-text">
+        {title}
+      </h3>
+      <p className="mt-2 min-h-[2.9em] text-[17px] leading-[1.45] text-muted">{text}</p>
+    </>
+  )
+}
+
+function Committee({ Icon, title, text, to }) {
+  // "Join a Team" is the one card that goes somewhere; its own height clears the
+  // 44px touch target.
+  return (
+    <li className={CARD}>
+      {to ? (
+        <Link to={to} className="flex min-h-11 flex-col justify-center">
+          <Body Icon={Icon} title={title} text={text} />
+        </Link>
+      ) : (
+        <Body Icon={Icon} title={title} text={text} />
       )}
-    >
-      <Icon aria-hidden="true" strokeWidth={1.5} className="size-8 text-accent" />
-      <h3 className="mt-3 text-[17px] font-semibold text-text">{title}</h3>
-      <p className="mt-1 min-h-10 text-[13.5px] leading-snug text-muted">{text}</p>
     </li>
   )
 }
@@ -59,28 +80,16 @@ function Item({ Icon, title, text, duplicate }) {
 /** Full-bleed band under the hero, like the header and footer. */
 export default function CommitteeMarquee() {
   return (
-    <section
-      aria-label="What the club is about"
-      className="group overflow-hidden border-y border-border bg-bg"
-    >
-      {/* The fade at each edge is a mask, so it needs no extra elements and
-          follows the band's background. */}
-      <div className="[mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] motion-reduce:[mask-image:none]">
-        <ul
-          className={cn(
-            'flex w-max animate-marquee items-center py-[clamp(20px,3.5vw,32px)]',
-            'group-hover:[animation-play-state:paused]',
-            'motion-reduce:w-full motion-reduce:animate-none motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:gap-y-8',
-          )}
-        >
-          {ITEMS.map((item) => (
-            <Item key={item.title} {...item} />
-          ))}
-          {ITEMS.map((item) => (
-            <Item key={`duplicate-${item.title}`} {...item} duplicate />
-          ))}
-        </ul>
-      </div>
+    <section aria-label="What the club is about" className="border-y border-border bg-surface">
+      {/* The band has never carried visible text of its own; this is its heading
+          for screen readers, so the strip is not an unlabelled block. */}
+      <h2 className="sr-only">What the club is about</h2>
+      <HorizontalMarquee
+        items={ITEMS.map((item) => (
+          <Committee key={item.title} {...item} />
+        ))}
+        ariaLabel="What the club is about"
+      />
     </section>
   )
 }

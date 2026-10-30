@@ -17,7 +17,7 @@ export default function Textarea({ label, error, hint, id, className, rows = 5, 
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cn(
-          'rounded-sm border bg-surface px-3 py-2 text-text placeholder:text-muted',
+          'w-full rounded-sm border bg-surface px-3 py-2 text-text placeholder:text-muted',
           'focus:border-primary',
           error ? 'border-danger' : 'border-border',
           className,

@@ -15,13 +15,12 @@ import Section from '../../components/layout/Section'
 import CenterHeading from '../../components/layout/CenterHeading'
 import HeroVisual from '../../components/shared/HeroVisual'
 import MascotScene from '../../components/shared/MascotScene'
-import CommitteeMarquee from '../../components/shared/CommitteeMarquee'
+import EventStrip from '../../features/events/components/EventStrip'
 import BodTree from '../../features/bod/components/BodTree'
 import CommitteeHeads from '../../features/bod/components/CommitteeHeads'
 import { isCommitteeHead } from '../../features/bod/positions'
-import { useMembers } from '../../features/members/hooks'
-import { useProjects } from '../../features/projects/hooks'
-import { useEvents } from '../../features/events/hooks'
+import { useSiteStats } from '../../features/stats/hooks'
+import { COMMITTEE_COUNT } from '../../lib/constants'
 
 // The club's own words about itself. Fixed copy, not data.
 const STORY = [
@@ -59,21 +58,25 @@ const STORY = [
 ]
 
 export default function Home() {
-  // Real counts, straight from the public data.
-  const members = useMembers()
-  const projects = useProjects()
-  const events = useEvents()
+  // All four numbers come from one request. A missing view, a dropped
+  // connection or an error shows a dash — never a 0, because a fabricated zero
+  // is what made the wrong count believable in the first place. While it loads,
+  // the number slot holds a skeleton rather than a zero.
+  const stats = useSiteStats()
+  const count = (key) => (stats.isPending ? null : stats.isError ? '—' : (stats.data?.[key] ?? '—'))
 
-  const stats = [
-    { icon: Users, value: members.data?.length, label: 'Active Members', plus: true },
-    { icon: Code, value: 4, label: 'Committees', plus: false },
-    { icon: Trophy, value: projects.data?.length, label: 'Projects Completed', plus: true },
-    { icon: Rocket, value: events.data?.length, label: 'Events Hosted', plus: true },
+  const tiles = [
+    { icon: Users, value: count('members_count'), label: 'Active Members' },
+    { icon: Code, value: COMMITTEE_COUNT, label: 'Committees' },
+    { icon: Trophy, value: count('projects_count'), label: 'Projects Completed' },
+    { icon: Rocket, value: count('events_count'), label: 'Events Hosted' },
   ]
 
   return (
     <>
-      <section className="border-b border-border">
+      {/* overflow-hidden: the mascot's particle sheet is wider than its box, like
+          the landing's — clip it to the section so the page never scrolls wide. */}
+      <section className="overflow-hidden border-b border-border">
         <div className="mx-auto grid max-w-[1180px] items-center gap-10 px-[clamp(16px,4vw,40px)] py-[clamp(40px,7vw,88px)] lg:grid-cols-[1.15fr_1fr]">
           <div>
             <h1 className="text-[clamp(2rem,4.4vw,3.1rem)] leading-[1.08] font-bold tracking-tight text-balance text-accent-soft">
@@ -104,16 +107,20 @@ export default function Home() {
         </div>
       </section>
 
-      <CommitteeMarquee />
-
       <section className="border-b border-border">
         <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-x-6 gap-y-8 px-[clamp(16px,4vw,40px)] py-[clamp(28px,4vw,48px)] lg:grid-cols-4">
-          {stats.map(({ icon: Icon, value, label, plus }) => (
+          {tiles.map(({ icon: Icon, value, label }) => (
             <div key={label} className="flex flex-col items-center text-center">
               <Icon className="size-6 text-accent-soft" aria-hidden="true" />
               <p className="mt-2.5 text-2xl font-bold">
-                {value ?? 0}
-                {plus && (value ?? 0) > 0 ? '+' : ''}
+                {value === null ? (
+                  <span
+                    aria-hidden="true"
+                    className="mt-1 inline-block h-7 w-12 animate-pulse rounded bg-border motion-reduce:animate-none"
+                  />
+                ) : (
+                  value.toLocaleString()
+                )}
               </p>
               <p className="mt-0.5 text-xs text-muted">{label}</p>
             </div>
@@ -162,6 +169,8 @@ export default function Home() {
           ))}
         </div>
       </Section>
+
+      <EventStrip />
 
       <Section className="border-b border-border">
         <CenterHeading

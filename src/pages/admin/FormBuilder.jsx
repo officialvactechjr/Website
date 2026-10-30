@@ -395,6 +395,7 @@ export default function FormBuilder() {
         open={formOpen}
         onClose={() => setFormOpen(false)}
         title={editing ? 'Edit registration form' : 'New registration form'}
+        size="lg"
       >
         <FormBody
           form={editing}
@@ -411,6 +412,7 @@ export default function FormBuilder() {
         open={Boolean(templating)}
         onClose={() => setTemplating(null)}
         title="Save as template"
+        size="sm"
       >
         <p className="text-sm text-muted">
           Saves this form's questions as a reusable template. It does not change the form, and later

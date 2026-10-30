@@ -1,5 +1,6 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { useSignOutConfirm } from '../features/auth/useSignOutConfirm'
 import { homeForRole } from '../lib/constants'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
@@ -19,7 +20,7 @@ function FullPageSpinner() {
  * instead of spinning forever.
  */
 function NoProfile() {
-  const { signOut } = useAuth()
+  const { requestSignOut, signOutDialog } = useSignOutConfirm()
 
   return (
     <div className="grid min-h-screen place-items-center px-6">
@@ -29,10 +30,11 @@ function NoProfile() {
           Your profile is missing or could not be read. Sign out, then ask the club team to check
           your account.
         </p>
-        <Button className="mt-5" onClick={() => signOut()}>
+        <Button className="mt-5" onClick={requestSignOut}>
           Sign out
         </Button>
       </div>
+      {signOutDialog}
     </div>
   )
 }

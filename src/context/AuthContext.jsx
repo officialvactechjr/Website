@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { fetchOwnProfile, signOut } from '../features/auth/api'
+import { STAFF_ROLES, STAFF_SESSION_KEY, VIEW_SITE_KEY, writeFlag } from '../lib/constants'
 import { AuthContext } from './useAuth'
 
 export function AuthProvider({ children }) {
@@ -8,14 +9,25 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // The user id the profile has already been loaded for.
+  //
+  // Supabase fires an auth event on every token refresh, and it refreshes the
+  // token when the tab regains focus. Those events carry a *new session object*
+  // for the *same person*; treating one as a new session used to flip `loading`
+  // back on, which unmounted the page, blanked the form and re-showed the
+  // full-page spinner. Nothing about the person has changed, so nothing loads.
+  const loadedFor = useRef(null)
+
   // Keep the session in sync with Supabase: login, logout and token refresh.
   useEffect(() => {
     let active = true
+    let lastUser = null
 
     supabase.auth
       .getSession()
       .then(({ data }) => {
         if (!active) return
+        if (data.session?.user?.id) lastUser = data.session.user.id
         setSession(data.session)
         if (!data.session) setLoading(false)
       })
@@ -26,10 +38,22 @@ export function AuthProvider({ children }) {
       })
 
     const { data } = supabase.auth.onAuthStateChange((_event, next) => {
+      const userId = next?.user?.id ?? null
+
+      // Same person: a refresh, or the tab coming back into focus. The token is
+      // already updated inside the Supabase client, so the UI needs nothing.
+      if (userId && userId === lastUser) return
+      lastUser = userId
+
       setSession(next)
+
       if (!next) {
         setProfile(null)
+        loadedFor.current = null
         setLoading(false)
+        // Signed out: no stale staff or "view website" flag.
+        writeFlag(STAFF_SESSION_KEY, false, 'local')
+        writeFlag(VIEW_SITE_KEY, false)
       }
     })
 
@@ -39,10 +63,13 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  // Load the profile whenever the session changes. A deactivated account is
+  // Load the profile whenever the *person* changes. A deactivated account is
   // signed straight back out, even if it still held a valid session.
   useEffect(() => {
-    if (!session) return undefined
+    const userId = session?.user?.id ?? null
+    if (!userId || loadedFor.current === userId) return undefined
+
+    loadedFor.current = userId
     let active = true
 
     const load = async () => {
@@ -57,6 +84,9 @@ export function AuthProvider({ children }) {
           return
         }
         setProfile(next)
+        // Remember staff for the pre-paint `/` redirect; a member clears it. Stored
+        // persistently so a fresh tab is redirected before anything paints.
+        writeFlag(STAFF_SESSION_KEY, STAFF_ROLES.includes(next?.role), 'local')
       } catch (error) {
         if (import.meta.env.DEV) console.error(error)
         if (active) setProfile(null)

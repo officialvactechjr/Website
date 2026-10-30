@@ -93,8 +93,8 @@ export default function LoginPage() {
             <img
               src={astronaut}
               alt=""
-              width={1600}
-              height={1174}
+              width={800}
+              height={587}
               className="animate-float max-h-[74%] max-w-[74%] object-contain"
             />
           </MascotScene>

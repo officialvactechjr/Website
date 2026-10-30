@@ -12,7 +12,7 @@ import SiteChrome from '../components/layout/SiteChrome'
 import PageMeta from '../components/shared/PageMeta'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/useAuth'
-import { ADMIN_ROLES, ROLES, STAFF_ROLES } from '../lib/constants'
+import { ADMIN_ROLES, ROLES, STAFF_ROLES, VIEW_SITE_KEY, readFlag } from '../lib/constants'
 
 // Route-level code splitting keeps the first bundle small. The admin panel, the
 // auth pages and the member pages are only fetched when someone opens them.
@@ -76,11 +76,25 @@ const ready = (element) => <Suspense fallback={<PageFallback />}>{element}</Susp
 // First login forces a password change before anything else — this sits above
 // every route so it covers the public pages too, not just the member pages.
 function AppGate() {
-  const { session, profile } = useAuth()
+  const { session, profile, loading } = useAuth()
   const { pathname } = useLocation()
 
   if (session && profile?.must_change_password && pathname !== '/change-password') {
     return <Navigate to="/change-password" replace />
+  }
+
+  // Staff belong in the panel. They leave via "View website", which sets a flag
+  // for the session; `index.html` does the same redirect before first paint, and
+  // this in-app copy covers a fresh tab where that flag is not set yet. Members
+  // and visitors are never staff, so they are untouched.
+  if (
+    !loading &&
+    session &&
+    STAFF_ROLES.includes(profile?.role) &&
+    pathname === '/' &&
+    !readFlag(VIEW_SITE_KEY)
+  ) {
+    return <Navigate to="/admin" replace />
   }
   return (
     <>

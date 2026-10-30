@@ -60,7 +60,7 @@ Push to `main`; **Cloudflare Pages** builds and deploys automatically (React/Vit
 build command `npm run build`, output directory `dist`; unknown routes fall back to
 `index.html` so client-side routing works). Set the environment variables in the Cloudflare
 Pages project settings as well: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and
-`NODE_VERSION=22`. `vercel.json` is left over from the original plan and is unused.
+`NODE_VERSION=22`.
 
 Database changes are **not** deployed by Cloudflare: apply new files in
 `supabase/migrations/` in the Supabase SQL Editor, in numbered order, and deploy Edge

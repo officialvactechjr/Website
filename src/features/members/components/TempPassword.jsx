@@ -74,14 +74,14 @@ export default function TempPassword({ result, onClose }) {
   }
 
   return (
-    <Modal open onClose={onClose} title="Hand this over in person">
+    <Modal open onClose={onClose} title="Hand this over in person" size="lg">
       <p className="text-sm text-muted">
         This is the only time these passwords are shown. They are not stored anywhere, and each
         person chooses their own password on first login. Hand the slips over personally and delete
         any file you saved afterwards.
       </p>
 
-      <pre className="mt-4 max-h-64 overflow-auto rounded-sm border border-border bg-surface-alt p-4 font-mono text-xs whitespace-pre-wrap">
+      <pre className="scroll-thin mt-4 max-h-64 overflow-auto rounded-sm border border-border bg-surface-alt p-4 font-mono text-xs whitespace-pre-wrap">
         {list
           .map(
             (row) =>

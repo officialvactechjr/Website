@@ -325,6 +325,7 @@ export default function MembershipWindow() {
         open={formOpen}
         onClose={() => setFormOpen(false)}
         title={editing ? 'Edit window' : 'New membership window'}
+        size="lg"
       >
         <WindowForm
           window={editing}
@@ -340,6 +341,7 @@ export default function MembershipWindow() {
         open={Boolean(templating)}
         onClose={() => setTemplating(null)}
         title="Save as template"
+        size="sm"
       >
         <p className="text-sm text-muted">
           Saves this window's questions as a reusable template. It does not change the window, and

@@ -14,7 +14,7 @@ import { formatDate } from '../../lib/utils'
 export default function GalleryAdmin() {
   // Same query (and cache entry) as the public /gallery page. The higher limit
   // keeps every photo reachable in the admin table.
-  const { data, isPending, isError, refetch } = useGalleryPhotos({ limit: 500 })
+  const { data, isPending, isError, refetch, isFetching } = useGalleryPhotos({ limit: 500 })
   const events = useEventsForAdmin()
   const deletePhoto = useDeleteGalleryPhoto()
 
@@ -92,6 +92,8 @@ export default function GalleryAdmin() {
       <PageHeader title="Gallery" description="Photos shown on the public gallery page." />
 
       <DataTable
+        onRefresh={refetch}
+        refreshing={isFetching}
         columns={columns}
         rows={data ?? []}
         searchText={(photo) =>

@@ -1,11 +1,29 @@
 import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { ClipboardCheck, FileText, LayoutDashboard, Menu, Settings, Users, X } from 'lucide-react'
+import {
+  ClipboardCheck,
+  FileText,
+  Globe,
+  LayoutDashboard,
+  Menu,
+  Settings,
+  Users,
+  X,
+} from 'lucide-react'
+import Button from '../components/ui/Button'
 import ProfileMenu from '../components/layout/ProfileMenu'
 import Sidebar from '../components/layout/Sidebar'
 import { useAuth } from '../context/useAuth'
-import { ADMIN_ROLES, STAFF_ROLES } from '../lib/constants'
+import {
+  ADMIN_ROLES,
+  INTRO_PLAYED_KEY,
+  STAFF_ROLES,
+  VIEW_SITE_KEY,
+  writeFlag,
+} from '../lib/constants'
 import { cn } from '../lib/utils'
+import logoMark from '../assets/logo-mark.webp'
+import logoWord from '../assets/logo-word.webp'
 
 // Every section the role may open — PRD section 5.3 and 5.4. One entry is one
 // row in the sidebar; its `items` are the section's pages, drawn as tabs in the
@@ -69,6 +87,13 @@ export default function AdminLayout() {
   const { pathname } = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
 
+  // Leave the panel for the public site: remember the choice for this session so
+  // `/` does not bounce straight back, and skip the intro on the way.
+  function viewWebsite() {
+    writeFlag(VIEW_SITE_KEY, true)
+    writeFlag(INTRO_PLAYED_KEY, true)
+  }
+
   // Drop the entries this role may not open, and any section left empty.
   // A hidden link is never the only defence — the route has the same guard.
   const sections = NAV.map((section) => ({
@@ -103,7 +128,7 @@ export default function AdminLayout() {
       <aside
         id="admin-sidebar"
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-60 overflow-y-auto border-r border-border bg-surface transition-transform ease-assemble lg:static lg:z-auto lg:translate-x-0 lg:transition-none',
+          'scroll-thin fixed inset-y-0 left-0 z-50 w-60 overflow-y-auto border-r border-border bg-surface transition-transform ease-assemble lg:static lg:z-auto lg:translate-x-0 lg:transition-none',
           menuOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
@@ -128,6 +153,30 @@ export default function AdminLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border bg-bg/85 px-4 backdrop-blur lg:px-8">
+          {/* The club mark links home. These are plain images on purpose: the
+              public header's logo slots (`[data-intro]`) belong to the intro
+              animation's fly-in and must not be reused here. */}
+          <Link
+            to="/admin"
+            className="flex flex-none items-center gap-2"
+            aria-label="VAC-Tech Jr. admin"
+          >
+            <img
+              src={logoMark}
+              alt="VAC Tech Jr"
+              width={288}
+              height={100}
+              className="h-6 w-auto sm:h-7"
+            />
+            <img
+              src={logoWord}
+              alt=""
+              width={352}
+              height={43}
+              className="hidden h-3 w-auto sm:block"
+            />
+          </Link>
+
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
@@ -143,6 +192,19 @@ export default function AdminLayout() {
             {current?.label ?? 'Staff panel'}
           </p>
 
+          <Button
+            as={Link}
+            to="/"
+            size="sm"
+            variant="secondary"
+            onClick={viewWebsite}
+            className="flex-none"
+          >
+            <Globe className="size-4" aria-hidden="true" />
+            <span className="hidden sm:inline">View website</span>
+            <span className="sm:hidden">View</span>
+          </Button>
+
           <ProfileMenu />
         </header>
 
@@ -151,7 +213,7 @@ export default function AdminLayout() {
         {current && current.items.length > 1 && (
           <nav
             aria-label={`${current.label} pages`}
-            className="sticky top-16 z-20 flex gap-1 overflow-x-auto border-b border-border bg-bg/85 px-4 backdrop-blur lg:px-8"
+            className="scroll-thin sticky top-16 z-20 flex gap-1 overflow-x-auto border-b border-border bg-bg/85 px-4 backdrop-blur lg:px-8"
           >
             {current.items.map((item) => (
               <Link

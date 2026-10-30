@@ -8,3 +8,9 @@
 # Build output and dependencies
 dist/
 node_modules/
+
+# SQL: prettier has no SQL parser, so `format:check` would fail on these.
+supabase/**/*.sql
+
+# Local Supabase CLI state
+supabase/.temp/

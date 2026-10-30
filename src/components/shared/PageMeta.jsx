@@ -14,6 +14,9 @@ function upsertMeta(key, value, useProperty = false) {
   tag.setAttribute('content', value)
 }
 
+/** Private routes that must never appear in a search index. */
+const PRIVATE = ['/admin', '/member', '/profile', '/login', '/change-password']
+
 /**
  * Sets the browser tab's title, the description and the share tags for the route
  * that is open. Mounted once, just inside the router, so every page is covered —
@@ -25,10 +28,19 @@ export default function PageMeta() {
   useEffect(() => {
     const { title, description } = metaFor(pathname)
     const full = pathname === '/' ? title : `${title} · ${SITE_NAME}`
-    const url = `${SITE}${pathname === '/' ? '/' : pathname}`
+    const url = `${SITE}/${pathname === '/' ? '' : pathname}`
 
     document.title = full
     upsertMeta('description', description)
+    // The panel, the member area and the auth pages stay out of search results.
+    // `robots.txt` disallows them as well, but that only stops crawling — a
+    // linked URL can still be listed, so the page has to say no itself.
+    upsertMeta(
+      'robots',
+      PRIVATE.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+        ? 'noindex, nofollow'
+        : 'index, follow',
+    )
     upsertMeta('og:title', full, true)
     upsertMeta('og:description', description, true)
     upsertMeta('og:url', url, true)

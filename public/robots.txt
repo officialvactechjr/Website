@@ -1,7 +1,14 @@
+# VAC Tech Jr — only the public pages belong in a search index.
 User-agent: *
 Allow: /
+
+# The panel, the member area and the auth pages are private. `PageMeta` also emits
+# <meta name="robots" content="noindex"> on these routes, because robots.txt alone
+# does not stop a linked URL from being listed.
 Disallow: /admin
 Disallow: /member
 Disallow: /profile
+Disallow: /login
+Disallow: /change-password
 
 Sitemap: https://vactechjr.pages.dev/sitemap.xml

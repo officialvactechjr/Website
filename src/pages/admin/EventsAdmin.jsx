@@ -23,7 +23,7 @@ const STATUS = {
 }
 
 export default function EventsAdmin() {
-  const { data, isPending, isError, refetch } = useEventsForAdmin()
+  const { data, isPending, isError, refetch, isFetching } = useEventsForAdmin()
   const createEvent = useCreateEvent()
   const updateEvent = useUpdateEvent()
   const deleteEvent = useDeleteEvent()
@@ -115,6 +115,8 @@ export default function EventsAdmin() {
       <PageHeader title="Events" description="Workshops and events, upcoming and past." />
 
       <DataTable
+        onRefresh={refetch}
+        refreshing={isFetching}
         columns={columns}
         rows={data ?? []}
         searchText={(event) => `${event.title} ${event.location ?? ''}`}

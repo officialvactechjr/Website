@@ -231,8 +231,18 @@ vac-tech-jr/
 │   ├── HANDOVER.md             # plain-language guide for the next committee
 │   ├── OWNER-ACTIONS.md        # migrations, secrets and deploys only the owner can do
 │   └── MEMORY.md               # current state and resume point — read last
-├── public/
-│   └── favicon.svg
+├── public/                     # served as-is at the site root
+│   ├── favicon.ico             # 16 + 32 + 48, the tab icon
+│   ├── favicon-16x16.png
+│   ├── favicon-32x32.png
+│   ├── apple-touch-icon.png    # 180, opaque navy
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   ├── icon-maskable-512.png   # safe-zone version for Android
+│   ├── manifest.webmanifest
+│   ├── og.jpg                  # the social share card
+│   ├── robots.txt
+│   └── sitemap.xml             # no favicon.svg — the symbol is a raster
 ├── supabase/
 │   ├── migrations/            # ALL SQL lives here, numbered, applied in order
 │   │   ├── 0001_profiles_roles.sql
@@ -243,7 +253,10 @@ vac-tech-jr/
 │   │   ├── 0006_projects_and_profile_changes.sql
 │   │   ├── 0007_points_suggestions_email.sql
 │   │   ├── 0008_membership_form_and_templates.sql
-│   │   └── 0009_accounts_and_audit.sql
+│   │   ├── 0009_accounts_and_audit.sql
+│   │   ├── 0010_atomic_account_status.sql
+│   │   ├── 0011_membership_template_fields.sql
+│   │   └── 0012_public_site_stats.sql
 │   ├── functions/             # the ONLY place the service role key is used
 │   │   ├── _shared/           # auth, cors, respond, email, password, rateLimit, members, audit
 │   │   ├── create-member/index.ts
@@ -326,18 +339,27 @@ A **member** must have a `class` and a `section` (a checked constraint, `0009`);
 
 ### Public and staff views (the only way personal data leaves the database)
 
-| View                | Read by                            | Exposes                                                              |
-| ------------------- | ---------------------------------- | -------------------------------------------------------------------- |
-| `public_members`    | everyone                           | full_name, class, section, github_url, avatar_url (**active members only** — staff never appear) |
-| `public_projects`   | everyone                           | project fields (approved only) + owner name, class, section, GitHub  |
-| `leaderboard`       | everyone                           | member name, class, total points (only members who have scored)      |
-| `staff_projects`    | staff (role-gated inside the view) | every project + owner name and class, for the review queue           |
-| `staff_suggestions` | staff (role-gated inside the view) | suggestion id, message, is_read, read_at, created_at — **no author** |
+| View                | Read by                            | Exposes                                                                                                                                            |
+| ------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public_members`    | everyone                           | full_name, class, section, github_url, avatar_url (**active members only** — staff never appear)                                                   |
+| `public_projects`   | everyone                           | project fields (approved only) + owner name, class, section, GitHub                                                                                |
+| `leaderboard`       | everyone                           | member name, class, total points (only members who have scored)                                                                                    |
+| `staff_projects`    | staff (role-gated inside the view) | every project + owner name and class, for the review queue                                                                                         |
+| `staff_suggestions` | staff (role-gated inside the view) | suggestion id, message, is_read, read_at, created_at — **no author**                                                                               |
+| `public_site_stats` | everyone                           | **three counts and nothing else**: active members, approved projects, published events already finished. No name, no id, no row detail of any kind |
 
 > These views are the hard boundary for privacy: they must never select `email`, `phone` or
 > `author_id`. The two `staff_*` views are plain views (they run as their owner), so the role check in
 > their `where` clause _is_ the security boundary — do not add `security_invoker` to them
 > (`0004`'s header comment explains why).
+>
+> `public_site_stats` (`0012`) is the one view written to be **counted** rather than listed. It selects
+> aggregates only, keeps every filter inside the view, and keeps owner rights on purpose: with
+> `security_invoker = on` the caller's RLS would apply to `profiles`, `projects` and `events`, and a
+> visitor has no `select` on any of them — every number would come back `0`. Owner rights let it count
+> rows the visitor may not read, while still showing only the count. Replacing it with a client-side
+> count of `public_members`/`public_projects` is not an option either: those lists are capped by
+> `limit`, so the totals would silently saturate.
 
 ### Storage buckets
 
@@ -379,19 +401,19 @@ Limits: images only (jpeg, png, webp), max 2 MB per file enforced in bucket sett
 
 ## 12. Error handling conventions
 
-| Situation                   | What to do                                                            |
-| --------------------------- | --------------------------------------------------------------------- |
-| Any Supabase call           | Check `error`; throw it so TanStack Query handles it. Never ignore it |
-| Page-level data failure     | Show an `ErrorState` component with a Retry button                    |
-| Loading                     | Skeleton or `Spinner`, never a blank screen                           |
-| Empty list                  | `EmptyState` with a short friendly message                            |
-| Form validation             | Zod schema + inline field messages                                    |
-| Mutation success or failure | Toast message (short, plain language)                                 |
-| Auth expiry                 | On 401, sign out and redirect to `/login` with a message              |
+| Situation                   | What to do                                                                                    |
+| --------------------------- | --------------------------------------------------------------------------------------------- |
+| Any Supabase call           | Check `error`; throw it so TanStack Query handles it. Never ignore it                         |
+| Page-level data failure     | Show an `ErrorState` component with a Retry button                                            |
+| Loading                     | Skeleton or `Spinner`, never a blank screen                                                   |
+| Empty list                  | `EmptyState` with a short friendly message                                                    |
+| Form validation             | Zod schema + inline field messages                                                            |
+| Mutation success or failure | Toast message (short, plain language)                                                         |
+| Auth expiry                 | On 401, sign out and redirect to `/login` with a message                                      |
 | Account function failure    | The function returns a safe **error code** (see below); the browser maps it to one plain line |
-| Unexpected crash            | A top-level React **Error Boundary** with a friendly fallback         |
-| Unknown route               | `NotFound` page                                                       |
-| Window closed (forms)       | Show "Registration closed", not an error                              |
+| Unexpected crash            | A top-level React **Error Boundary** with a friendly fallback                                 |
+| Unknown route               | `NotFound` page                                                                               |
+| Window closed (forms)       | Show "Registration closed", not an error                                                      |
 
 **Edge Function error codes.** Every function answers with `{ code, error }`, where `code` is one of
 `validation`, `unauthenticated`, `forbidden`, `not_found`, `conflict`, `rate_limited`,

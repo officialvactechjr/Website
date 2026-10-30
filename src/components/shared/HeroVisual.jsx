@@ -14,12 +14,21 @@ import robot from '../../assets/hero/hero-robot.webp'
  */
 export default function HeroVisual({ className = '' }) {
   return (
-    <img
-      src={robot}
-      alt="The club's robot mascot holding a glowing holographic control panel"
-      width={688}
-      height={960}
-      className={`h-full w-auto max-w-full animate-float ${className}`}
-    />
+    <>
+      {/* The Home hero is the largest contentful element and React renders it, so
+          the browser cannot discover it until the bundle has run. React 19 hoists
+          this <link> into <head>`, which starts the fetch at the same moment. */}
+      <link rel="preload" as="image" href={robot} fetchPriority="high" />
+      <img
+        src={robot}
+        alt="The club's robot mascot holding a glowing holographic control panel"
+        width={688}
+        height={960}
+        // Above the fold, so never `loading="lazy"`; decoded off the main thread.
+        fetchPriority="high"
+        decoding="async"
+        className={`h-full w-auto max-w-full animate-float ${className}`}
+      />
+    </>
   )
 }

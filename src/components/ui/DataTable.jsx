@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import Button from './Button'
 import EmptyState from './EmptyState'
 import Input from './Input'
+import RefreshButton from '../shared/RefreshButton'
 import { cn } from '../../lib/utils'
 
 const PAGE_SIZE = 10
@@ -22,6 +23,8 @@ export default function DataTable({
   emptyTitle = 'Nothing here yet',
   emptyDescription,
   toolbar,
+  onRefresh,
+  refreshing = false,
 }) {
   const [query, setQuery] = useState('')
   const [sortKey, setSortKey] = useState(null)
@@ -75,7 +78,7 @@ export default function DataTable({
 
   return (
     <div className="rounded-sm border border-border bg-surface">
-      {(searchText || toolbar) && (
+      {(searchText || toolbar || onRefresh) && (
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4">
           {searchText ? (
             <div className="w-full sm:max-w-xs">
@@ -90,7 +93,12 @@ export default function DataTable({
           ) : (
             <span />
           )}
-          {toolbar}
+          {(toolbar || onRefresh) && (
+            <div className="flex flex-wrap items-center gap-3">
+              {onRefresh && <RefreshButton onRefresh={onRefresh} refreshing={refreshing} />}
+              {toolbar}
+            </div>
+          )}
         </div>
       )}
 
@@ -102,7 +110,7 @@ export default function DataTable({
           />
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="scroll-thin overflow-x-auto">
           <table className="w-full min-w-[44rem] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border">

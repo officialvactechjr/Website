@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { INTRO_PLAYED_KEY } from '../../lib/constants'
 import './IntroAnimation.css'
 
 // A port of the animation in `VAC-TECH Jr.html`: the same 27 pieces and the same
@@ -36,11 +37,9 @@ const ART_DELAY = {
   circCyanR: 200,
 }
 
-const SESSION_KEY = 'vacIntroPlayed'
-
 function markPlayed() {
   try {
-    sessionStorage.setItem(SESSION_KEY, '1')
+    sessionStorage.setItem(INTRO_PLAYED_KEY, '1')
   } catch {
     // Private mode: the intro simply runs again next time.
   }

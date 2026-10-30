@@ -251,7 +251,7 @@ export default function BulkImport({ onDone, onCancel }) {
       )}
 
       {withStatus.length > 0 && (
-        <div className="overflow-x-auto rounded-sm border border-border bg-surface">
+        <div className="scroll-thin overflow-x-auto rounded-sm border border-border bg-surface">
           <table className="w-full min-w-[52rem] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-muted">

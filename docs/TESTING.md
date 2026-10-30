@@ -1078,3 +1078,86 @@ not renumber the earlier phases: testers may have already written results agains
 > Sections 14-16 follow that rule: **14** is the membership-form brief's Step 1, **15** its Step 2
 > (templates), **16** its Step 4 (accounts). Run them after section 6, once `0008` and `0009` are
 > applied.
+
+---
+
+## 18. Home stats row (`public_site_stats`)
+
+> Needs migration `0012` applied — `docs/OWNER-ACTIONS.md` section 2 has the copy-paste step and its
+> own verification queries. Until it is applied the row deliberately shows `—`, which is **P18.5**;
+> **P18.1-P18.4 cannot pass before it**. No sign-in is needed for any of these: the view is readable
+> by a visitor.
+
+| #     | Goal                                               | Sign in as | Steps                                                                                                                                                                                  | Expected                                                                                                                                                                                                                                                                                                                                 | Pass / Fail |
+| ----- | -------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| P18.1 | A visitor reads one row and no other columns       | nobody     | Sign out. Open `/home` and note the four numbers, then open the console and run **S18.1**                                                                                              | Exactly **one row**, with exactly the keys `members_count`, `projects_count`, `events_count` — all numbers. No name, email, id, role or any other key appears anywhere in the response. The row on screen shows four numbers (the fourth, Committees, is the `COMMITTEE_COUNT` constant in `lib/constants.js`, not a column of the view) | ☐           |
+| P18.2 | Only published, already-finished events count      | admin      | In `/admin/events` create four past-dated events — one **published**, one **draft**, one **cancelled** — and one **published** dated in the future. Reload `/home`, then run **S18.2** | `events_count` rises by exactly **1** (the published past event). The draft, the cancelled event and the future event are not counted, and "Events Hosted" agrees with the Past events strip                                                                                                                                             | ☐           |
+| P18.3 | A change shows within a minute (at once for staff) | admin      | Publish a draft past-dated event in `/admin/events`, watch `/home`, then cancel it, then delete it                                                                                     | As staff the number moves as soon as the action succeeds (the toast fires) with no manual refresh. A signed-out visitor sees it on their next visit — at most a minute later, because the stats query is stale after 60s and is always re-read on mount                                                                                  | ☐           |
+| P18.4 | Only active members and approved projects          | admin      | Note the numbers, then deactivate a member (`/admin/members`) and set an approved project back to pending, then to rejected (`/admin/approvals`)                                       | `members_count` drops by 1 on deactivation and comes back on reactivation. A manager, admin or super-admin account is **never** counted. `projects_count` counts only `approved` — pending and rejected projects are excluded. Cross-check with **S18.1**                                                                                | ☐           |
+| P18.5 | Unreachable view shows dashes, never zeros         | nobody     | Before `0012` is applied — or on any project where the view is missing — open `/home`                                                                                                  | The three counts show `—` and "Committees" still shows `4`. **No tile shows `0`** at any point, including while it is still loading (the slot holds a skeleton, and the skeleton stops pulsing under `prefers-reduced-motion`)                                                                                                           | ☐           |
+
+### Snippets (Home stats)
+
+**S18.1** — reads the view as whoever is signed in (works signed out) and prints the columns it
+actually returns:
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+
+const { data, error } = await supabase.from('public_site_stats').select('*')
+console.log('rows:', data?.length, 'error:', error?.message)
+console.log('columns:', data?.[0] ? Object.keys(data[0]) : null)
+console.table(data)
+
+// The same numbers, straight from the tables. Run this in the SQL Editor as
+// `postgres` so RLS cannot hide rows — it must agree with the line above.
+// select
+//   (select count(*) from public.profiles where role = 'member' and is_active) as members_count,
+//   (select count(*) from public.projects where status = 'approved')           as projects_count,
+//   (select count(*) from public.events
+//     where status = 'published' and coalesce(ends_at, starts_at) <= now())    as events_count;
+```
+
+Expected: `rows: 1`, and `columns` is exactly `['members_count', 'projects_count', 'events_count']`.
+
+**S18.2** — the count, next to the raw events, so the filter is visible rather than trusted:
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+
+const stats = await supabase.from('public_site_stats').select('events_count').single()
+const events = await supabase
+  .from('events')
+  .select('title, status, starts_at, ends_at')
+  .order('starts_at', { ascending: false })
+
+const now = Date.now()
+const hosted = (events.data ?? []).filter(
+  (e) => e.status === 'published' && new Date(e.ends_at ?? e.starts_at).getTime() <= now,
+)
+console.log('view says', stats.data?.events_count, '· published and finished:', hosted.length)
+console.table(hosted)
+```
+
+Expected: the two numbers are equal, and the table lists only published events whose end (or start,
+when there is no end) has passed.
+
+**S18.3** — as a **super admin**, deactivating the only other active super admin is refused; the same
+call on an ordinary member succeeds and must move `members_count`:
+
+```js
+const { supabase } = await import('/src/lib/supabaseClient.js')
+
+const before = (await supabase.from('public_site_stats').select('members_count').single()).data
+// Replace with a real *member* id from /admin/members — see section 1.4.
+const { data, error } = await supabase.rpc('set_account_active', {
+  p_user_id: '00000000-0000-0000-0000-000000000000',
+  p_is_active: false,
+})
+const after = (await supabase.from('public_site_stats').select('members_count').single()).data
+console.log({ before, after, error: error?.message })
+console.log('run this from the app after the mutation — the query is invalidated for you')
+```
+
+Expected: `after.members_count` is one lower than `before` (for a real member), and the Home row
+follows on the next visit.

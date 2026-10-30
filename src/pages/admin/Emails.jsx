@@ -179,7 +179,7 @@ export default function Emails() {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                   />
-                  <div className="max-h-64 overflow-y-auto rounded-sm border border-border">
+                  <div className="scroll-thin max-h-64 overflow-y-auto rounded-sm border border-border">
                     {members.length === 0 ? (
                       <p className="p-3 text-sm text-muted">No member matches that name.</p>
                     ) : (
@@ -265,6 +265,7 @@ export default function Emails() {
         open={Boolean(preview)}
         onClose={() => setPreview(null)}
         title={preview?.error ? 'Not sent' : 'Send this email?'}
+        size="lg"
       >
         {preview?.error ? (
           <>

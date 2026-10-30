@@ -44,7 +44,7 @@ function answerEntries(row, fields) {
 
 export default function Applications() {
   const { profile } = useAuth()
-  const { data, isPending, isError, refetch } = useApplications()
+  const { data, isPending, isError, refetch, isFetching } = useApplications()
   const { data: windows } = useWindows()
   const updateStatus = useUpdateApplicationStatus()
   const markCreated = useMarkApplicationAccountCreated()
@@ -243,6 +243,8 @@ export default function Applications() {
       </div>
 
       <DataTable
+        onRefresh={refetch}
+        refreshing={isFetching}
         columns={columns}
         rows={rows}
         searchText={(row) => `${row.full_name} ${row.email} ${row.phone ?? ''} ${row.class ?? ''}`}
@@ -256,6 +258,7 @@ export default function Applications() {
         open={Boolean(viewing)}
         onClose={() => setViewing(null)}
         title={viewing ? `Application — ${viewing.full_name}` : 'Application'}
+        size="lg"
       >
         {viewing && (
           <div className="flex flex-col gap-4 text-sm">

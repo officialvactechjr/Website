@@ -40,7 +40,7 @@ const TABS = [
 ]
 
 export default function MembersAdmin() {
-  const { data, isPending, isError, refetch } = useAccounts('member')
+  const { data, isPending, isError, refetch, isFetching } = useAccounts('member')
   const createMember = useCreateMember()
   const resetPassword = useResetMemberPassword()
   const setStatus = useSetMemberStatus()
@@ -147,6 +147,8 @@ export default function MembersAdmin() {
       </div>
 
       <DataTable
+        onRefresh={refetch}
+        refreshing={isFetching}
         columns={columns}
         rows={rows}
         searchText={(row) => `${row.full_name} ${row.email ?? ''} ${row.class ?? ''}`}
@@ -187,6 +189,7 @@ export default function MembersAdmin() {
         open={Boolean(resetting)}
         onClose={() => setResetting(null)}
         title="Reset this password"
+        size="sm"
       >
         {resetting && (
           <ResetPasswordDialog

@@ -28,6 +28,44 @@ export async function fetchEvent(id) {
   return data
 }
 
+const HOME_COLUMNS = 'id, title, description, starts_at, cover_image, status'
+
+/**
+ * The Home page's two event lists. Visitors may see published and cancelled
+ * events (RLS hides drafts).
+ *
+ * - `upcoming`: published events starting in the future, soonest first, at most
+ *   `upcomingLimit`. A future cancelled event is left to `/events`.
+ * - `past`: published or cancelled events whose start has passed, most recent
+ *   first, at most `limit`.
+ *
+ * Two reads because a single order cannot put the future ahead of the past.
+ */
+export async function fetchHomeEvents({ limit = 12, upcomingLimit = 4 } = {}) {
+  const now = new Date().toISOString()
+
+  const [upcoming, past] = await Promise.all([
+    supabase
+      .from('events')
+      .select(HOME_COLUMNS)
+      .eq('status', 'published')
+      .gte('starts_at', now)
+      .order('starts_at', { ascending: true })
+      .limit(upcomingLimit),
+    supabase
+      .from('events')
+      .select(HOME_COLUMNS)
+      .in('status', ['published', 'cancelled'])
+      .lt('starts_at', now)
+      .order('starts_at', { ascending: false })
+      .limit(limit),
+  ])
+  if (upcoming.error) throw upcoming.error
+  if (past.error) throw past.error
+
+  return { upcoming: upcoming.data, past: past.data }
+}
+
 /** Staff read every status, drafts included. */
 export async function fetchEventsForAdmin({ limit = 200 } = {}) {
   const { data, error } = await supabase

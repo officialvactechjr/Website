@@ -4,9 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- The club's logo, as flat rasters. `og.jpg` is the social card. -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
-    <link rel="apple-touch-icon" href="/icon-180.png" />
+    <!-- The club's logo, as flat rasters. `og.jpg` is the social card.
+         The tab icon is the logo's central symbol (the open book and its gold
+         rod) on the site navy, cut to fill the square — see `docs/DESIGN.md`.
+         `?v=2` on every icon URL: browsers cache favicons for months, so a new
+         icon needs a new URL before anyone sees it. Bump it when they change. -->
+    <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=2" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
+    <link rel="manifest" href="/manifest.webmanifest?v=2" />
+    <meta name="theme-color" content="#06122a" />
     <link rel="canonical" href="https://vactechjr.pages.dev/" />
 
     <title>VAC-Tech Jr. — the IT club of Vishwa Adarsha Academy</title>
@@ -30,10 +38,19 @@
       // The intro plays once per browser session, on the home page only. Set
       // before first paint so the site never flashes before the overlay appears.
       // If anything here throws, the site simply shows without the intro.
+      //
+      // The same block also sends a staff member who has not chosen "View
+      // website" from the site root straight to the panel, before anything
+      // paints, so the landing never flashes. Keys match src/lib/constants.js;
+      // they are inlined here because this runs before the bundle.
       try {
         var noMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
         var introPlayed = sessionStorage.getItem('vacIntroPlayed') === '1'
-        if (location.pathname === '/' && !noMotion && !introPlayed) {
+        var staff = localStorage.getItem('vacStaff') === '1'
+        var viewing = sessionStorage.getItem('vacViewSite') === '1'
+        if (location.pathname === '/' && staff && !viewing) {
+          location.replace('/admin')
+        } else if (location.pathname === '/' && !noMotion && !introPlayed) {
           document.documentElement.classList.add('intro-on', 'rv-hide')
         }
       } catch (e) {}

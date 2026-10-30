@@ -152,13 +152,17 @@ muted text walks under 4.5:1.
 
 ## 5. Breakpoints
 
-| Name    | Width  | Layout                                 |
-| ------- | ------ | -------------------------------------- |
-| default | 0+     | Single column, bottom or hamburger nav |
-| `sm`    | 640px  | Two-column grids where useful          |
-| `md`    | 768px  | Tablet; admin sidebar collapsible      |
-| `lg`    | 1024px | Desktop nav, admin sidebar fixed       |
-| `xl`    | 1280px | Wide content                           |
+| Name    | Width  | Layout                            |
+| ------- | ------ | --------------------------------- |
+| default | 0+     | Single column, hamburger nav      |
+| `sm`    | 640px  | Two-column grids where useful     |
+| `md`    | 768px  | Tablet; admin sidebar collapsible |
+| `lg`    | 1024px | Admin sidebar fixed               |
+| `xl`    | 1280px | Wide content; public desktop nav  |
+
+The public header switches from the hamburger to the inline nav at `xl`, not `lg`: with the Contact
+button's label and a staff member's "Back to admin panel" button on the row, the full header no longer
+fits at 1024. Below `xl` every header control lives in the hamburger drawer.
 
 Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
 
@@ -225,20 +229,37 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
 
 **Navbar**
 
-- Sticky navy, 76px tall. The navy sits at 85% over a `backdrop-blur` (95% where the browser cannot
-  blur), so the page reads through the bar without ever eating the white wordmark's contrast. Logo slots
-  left, links right, then the session control.
+- Sticky navy, 76px tall (plus its 1px bottom rule). The navy sits at 85% over a `backdrop-blur` (95%
+  where the browser cannot blur), so the page reads through the bar without ever eating the white
+  wordmark's contrast. Logo slots left, links right, then the session control.
 - The current page is a 1px gold hairline under the link, the label at full `text` colour, moving on the
   same 150ms `--ease-assemble` as everything else. In the mobile drawer the same hairline turns vertical
-  and sits at the row's left edge.
-- **Logged out:** "Member login" text link + gold "Join the club" button.
-- **Logged in:** the `ProfileMenu` button (photo, or initials when there is no photo) and no Join button.
-- Mobile: hamburger opens a drawer with the nav links; logged out it also carries "Member login" and "Join the club". The profile button stays in the header at every size.
+  and sits at the row's left edge. The inline link keeps a 44px hit area through an invisible pseudo
+  element (`after:-inset-y-2`), so the gold hairline itself never moves.
+- The inline row — nav links, the Contact button, the staff button and the hamburger — shows from `xl`
+  up. Below `xl` the hamburger opens the drawer. The logo stays in the header at every size (and shrinks
+  below 960px).
+- **Contact** is a 44px-high link (`h-11`) with the envelope icon and a visible "Contact" label beside
+  it, linking to `/contact`. The same destination is a row in the mobile drawer and a Quick links item
+  in the footer, so Contact is reachable at every width.
+- **Logged out:** a "Get Started" button (`sm` size, `min-h-11`) beside the session control.
+- **Logged in:** the `ProfileMenu` button (photo, or initials when there is no photo; `min-h-11`) and no
+  Get Started button.
+- **Staff browsing the public site** get a "Back to admin panel" button beside the profile menu (from `sm`
+  up; in the drawer below `xl`), and their Log out confirms first. The row moves to `xl` partly so this
+  button never squeezes the header.
+- Mobile drawer: the nav links, then Contact, then (staff) "Back to admin panel", then (logged out)
+  "Get Started". Every row is a large target; the profile button stays in the header at every size.
 
 **Profile menu** (`ProfileMenu`)
 
 - A round button with the avatar photo, or initials on a gold circle. Opens a dropdown: My profile, My projects, Upload project, Suggestion box, then Admin panel for staff only, then Log out.
 - `aria-haspopup="menu"`, `aria-expanded`; closes on Esc, on an outside click, and on choosing an item.
+- **Log out confirms first.** Every log-out button in the app (here, the admin panel, the "we could not
+  load your account" screen) opens the shared `ConfirmDialog` at `sm` — title "Log out?", text "Do you
+  really want to log out?", buttons Cancel (focused by default) and Log out. Esc and the backdrop close
+  it without signing out. The forced sign-outs (a deactivated account, a failed login) do **not** confirm,
+  because they are not a choice the person is making. `useSignOutConfirm` is the one route to all of this.
 
 **Section heading** (`SectionHeading`)
 
@@ -255,11 +276,112 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
   president lands over the gap between the two below. Card widths are capped in `vw` as well as
   `rem`, so a pair still fits side by side on a phone. **No lines are drawn between the levels.**
 
+**Horizontal strip** (`HorizontalMarquee`)
+
+- The one shared looping row, used by the committee band and the past-events strip on Home — there is no
+  second copy of the code. `items` is the array of `<li>` cards; the component owns the track, the
+  duplicated copy and the controls.
+- **Auto mode** (motion allowed, and one copy is wider than the window) loops on a **CSS transform
+  only** — no animation library. The track holds the list twice and shifts `-50%`, so the seam lands on
+  identical pixels. The second copy is both `aria-hidden` and `inert`: not read, not focusable.
+- It **pauses on hover, on keyboard focus inside it, and while the user touches or drags it**. The
+  window is a real horizontal scroller (`overflow-x: auto`, scrollbar hidden, fade edges drawn with a
+  mask), so touch users can drag it by hand.
+- **The Pause/Play button is optional**: the committee band shows it; the past-events strip passes
+  `showPause={false}`. Every other safe behaviour above stays in both.
+  **Known ceiling:** WCAG 2.2.2 asks for a mechanism to stop auto-moving content, and hover/focus
+  pause is not one. The committee band's button satisfies that; the past-events strip now does not —
+  turning its `showPause` back on is the one-line fix if a review ever flags it.
+- **Too few cards to fill the width: no loop** — no duplicate, no animation. Measured with a
+  `ResizeObserver`, never guessed.
+- **`prefers-reduced-motion`:** no auto-scroll at all; a plain scroll-snap row with previous/next buttons.
+- Card images use `loading="lazy"`, `decoding="async"` and explicit `width`/`height`.
+
+**Events on Home** (`EventStrip` + `fetchHomeEvents`)
+
+- **Upcoming events** (published, future, soonest first, at most 4) is a static responsive grid —
+  1 column on phones, 2 from `sm`, up to 4 from `xl` — with a gold "Upcoming" badge, a "View details"
+  link, and a "Register" link when that event's registration form is open right now (the existing
+  `formState` helper). The section and its heading are **not rendered at all** when there is nothing
+  upcoming. A future cancelled event never appears here.
+- **Past events** (published, or cancelled with a red "Cancelled" badge; start in the past; most recent
+  first, at most 12) is the shared `HorizontalMarquee` strip, with **no Pause button**.
+- The two reads live in `fetchHomeEvents` / `useHomeEvents` — the component never calls Supabase. When
+  both lists are empty one friendly empty message stands in; when only one exists, only that section
+  renders. One "See all events" link always closes the block.
+
+**Page scrollbar and inner scroll areas**
+
+- **The page's own scrollbar is hidden** (`html`/`body` in `index.css`: `scrollbar-width: none`,
+  `-ms-overflow-style: none`, and `display: none` on their `::-webkit-scrollbar`). Scrolling itself is
+  untouched — wheel, trackpad, touch, arrows, Space, PageUp/PageDown, Home/End and anchor links all
+  still work — and nothing occupies its width any more, so there is no empty strip on the right and
+  **no sideways jump** when a dialog opens or the content grows. Checked at 360, 768, 1280 and 1920:
+  `innerWidth − clientWidth === 0`, no horizontal overflow, the document scrolls, and opening a native
+  `<dialog>` moves nothing (the old modal shift was the scrollbar being removed, so hiding it settles
+  that too). No `scrollbar-gutter` and no compensating right padding exists, or is needed.
+- **Inner scroll areas keep a thin, visible scrollbar** (`.scroll-thin` in `index.css`:
+  `scrollbar-width: thin`, plus an 8px `::-webkit-scrollbar` with a `--border-strong` rounded thumb
+  that goes `--muted` on hover). It is the only hint that a box holds more, so it stays visible — just
+  quiet. Applied to the dialog body (`Modal`), the wide tables (`DataTable`, `BulkImport`), the answer
+  panel (`Emails`), the credential slips (`TempPassword`) and the admin drawer with its horizontal
+  menu. The `HorizontalMarquee` strips deliberately **keep** their hidden scrollbars.
+- **Position is carried by two things instead**: a **3px accent progress line** fixed at the very top
+  (`#scroll-progress`) and the **Back to top** circle past 400px. The line is `transform: scaleX()`
+  written straight to the node in the scroll handler — no state, so no re-render per frame, and no
+  layout work. It hides in the admin panel, under `prefers-reduced-motion`, and on the landing until
+  the page moves past the hero; it sits under `env(safe-area-inset-top)` and covers only the header's
+  own background, never its content.
+  **Known ceiling:** the line shows how far through the page you are, not how many screens are left,
+  and anyone who navigates by dragging a scrollbar thumb loses that shortcut. Accepted — scrolling is
+  untouched for every input, and the line plus Back to top carry the position cue.
+
+**Site furniture** (`SiteChrome`)
+
+- **Skip link** (keyboard only), the **scroll progress line**, the one-off **cookie note**, and the two
+  floating circles: **Contact** (upper) and **Back to top** (lower), bottom-right.
+- **Size steps** (`.fab` in `index.css`): **56px** on a phone, **60** from 640px, **64** from 1024px,
+  **72** from 1920px — and back to **56** in a window shorter than 500px, so a landscape phone keeps
+  both on screen. The icon is `size-[45%]` of the circle at `strokeWidth 2` (measured 24 / 26 / 28 /
+  32px). Gap 14px on a phone and 16px above that; inset from the edge 16 / 24 / 32px, always plus
+  `env(safe-area-inset-right|bottom)`, so the circles clear the scrollbar and the notch.
+  The steps are hand-written, not `size-[..]` utilities: Tailwind sorts a custom `3xl` breakpoint
+  _before_ `lg`, so `lg:size-[64px]` would win at 1920 as well.
+- **Look**: a solid `bg-brand` circle behind a white icon (4.5:1), a 2px white **ring** and a soft black
+  shadow, so it reads over any section. A ring rather than a border, because `Button`'s own variant
+  already sets `border-*` and two utilities for one property is a CSS-order coin flip. Hover and focus
+  grow to **1.06** and brighten; active presses; every bit of it is `motion-reduce`-guarded. Focus keeps
+  the global 3px outline ring.
+- **From 1024px up** a small text label ("Contact" / "Back to top") fades in beside each circle on
+  hover and focus. `aria-label` names both at every width.
+- **Back to top** scrolls smoothly, or instantly under `prefers-reduced-motion`. Both circles fade in
+  once the page passes **400px** of scroll, and fade out at the top. While the cookie note is on screen
+  the whole stack steps above it. They render on the **public site only** — never inside `/admin` — and
+  the intro overlay (z-200) covers them while it plays.
+- **Nothing underneath**: checked at 320-1920px and at 640×360 with the page scrolled to the end — no
+  overlap with a link, button, input or the cookie note. The footer's legal row carries a matching
+  right inset (`pr-[84px] sm:pr-[96px] lg:pr-[108px]`, dropped from `2xl` where the centred 1180px
+  container already clears the circles), because its `justify-between` would otherwise leave "Privacy
+  Policy" sitting under them.
+
 **Login** (`LoginPage`)
 
 - A `lg` split: the mascot in the halo on the left, the form on the right.
 - The tabs (`Login` / `Sign Up`) match the design, but there is **no self sign-up** — the Sign Up
   panel explains that the club hands accounts over in person and links to the membership form.
+
+**Dialogs** (`Modal`, `Lightbox`)
+
+- Both are native `<dialog>` opened with `showModal()`, which gives Esc, focus trapping and the inert page behind for free — but **Tailwind's Preflight sets `margin: 0` on everything, which throws away the browser's automatic centring.** `m-auto` puts it back. Anything else built on `<dialog>` must do the same or it lands in the top-left corner.
+- Sizes by content: **`sm` 26rem** (confirm, rename, reject, reset password, change role), **`md` 35rem** (the default — a single form), **`lg` 47.5rem** (form builder, membership window, answers view, email preview, credentials), **`xl` 60rem** (wide tables).
+- Height is `max-h-[90vh]` with the dialog as a flex column, so **only the body scrolls and the title stays visible**. On phones the width resolves to `calc(100vw - 2rem)`, giving 16px gutters.
+- Clicking the backdrop closes it (the click's target is the dialog itself, never a child).
+
+**Forms inside dialogs**
+
+- `Input` and `Textarea` are `w-full`, so a field always fills its grid cell — without it they fall back to the browser's ~20-character default width.
+- Short fields (class, section, phone, GitHub) go two-up from the `sm` breakpoint; long fields (full name, email, text areas, password options) span the full width.
+- Buttons sit in a right-aligned row at the end of the form. On phones that row wraps and the buttons go full width.
 
 **Mascot scene** (`MascotScene`)
 
@@ -276,9 +398,32 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
   the words on wide, short screens. "Introducing" is drawn in `violet`; "VAC Tech Jr" in gold with a
   short extruded shadow. There is no welcome paragraph on the landing — the Home page carries that
   copy.
-- **The landing is the hero and nothing else** — no sections below it. The section is a
-  `min-h-[calc(100svh-76px)]` column, and every size is capped in `vh` as well as `vw` (`--head`, the
-  robot's `min(52vh,62vw,520px)`, the padding), so it lands on one screen at any window shape.
+- **The landing is: hero first screen → committee band → footer.** The hero is a
+  `min-h-[calc(100dvh-77px)]` column under the header (76px + its 1px rule) and fills and centres inside
+  it, so **on load the hero is the only thing visible** and nothing below it peeks in. The page then
+  scrolls normally: the auto-scrolling committee band (`CommitteeMarquee`) sits directly under the
+  fold, and `PublicLayout`'s footer follows it. The floating contact / back-to-top buttons appear on
+  the landing too, past 400px of scroll. Every hero size is capped in `vh` as well as `vw` (`--head`,
+  the robot's `min(48vh,58vw,480px)`, the padding), so the tagline sits **below** the robot's body and
+  the buttons below that at all of 360×640, 390×844, 768×1024, 1024×768, 1280×720, 1366×768 and
+  1920×1080 (checked) — nothing cut off, and the tagline/buttons never reach the robot's face. The
+  `dvh` (not `svh`) keeps the hero equal to the visible height as browser chrome moves.
+- **The committee band lives on the landing only** — never on `/home`, so there is no duplicate. Home
+  keeps the static Board of Directors tree and the committee-heads row.
+- **The band's cards are roomy, not a thin strip.** Each `<li>` is 280px wide on a phone
+  (`min(280px,80vw)`), 340 at `sm` and 400 from `lg`, with no gap between them, so the centres sit
+  exactly that far apart. Inside, centred: a cyan lucide line icon at 40px (`size-10`,
+  `strokeWidth 1.5`), a 22px semibold title (`leading-tight` — may wrap to two lines on a phone) and a
+  17px muted description on `leading-[1.45]`, reserving `2.9em` so single-line cards keep the row
+  aligned. Padding is 36/40px on a phone and 40/44 from `sm`. **Measured band height: 222px from
+  1024px up, 267px on a phone** — nothing clipped, no horizontal overflow outside the strip, at 360,
+  390, 768, 1024, 1280, 1536 and 1920. The section is `bg-surface` (one step lighter than the page
+  navy) with the usual `border-y border-border` and the marquee's soft left/right mask.
+  **Known ceiling:** the 210-230px phone height in the brief is unreachable while its own type sizes
+  stand — the longest title wraps to two lines and a 66-character description to three at 280px, both
+  of which the brief allows. Shrink the type if the phone band must come down.
+- **"Join a Team" is the one linked card** (to `/join`); it clears the 44px touch target on its own
+  height. The other cards are plain text.
 - **The halo washes the whole hero** (`.hero-glow-full`, a much wider radial than the mascot-sized
   `.hero-glow`), and **the objects are spread across the page**, not clustered on the robot: the
   packed sheet is sized `min(1600px, 92vw, calc((100svh - 76px) * 1.42))`, so it reaches most of the
@@ -295,8 +440,8 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
   roughly the original (fly 720ms, ring 620ms, pause 240ms, entries 760/820ms, letters 220ms + 38ms).
   The comment in `IntroAnimation.jsx` says so; that file is the place to change it.
 - **Headline and logo sizes are the largest that still fit.** `--head` is
-  `clamp(1.75rem, min(9vw, 13vh), 6.5rem)` (99px at 1440×760) and the header logo is `--logo-w: 84px`
-  (60px below 960px). Growing the headline is nearly free — the two overlaps grow with it, so the
+  `clamp(1.75rem, min(9vw, 13vh), 6.5rem)` (99px at 1440×760) and the header logo is `--logo-w: 110px`
+  (76px below 960px). Growing the headline is nearly free — the two overlaps grow with it, so the
   hero's height barely changes — but the robot's `vh` share is what decides whether the page still
   fits: it was tuned against a 1024×600 window, the tightest case.
 
@@ -310,10 +455,19 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
 **Admin layout**
 
 - Three stacked bands, then the page. **Sidebar** (240px) holds the five top-level destinations and
-  nothing else; **header** carries the global tools — the Preview toggle and the profile menu — so they
-  are reachable from every screen without scrolling back up; **contextual toolbar** carries the open
-  section's pages as horizontal tabs (gold 2px underline on the active one). Both the header and the
-  toolbar are `sticky` (`top-0` / `top-16`), so a long table never takes the section nav away.
+  nothing else; **header** carries the global tools — the club logo linking to `/admin`, a "View
+  website" button (globe + a short "View" label on phones, "View website" from `sm` up) and the profile
+  menu — so they are reachable from every screen without scrolling back up; **contextual toolbar**
+  carries the open section's pages as horizontal tabs (gold 2px underline on the active one). Both the
+  header and the toolbar are `sticky` (`top-0` / `top-16`), so a long table never takes the section nav
+  away.
+- The header logo is `logo-mark.webp` (alt "VAC Tech Jr") with `logo-word.webp` beside it from `sm` up,
+  both `w-auto` so they keep their ratio and a step smaller on phones. It is a plain image **on purpose**:
+  the public header's `[data-intro]` slots belong to the intro animation's fly-in and must not be reused.
+- **"View website" opens `/` in the same tab and sets `vacViewSite` for the session**, so the public site
+  is browsable and `/` no longer bounces back to the panel; the public navbar then offers "Back to admin
+  panel". A staff browser also carries `vacStaff` (cleared on sign-out) that redirects `/` to `/admin`
+  before first paint — so there is no flash — and members and visitors are never affected.
 - A section with one page draws no toolbar, so `/admin` is just a header and the page.
 - **`NAV` in `AdminLayout.jsx` is the only navigation source**: `items` are a section's pages and each
   entry's `page` is resolved by longest matching URL prefix. A section the role cannot open is dropped
@@ -357,10 +511,43 @@ Design **mobile first**: base styles are mobile, add `md:` and `lg:` upward.
   Swap that one file for the real robot artwork; the component and the Home layout stay as they are.
   Keep meaningful `alt` text.
 - **No `<canvas>`:** the landing page's circuit traces were dropped. Keep the public pages light.
-- Photos: `object-cover`, fixed aspect ratios (BOD 1:1, gallery 4:3, project cover 16:9, event cover 16:9). Lazy load below the fold. Always provide alt text.
+- Photos: `object-cover`, fixed aspect ratios (BOD 1:1, gallery 4:3, project cover 16:9, event cover 16:9). Lazy load below the fold. Always provide alt text. **Event covers are uploaded capped at 1200px wide** (`ImageUpload maxEdge`), because they only ever show in the Home strip card; an image already under the cap is uploaded untouched and never re-compressed.
 - **Every content image carries explicit `width` and `height` attributes** as well as its CSS aspect ratio, so nothing reflows when it arrives. Decorative images use `alt=""`; the avatar fallback is initials on `surface-alt`.
 - Placeholder image: a soft neutral block with a small icon, never a broken image.
 - Decorative style: subtle dotted grid or code-bracket motifs in hero backgrounds; keep them low contrast.
+
+### The tab icon (favicon and app icons)
+
+**The rule: the logo's central symbol fills the square on the site navy.** The emblem in
+`src/assets/logo-mark.webp` is 210×73 — nearly 3:1 — so at tab size it renders as a thin bar in a mostly
+empty tile, which is exactly how the old `icon-32.png` looked. The tab icon is therefore **the central
+symbol only** (the open book and its gold rod; the thin circuit rays either side are dropped) on a solid
+navy rounded square, scaled to fill about **90% of the tile** (about 5% padding). Navy is `--bg`
+`#06122a`, the same token as the manifest's `theme_color`/`background_color`, so the mark stays visible
+on a light and a dark browser theme alike.
+
+- **Files, all in `public/`** (served as-is at the site root): `favicon.ico` (16 + 32 + 48),
+  `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png` (180, **opaque** navy with ~10%
+  padding — Apple applies its own mask, so it is not pre-rounded), `icon-192.png`, `icon-512.png`,
+  `icon-maskable-512.png` (full-bleed navy, symbol at ~66% so it survives Android's safe-zone crop), and
+  `manifest.webmanifest`.
+- **There is no `favicon.svg`.** There was never a clean one, and a wrong icon is worse than none; the
+  symbol is a raster. The old Vite `favicon.svg` reference was removed. `docs/ARCHITECTURE.md`'s folder
+  tree lists the real files.
+- **`index.html`** declares `favicon.ico`, the 32 and 16 PNGs, the apple-touch icon, the manifest, and
+  `<meta name="theme-color" content="#06122a">`. **Every icon URL carries `?v=2`** — browsers cache
+  favicons for months, so a changed icon needs a changed URL before anyone sees it. **Bump that suffix
+  whenever an icon file changes.**
+- **Regenerate from `src/assets/logo-mark.webp` if the logo ever changes.** The cut is: trim the
+  transparent margin → crop the central window (source x 59-151, dropping the rays) → blank the thin
+  hairlines inside it (the circuit stub at the top right, and the four gold tick marks above the book —
+  they turn to noise at 16px) → autocontrast → paste on the navy tile at 90% with a 22% corner radius,
+  and give the 32px-and-below renders a 1px alpha dilation so strokes survive at tab size. A one-off
+  Pillow script does this; it is deliberately **not committed and not a dependency** — the output files
+  are the artefact. The exact crop/mask coordinates are above for the next person.
+- **Legibility:** checked on a contact sheet at 16, 32, 48, 180 and 192px on both a white and a dark
+  background. At 16px the fine detail is gone by definition, but the gold rod over the pale book still
+  reads; from 32px up the book is unmistakable.
 
 ## 8. Motion
 
@@ -373,7 +560,9 @@ Take the timings from the intro animation so the whole site feels like one piece
 - Reveals are a small `translateY` (about 14px) plus opacity, staggered 40-60ms apart.
 - Animate transforms and opacity only; never animate layout properties.
 - Respect `prefers-reduced-motion`: `src/index.css` already neutralises animation, and the intro skips itself entirely.
-- No auto-playing carousels.
+- **No auto-playing carousels — except the `HorizontalMarquee` strips**, the one deliberate exception.
+  Their motion rules (pause on hover/focus/touch, the Pause button, reduced motion, no loop when the row
+  is short) are in its entry under Components, section 6.
 
 ### Micro-interactions (the tactile layer)
 
@@ -457,6 +646,16 @@ headings, targets). Legend: `[x]` verified in code, `[ ]` still to be confirmed 
       a menu button. Section 11 of `docs/TESTING.md` keeps the real-device pass for the testing team.
       _shortcut: verified by reading the CSS, not by eye — the browser harness in that session could
       not reach the dev server (`MEMORY.md` item 26)._
+- [x] **Header, one screen and buttons checked 2026-10-30** in a same-origin iframe harness at 320,
+      360, 390, 414, 768, 1024, 1280, 1536 and 1920px wide: the header never wraps, overlaps or clips
+      (`headerInner.scrollWidth == clientWidth` at every width), the inline row is replaced by the
+      hamburger below `xl`, and every header control is at least 44px tall or wide (Contact `h-11`,
+      hamburger `size-11`, logo/profile/buttons `min-h-11`; the nav links keep a 48px hit area from a
+      pseudo element). The landing fits exactly one screen — `scrollHeight == clientHeight`, no
+      horizontal overflow — at 360×640, 390×844, 768×1024, 1024×768, 1280×720, 1366×768 and 1920×1080,
+      with the tagline below the robot and the buttons on screen. The harness could not scroll, so the
+      Back to top reveal was proven by dispatching scroll state (hidden at ≤400px, shown at >400px), not
+      by eye.
 
 ## 11. Tailwind tokens (CSS-first)
 

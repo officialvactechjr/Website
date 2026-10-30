@@ -30,18 +30,20 @@ export function imageFileError(file) {
  * the limit after this, because re-encoding a lossless image barely shrinks it.
  * Convert to JPEG for those if it ever bites.
  */
-async function shrink(file) {
+async function shrink(file, maxEdge = MAX_EDGE) {
   if (typeof createImageBitmap !== 'function') return file
 
   const bitmap = await createImageBitmap(file)
   const longest = Math.max(bitmap.width, bitmap.height)
 
-  if (longest <= MAX_EDGE && file.size <= MAX_BYTES) {
+  // Under the cap and light enough: send the original bytes untouched, so a
+  // cover that already exists is never re-compressed.
+  if (longest <= maxEdge && file.size <= MAX_BYTES) {
     bitmap.close?.()
     return file
   }
 
-  const scale = Math.min(1, MAX_EDGE / longest)
+  const scale = Math.min(1, maxEdge / longest)
   const canvas = document.createElement('canvas')
   canvas.width = Math.round(bitmap.width * scale)
   canvas.height = Math.round(bitmap.height * scale)
@@ -56,12 +58,13 @@ async function shrink(file) {
  * Uploads one image and returns its public URL.
  * `folder` is the signed-in member's id: the `project-images` and `avatars`
  * policies only allow a write inside `{userId}/`, so member uploads must pass it.
+ * `maxEdge` narrows the long side (the Home event strip passes 1200).
  */
-export async function uploadImage(bucket, file, folder) {
+export async function uploadImage(bucket, file, folder, maxEdge = MAX_EDGE) {
   const problem = imageFileError(file)
   if (problem) throw new Error(problem)
 
-  const prepared = await shrink(file)
+  const prepared = await shrink(file, maxEdge)
   if (prepared.size > MAX_BYTES) {
     throw new Error(`"${file.name}" is still over the 2 MB limit. Please pick a smaller image.`)
   }

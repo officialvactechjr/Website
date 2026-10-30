@@ -84,7 +84,15 @@ export default function EventForm({ event, onSubmit, onCancel, submitting = fals
         </select>
       </div>
 
-      <ImageUpload bucket={BUCKET} value={cover} onChange={setCover} label="Cover image" />
+      {/* Covers are capped at 1200px wide: they only ever show in the Home strip
+          at card size, so a full-size photo is wasted weight. */}
+      <ImageUpload
+        bucket={BUCKET}
+        value={cover}
+        onChange={setCover}
+        label="Cover image"
+        maxEdge={1200}
+      />
 
       <div className="mt-1 flex justify-end gap-3">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={submitting}>

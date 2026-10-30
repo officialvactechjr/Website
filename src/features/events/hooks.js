@@ -6,11 +6,17 @@ import {
   fetchEvent,
   fetchEvents,
   fetchEventsForAdmin,
+  fetchHomeEvents,
   updateEvent,
 } from './api'
 
 export function useEvents(options) {
   return useQuery({ queryKey: ['events', options ?? {}], queryFn: () => fetchEvents(options) })
+}
+
+/** The Home page's two lists: upcoming (grid) and past (strip). */
+export function useHomeEvents() {
+  return useQuery({ queryKey: ['events', 'home'], queryFn: () => fetchHomeEvents() })
 }
 
 export function useEvent(id) {

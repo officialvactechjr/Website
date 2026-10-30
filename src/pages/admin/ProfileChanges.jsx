@@ -144,6 +144,7 @@ export default function ProfileChanges() {
         open={Boolean(rejecting)}
         onClose={() => setRejecting(null)}
         title="Reject this request?"
+        size="sm"
       >
         <p className="text-sm text-muted">
           {rejecting?.profiles?.full_name ?? 'This member'} keeps their current{' '}

@@ -21,6 +21,7 @@ const QUICK_LINKS = [
   { to: '/projects', label: 'Projects' },
   { to: '/members', label: 'Community' },
   { to: '/notices', label: 'Notices' },
+  { to: '/contact', label: 'Contact' },
 ]
 
 // These carry the pages the navbar no longer lists, so nothing public is orphaned.
@@ -149,7 +150,10 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-border">
-        <div className="mx-auto flex max-w-[1180px] flex-col gap-3 px-[clamp(16px,4vw,40px)] py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+        {/* The right inset is the floating circles' column (edge + circle + a
+            gap), so the legal links never sit under them. From 1536 the centred
+            1180px container already clears them on its own. */}
+        <div className="mx-auto flex max-w-[1180px] flex-col gap-3 px-[clamp(16px,4vw,40px)] py-6 pr-[84px] text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:pr-[96px] lg:pr-[108px] 2xl:pr-[clamp(16px,4vw,40px)]">
           <p>© {new Date().getFullYear()} VAC-TECH Jr. All Rights Reserved.</p>
           <ul className="flex flex-wrap gap-x-8 gap-y-2">
             {LEGAL.map((item) => (

@@ -4,7 +4,7 @@ import Button from '../ui/Button'
 import { uploadImage } from '../../features/storage/api'
 
 /** One image: pick, shrink, upload, preview. Validation lives in storage/api.js. */
-export default function ImageUpload({ bucket, folder, value, onChange, label = 'Image' }) {
+export default function ImageUpload({ bucket, folder, value, onChange, label = 'Image', maxEdge }) {
   const input = useRef(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
@@ -17,7 +17,7 @@ export default function ImageUpload({ bucket, folder, value, onChange, label = '
     setError(null)
     setBusy(true)
     try {
-      onChange(await uploadImage(bucket, file, folder))
+      onChange(await uploadImage(bucket, file, folder, maxEdge))
     } catch (problem) {
       setError(problem.message)
     } finally {

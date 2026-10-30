@@ -34,7 +34,7 @@ export default function StaffAdmin() {
   const { profile } = useAuth()
   const isSuper = profile?.role === 'super_admin'
 
-  const { data, isPending, isError, refetch } = useAccounts('staff')
+  const { data, isPending, isError, refetch, isFetching } = useAccounts('staff')
   const createStaff = useCreateStaff()
   const resetPassword = useResetMemberPassword()
   const setStatus = useSetMemberStatus()
@@ -158,6 +158,8 @@ export default function StaffAdmin() {
       )}
 
       <DataTable
+        onRefresh={refetch}
+        refreshing={isFetching}
         columns={columns}
         rows={data ?? []}
         searchText={(row) => `${row.full_name} ${row.email ?? ''} ${row.role}`}
@@ -190,6 +192,7 @@ export default function StaffAdmin() {
         open={Boolean(resetting)}
         onClose={() => setResetting(null)}
         title="Reset this password"
+        size="sm"
       >
         {resetting && (
           <ResetPasswordDialog
@@ -208,7 +211,12 @@ export default function StaffAdmin() {
         )}
       </Modal>
 
-      <Modal open={Boolean(pending)} onClose={() => setPending(null)} title="Change this role?">
+      <Modal
+        open={Boolean(pending)}
+        onClose={() => setPending(null)}
+        title="Change this role?"
+        size="sm"
+      >
         {pending && (
           <>
             <p className="text-sm text-muted">

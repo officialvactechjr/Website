@@ -141,6 +141,24 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
+  /* The page's own scrollbar is hidden. Nothing about scrolling changes — wheel,
+     trackpad, touch, arrows, Space, PageUp/PageDown, Home/End and anchor links
+     all still work — and nothing occupies its width any more, so there is no
+     empty strip on the right and no sideways jump when a dialog opens or the
+     page grows. Position is carried by the progress line at the top of the page
+     and the Back to top circle instead (docs/DESIGN.md section 7). Inner scroll
+     areas keep a thin visible scrollbar — see `.scroll-thin` below. */
+  html,
+  body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* old Edge */
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0; /* Chromium, WebKit */
+  }
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
@@ -176,6 +194,76 @@
    form, not the passing cursor. */
 .sheen:focus-within::before {
   opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Floating circles (SiteChrome). 56px on a phone, 60 at `sm`, 64 at `lg`, 72
+   from 1920, and 56 again in a window shorter than 500px so a landscape phone
+   keeps both on screen.
+   Hand-written, not `size-[..]` utilities: Tailwind sorts its custom `3xl`
+   breakpoint BEFORE `lg`, so `lg:size-[64px]` would win at 1920 as well.
+   --------------------------------------------------------------------------- */
+.fab {
+  inline-size: 56px;
+  block-size: 56px;
+}
+
+@media (width >= 40rem) {
+  .fab {
+    inline-size: 60px;
+    block-size: 60px;
+  }
+}
+
+@media (width >= 64rem) {
+  .fab {
+    inline-size: 64px;
+    block-size: 64px;
+  }
+}
+
+@media (width >= 1920px) {
+  .fab {
+    inline-size: 72px;
+    block-size: 72px;
+  }
+}
+
+@media (max-height: 500px) {
+  .fab {
+    inline-size: 56px;
+    block-size: 56px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Inner scroll areas (docs/DESIGN.md section 7). The page's own scrollbar is
+   hidden, so anything that scrolls inside a box keeps a thin, theme-matched one:
+   a dialog body, a wide table, an answer panel, a credential slip. It is the
+   only sign that there is more to see, so it stays visible — just quiet.
+   The marquee strips deliberately do NOT use this; they hide theirs.
+   --------------------------------------------------------------------------- */
+.scroll-thin {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--border-strong);
+}
+
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 
 /* ---------------------------------------------------------------------------

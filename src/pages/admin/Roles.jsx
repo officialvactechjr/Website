@@ -134,7 +134,12 @@ export default function Roles() {
         />
       )}
 
-      <Modal open={Boolean(pending)} onClose={() => setPending(null)} title="Change this role?">
+      <Modal
+        open={Boolean(pending)}
+        onClose={() => setPending(null)}
+        title="Change this role?"
+        size="sm"
+      >
         {pending && (
           <>
             <p className="text-sm text-muted">

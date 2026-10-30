@@ -5,6 +5,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import ErrorState from '../../components/ui/ErrorState'
 import Modal from '../../components/ui/Modal'
 import PageHeader from '../../components/layout/PageHeader'
+import RefreshButton from '../../components/shared/RefreshButton'
 import Spinner from '../../components/ui/Spinner'
 import Textarea from '../../components/ui/Textarea'
 import { useAuth } from '../../context/useAuth'
@@ -20,9 +21,8 @@ const TABS = [
 export default function Approvals() {
   const { profile } = useAuth()
   const [status, setStatus] = useState('pending')
-  const { data, isPending, isError, refetch } = useReviewQueue(status)
+  const { data, isPending, isError, refetch, isFetching } = useReviewQueue(status)
   const decide = useDecideProject()
-
   const [rejecting, setRejecting] = useState(null)
   const [note, setNote] = useState('')
   const [noteError, setNoteError] = useState(null)
@@ -54,6 +54,7 @@ export default function Approvals() {
       <PageHeader
         title="Project approvals"
         description="Every upload waits here until someone on the team reads it."
+        action={<RefreshButton onRefresh={refetch} refreshing={isFetching} />}
       />
 
       <div
@@ -189,6 +190,7 @@ export default function Approvals() {
         open={Boolean(rejecting)}
         onClose={() => setRejecting(null)}
         title="Reject this project?"
+        size="sm"
       >
         <p className="text-sm text-muted">
           “{rejecting?.title}” stays hidden. The member reads your reason and can fix the project

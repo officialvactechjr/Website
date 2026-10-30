@@ -1,0 +1,25 @@
+# Cloudflare Pages headers for the VAC Tech Jr site.
+# Header changes only take effect on the next deploy.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(self), screen-wake-lock=(), usb=(), xr-spatial-tracking=()
+  Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-tA72iwEHzMlBLCJZYIU79wrWZyn4xPGv8jFa4RFzWB8='; manifest-src 'self'
+
+# Hashed build output: the filename changes when the content does, so it can be
+# cached for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The HTML shell and the manifest must be revalidated, or a deploy is invisible.
+/index.html
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Cache-Control: no-cache
+
+# Icons are not hashed; they carry ?v= for busting instead.
+/favicon.ico
+  Cache-Control: public, max-age=86400

@@ -22,7 +22,7 @@ function labelFor(key, fields) {
 }
 
 export default function Registrations() {
-  const { data: forms, isPending, isError, refetch } = useFormsForAdmin()
+  const { data: forms, isPending, isError, refetch, isFetching } = useFormsForAdmin()
   const [formId, setFormId] = useState('')
 
   const chosen = (forms ?? []).find((form) => form.id === formId) ?? null
@@ -139,6 +139,8 @@ export default function Registrations() {
 
           {formId && !rowsPending && !rowsError && (
             <DataTable
+              onRefresh={refetch}
+              refreshing={isFetching}
               columns={columns}
               rows={rows}
               searchText={(row) =>
